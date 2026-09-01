@@ -142,14 +142,53 @@ button.primary:hover { opacity: 0.9; }
   font-family: 'IBM Plex Mono', monospace;
 }
 
-.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
-.cat-filter {
-  border-radius: 999px;
-  padding: 7px 16px;
-  font-size: 0.85rem;
-  opacity: 0.55;
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+  margin-bottom: 22px;
 }
-.cat-filter.active { opacity: 1; border-color: var(--accent-teal); }
+
+.cat-visual {
+  position: relative;
+  height: 108px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  opacity: 0.45;
+  filter: saturate(0.5);
+  transition: opacity 0.15s, filter 0.15s;
+}
+.cat-visual.active { opacity: 1; filter: saturate(1); }
+.cat-visual:hover { border-color: var(--accent-teal); }
+
+.cat-visual__icon {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+.cat-visual__icon svg { width: 100%; height: 100%; }
+.cat-visual__label {
+  font-family: 'Fraunces', serif;
+  font-size: 0.88rem;
+  color: #fff;
+  position: relative;
+  z-index: 1;
+}
+
+.cat-visual--nebuleuse { background: linear-gradient(145deg, #4a1f5c, #8b3a8f 60%, #c77dd1); }
+.cat-visual--galaxie { background: linear-gradient(145deg, #103a45, #1c6b78 60%, #5fcdd9); }
+.cat-visual--amas { background: linear-gradient(145deg, #4a3410, #8a6320 60%, #e3a857); }
+.cat-visual--autre { background: linear-gradient(145deg, #232c42, #3a4664 60%, #5c6a90); }
 
 #sun-moon-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; }
 .sky-card {
@@ -165,19 +204,6 @@ button.primary:hover { opacity: 0.9; }
 .sky-card__times { font-family: 'IBM Plex Mono', monospace; font-size: 0.88rem; color: var(--text); }
 .sky-card__note { font-size: 0.8rem; color: var(--text-muted); margin-top: 6px; }
 .sky-card--sun .sky-card__note { color: var(--warn); }
-
-.dir-section { margin-bottom: 26px; }
-.dir-section__title {
-  font-size: 1.1rem;
-  color: var(--accent-teal);
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 6px;
-  margin-bottom: 12px;
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-}
-.dir-count { font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; color: var(--text-muted); }
 
 .constellation-pill {
   display: inline-block;
@@ -324,6 +350,12 @@ footer {
 }
 :root[data-theme="night"] ::selection {
   background: #7a2222;
+}
+:root[data-theme="night"] .cat-visual--nebuleuse,
+:root[data-theme="night"] .cat-visual--galaxie,
+:root[data-theme="night"] .cat-visual--amas,
+:root[data-theme="night"] .cat-visual--autre {
+  background: linear-gradient(145deg, #1a0202, #3a0a0a 60%, #7a2222);
 }
 
 @media (max-width: 480px) {

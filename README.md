@@ -16,9 +16,10 @@ l'heure de début et de fin de visibilité.
 4. Après une minute, votre site est en ligne à
    `https://<votre-identifiant>.github.io/<nom-du-depot>/`.
 
-Aucune connexion ni identifiant n'est requis pour utiliser l'app : chaque
-visiteur a ses propres réglages et favoris, stockés localement dans son
-navigateur (localStorage), sans rien envoyer à un serveur.
+Tous les fichiers (y compris `suncalc.js`) sont autonomes : aucune dépendance
+réseau externe au chargement, aucune connexion ni identifiant requis pour
+utiliser l'app. Chaque visiteur a ses propres réglages et favoris, stockés
+localement dans son navigateur (localStorage).
 
 ## Choix techniques
 
@@ -44,3 +45,15 @@ navigateur (localStorage), sans rien envoyer à un serveur.
 - **Favoris et réglages** : stockés uniquement dans le localStorage du
   navigateur de chaque utilisateur — pas de compte, pas de synchronisation
   entre appareils.
+- **Pérennité** : catalogue et formules astronomiques restent valables sur
+  plusieurs décennies sans mise à jour (précession négligeable à cette
+  précision). `suncalc.js` est une copie locale figée (v1.9.0), donc
+  aucune dépendance à un CDN externe — le site fonctionne à l'identique
+  tant que les fichiers restent en ligne, sans risque de rupture si une
+  librairie tierce change de version ou disparaît.
+- **Direction** : rose des vents à 8 points (N, NE, E, SE, S, SO, O, NO),
+  affichée directement sur chaque objet (plus de regroupement par direction :
+  le classement se fait par constellation, trié par heure de lever).
+- **Sélection des catégories** : cartes visuelles illustrées (icônes
+  vectorielles par type, pas de photos réelles pour des raisons de droits
+  d'auteur et d'hébergement).

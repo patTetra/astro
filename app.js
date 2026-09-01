@@ -194,74 +194,63 @@ function renderCalendar() {
   }
 
   const activeCats = Object.keys(settings.categories).filter(c => settings.categories[c]);
-  const results = {};
-  Astro.DIRECTIONS.forEach(d => results[d] = []);
+  const visibleObjects = [];
 
   for (const obj of CATALOG) {
     if (!activeCats.includes(obj.type)) continue;
     const vis = Astro.visibilityWindow(obj, settings.lat, settings.lon, darkStart, darkEnd, settings.minAlt);
-    if (vis.visible) {
-      results[vis.direction].push({ obj, vis });
-    }
+    if (vis.visible) visibleObjects.push({ obj, vis });
   }
 
-  let anyResults = false;
-  for (const dir of Astro.DIRECTIONS) {
-    const items = results[dir];
-    if (items.length === 0) continue;
-    anyResults = true;
-    items.sort((a, b) => a.vis.start - b.vis.start);
-
-    const section = document.createElement('section');
-    section.className = 'dir-section';
-    section.innerHTML = `<h3 class="dir-section__title">${Astro.DIRECTION_LABELS[dir]} <span class="dir-count">${items.length}</span></h3>`;
-
-    // Sous-regroupement par constellation
-    const byConstellation = new Map();
-    for (const item of items) {
-      const c = item.obj.constellation;
-      if (!byConstellation.has(c)) byConstellation.set(c, []);
-      byConstellation.get(c).push(item);
-    }
-
-    for (const [constellation, group] of byConstellation) {
-      const pill = document.createElement('div');
-      pill.className = 'constellation-pill';
-      pill.textContent = constellation;
-      section.appendChild(pill);
-
-      const list = document.createElement('div');
-      list.className = 'object-list';
-
-      for (const { obj, vis } of group) {
-        const card = document.createElement('div');
-        card.className = 'object-card';
-        const isFav = settings.favorites.includes(obj.cat);
-        card.innerHTML = `
-          <div class="object-card__icon badge--${obj.type}">${CATEGORY_ICONS[obj.type]}</div>
-          <div class="object-card__body">
-            <div class="object-card__head">
-              <span class="object-card__name">${obj.name}</span>
-              <button class="fav-btn ${isFav ? 'is-fav' : ''}" data-cat="${obj.cat}" title="Favori">★</button>
-            </div>
-            <div class="object-card__desc">${obj.desc} · ${obj.cat}</div>
-            <div class="object-card__stats">
-              <span class="stat" title="Magnitude">☉ ${obj.mag}</span>
-              <span class="stat" title="Altitude maximale">⌒ ${Math.round(vis.peakAlt)}°</span>
-              <span class="stat" title="Direction">➤ ${dir}</span>
-            </div>
-            <div class="object-card__times">${fmtTime(vis.start)} → ${fmtTime(vis.end)}${vis.circumpolar ? ' (circumpolaire)' : ''}</div>
-          </div>
-        `;
-        list.appendChild(card);
-      }
-      section.appendChild(list);
-    }
-    grid.appendChild(section);
-  }
-
-  if (!anyResults) {
+  if (visibleObjects.length === 0) {
     grid.innerHTML = '<p class="hint">Aucun objet des catégories sélectionnées n\'est observable cette nuit avec ces réglages.</p>';
+    return;
+  }
+
+  // Regroupement par constellation, chaque groupe trié par heure de lever ;
+  // les groupes sont ordonnés par l'heure de lever la plus précoce de leurs objets.
+  const byConstellation = new Map();
+  for (const item of visibleObjects) {
+    const c = item.obj.constellation;
+    if (!byConstellation.has(c)) byConstellation.set(c, []);
+    byConstellation.get(c).push(item);
+  }
+  const groups = [...byConstellation.entries()];
+  for (const [, items] of groups) items.sort((a, b) => a.vis.start - b.vis.start);
+  groups.sort((a, b) => a[1][0].vis.start - b[1][0].vis.start);
+
+  for (const [constellation, items] of groups) {
+    const pill = document.createElement('div');
+    pill.className = 'constellation-pill';
+    pill.textContent = constellation;
+    grid.appendChild(pill);
+
+    const list = document.createElement('div');
+    list.className = 'object-list';
+
+    for (const { obj, vis } of items) {
+      const card = document.createElement('div');
+      card.className = 'object-card';
+      const isFav = settings.favorites.includes(obj.cat);
+      card.innerHTML = `
+        <div class="object-card__icon badge--${obj.type}">${CATEGORY_ICONS[obj.type]}</div>
+        <div class="object-card__body">
+          <div class="object-card__head">
+            <span class="object-card__name">${obj.name}</span>
+            <button class="fav-btn ${isFav ? 'is-fav' : ''}" data-cat="${obj.cat}" title="Favori">★</button>
+          </div>
+          <div class="object-card__desc">${obj.desc} · ${obj.cat}</div>
+          <div class="object-card__stats">
+            <span class="stat" title="Magnitude">☉ ${obj.mag}</span>
+            <span class="stat" title="Altitude maximale">⌒ ${Math.round(vis.peakAlt)}°</span>
+            <span class="stat" title="Direction">➤ ${vis.direction}</span>
+          </div>
+          <div class="object-card__times">${fmtTime(vis.start)} → ${fmtTime(vis.end)}${vis.circumpolar ? ' (circumpolaire)' : ''}</div>
+        </div>
+      `;
+      list.appendChild(card);
+    }
+    grid.appendChild(list);
   }
 }
 
@@ -280,6 +269,8 @@ document.addEventListener('click', e => {
 function initCategoryFilters() {
   document.querySelectorAll('.cat-filter').forEach(chip => {
     const cat = chip.dataset.cat;
+    const iconSlot = chip.querySelector('.cat-visual__icon');
+    if (iconSlot && CATEGORY_ICONS[cat]) iconSlot.innerHTML = CATEGORY_ICONS[cat];
     chip.classList.toggle('active', !!settings.categories[cat]);
     chip.addEventListener('click', () => {
       settings.categories[cat] = !settings.categories[cat];

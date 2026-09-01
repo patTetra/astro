@@ -30,11 +30,23 @@
       <span id="location-status"></span>
     </div>
 
-    <div class="chips">
-      <button class="cat-filter" data-cat="nebuleuse">Nébuleuses</button>
-      <button class="cat-filter" data-cat="galaxie">Galaxies</button>
-      <button class="cat-filter" data-cat="amas">Amas</button>
-      <button class="cat-filter" data-cat="autre">Autres</button>
+    <div class="category-grid">
+      <button class="cat-filter cat-visual cat-visual--nebuleuse" data-cat="nebuleuse">
+        <span class="cat-visual__icon"></span>
+        <span class="cat-visual__label">Nébuleuses</span>
+      </button>
+      <button class="cat-filter cat-visual cat-visual--galaxie" data-cat="galaxie">
+        <span class="cat-visual__icon"></span>
+        <span class="cat-visual__label">Galaxies</span>
+      </button>
+      <button class="cat-filter cat-visual cat-visual--amas" data-cat="amas">
+        <span class="cat-visual__icon"></span>
+        <span class="cat-visual__label">Amas</span>
+      </button>
+      <button class="cat-filter cat-visual cat-visual--autre" data-cat="autre">
+        <span class="cat-visual__icon"></span>
+        <span class="cat-visual__label">Autres</span>
+      </button>
     </div>
 
     <p id="no-location-msg" class="hint" style="display:none;">
@@ -83,7 +95,7 @@
   Catalogue : objets Messier + sélection NGC/IC. Calculs de visibilité approximatifs (précision suffisante pour la planification d'observation, pas pour un pointage de précision).
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/suncalc@1.9.0/suncalc.js"></script>
+<script src="suncalc.js"></script>
 <script src="catalog.js"></script>
 <script src="astro.js"></script>
 <script src="app.js"></script>

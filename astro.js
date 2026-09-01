@@ -51,16 +51,14 @@ const Astro = (() => {
     return { alt: toDeg(alt), az: azNorth };
   }
 
-  // Bucket 16 directions (rose des vents) à partir d'un azimut (0-360, 0=Nord)
-  const DIRECTIONS = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSO', 'SO', 'OSO', 'O', 'ONO', 'NO', 'NNO'];
+  // Bucket 8 directions (rose des vents) à partir d'un azimut (0-360, 0=Nord)
+  const DIRECTIONS = ['N', 'NE', 'E', 'SE', 'S', 'SO', 'O', 'NO'];
   const DIRECTION_LABELS = {
-    N: 'Nord', NNE: 'Nord-Nord-Est', NE: 'Nord-Est', ENE: 'Est-Nord-Est',
-    E: 'Est', ESE: 'Est-Sud-Est', SE: 'Sud-Est', SSE: 'Sud-Sud-Est',
-    S: 'Sud', SSO: 'Sud-Sud-Ouest', SO: 'Sud-Ouest', OSO: 'Ouest-Sud-Ouest',
-    O: 'Ouest', ONO: 'Ouest-Nord-Ouest', NO: 'Nord-Ouest', NNO: 'Nord-Nord-Ouest',
+    N: 'Nord', NE: 'Nord-Est', E: 'Est', SE: 'Sud-Est',
+    S: 'Sud', SO: 'Sud-Ouest', O: 'Ouest', NO: 'Nord-Ouest',
   };
   function azToDirection(az) {
-    const idx = Math.round(norm360(az) / 22.5) % 16;
+    const idx = Math.round(norm360(az) / 45) % 8;
     return DIRECTIONS[idx];
   }
 
