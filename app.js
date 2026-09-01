@@ -103,6 +103,33 @@ const CATEGORY_LABELS = {
   autre: 'Autre',
 };
 
+// Icônes illustrées par catégorie (pictogrammes, pas des photos réelles)
+const CATEGORY_ICONS = {
+  galaxie: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+    <ellipse cx="12" cy="12" rx="9" ry="4.2"/>
+    <path d="M4 12c1-2.5 4-3.5 8-3.5s7 1 8 3.5c-1 2.5-4 3.5-8 3.5s-7-1-8-3.5Z" opacity="0.5"/>
+    <circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/>
+  </svg>`,
+  nebuleuse: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+    <path d="M3 15c2-4 5-7 9-7s7 2 9 5c-2 3-5 5-9 5s-7-1-9-3Z"/>
+    <circle cx="9" cy="12" r="1" fill="currentColor" stroke="none"/>
+    <circle cx="15" cy="14" r="0.8" fill="currentColor" stroke="none"/>
+    <circle cx="12" cy="10" r="0.6" fill="currentColor" stroke="none"/>
+  </svg>`,
+  amas: `<svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+    <circle cx="12" cy="12" r="1.6"/>
+    <circle cx="7" cy="8" r="1.1"/>
+    <circle cx="17" cy="8" r="1.1"/>
+    <circle cx="6" cy="16" r="1"/>
+    <circle cx="18" cy="16" r="1"/>
+    <circle cx="12" cy="6" r="0.9"/>
+    <circle cx="12" cy="18" r="0.9"/>
+  </svg>`,
+  autre: `<svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+    <path d="M12 3l1.8 6.2L20 11l-6.2 1.8L12 19l-1.8-6.2L4 11l6.2-1.8Z"/>
+  </svg>`,
+};
+
 // ---------- Rendu du Soleil et de la Lune ----------
 function renderSunMoon(date, lat, lon) {
   const container = document.getElementById('sun-moon-row');
@@ -187,27 +214,49 @@ function renderCalendar() {
 
     const section = document.createElement('section');
     section.className = 'dir-section';
-    section.innerHTML = `<h3 class="dir-section__title">${dir} <span class="dir-count">${items.length}</span></h3>`;
-    const list = document.createElement('div');
-    list.className = 'object-list';
+    section.innerHTML = `<h3 class="dir-section__title">${Astro.DIRECTION_LABELS[dir]} <span class="dir-count">${items.length}</span></h3>`;
 
-    for (const { obj, vis } of items) {
-      const card = document.createElement('div');
-      card.className = 'object-card';
-      const isFav = settings.favorites.includes(obj.cat);
-      card.innerHTML = `
-        <div class="object-card__head">
-          <span class="object-card__cat">${obj.cat}</span>
-          <span class="badge badge--${obj.type}">${CATEGORY_LABELS[obj.type]}</span>
-          <button class="fav-btn ${isFav ? 'is-fav' : ''}" data-cat="${obj.cat}" title="Favori">★</button>
-        </div>
-        <div class="object-card__name">${obj.name}</div>
-        <div class="object-card__times">${fmtTime(vis.start)} → ${fmtTime(vis.end)}${vis.circumpolar ? ' (circumpolaire)' : ''}</div>
-        <div class="object-card__meta">mag ${obj.mag} · alt. max ${Math.round(vis.peakAlt)}°</div>
-      `;
-      list.appendChild(card);
+    // Sous-regroupement par constellation
+    const byConstellation = new Map();
+    for (const item of items) {
+      const c = item.obj.constellation;
+      if (!byConstellation.has(c)) byConstellation.set(c, []);
+      byConstellation.get(c).push(item);
     }
-    section.appendChild(list);
+
+    for (const [constellation, group] of byConstellation) {
+      const pill = document.createElement('div');
+      pill.className = 'constellation-pill';
+      pill.textContent = constellation;
+      section.appendChild(pill);
+
+      const list = document.createElement('div');
+      list.className = 'object-list';
+
+      for (const { obj, vis } of group) {
+        const card = document.createElement('div');
+        card.className = 'object-card';
+        const isFav = settings.favorites.includes(obj.cat);
+        card.innerHTML = `
+          <div class="object-card__icon badge--${obj.type}">${CATEGORY_ICONS[obj.type]}</div>
+          <div class="object-card__body">
+            <div class="object-card__head">
+              <span class="object-card__name">${obj.name}</span>
+              <button class="fav-btn ${isFav ? 'is-fav' : ''}" data-cat="${obj.cat}" title="Favori">★</button>
+            </div>
+            <div class="object-card__desc">${obj.desc} · ${obj.cat}</div>
+            <div class="object-card__stats">
+              <span class="stat" title="Magnitude">☉ ${obj.mag}</span>
+              <span class="stat" title="Altitude maximale">⌒ ${Math.round(vis.peakAlt)}°</span>
+              <span class="stat" title="Direction">➤ ${dir}</span>
+            </div>
+            <div class="object-card__times">${fmtTime(vis.start)} → ${fmtTime(vis.end)}${vis.circumpolar ? ' (circumpolaire)' : ''}</div>
+          </div>
+        `;
+        list.appendChild(card);
+      }
+      section.appendChild(list);
+    }
     grid.appendChild(section);
   }
 
