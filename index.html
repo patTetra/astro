@@ -15,6 +15,7 @@
   </div>
   <nav class="tabs">
     <button class="tab-btn active" data-tab="calendar">Calendrier</button>
+    <button class="tab-btn" data-tab="ar">Réalité augmentée</button>
     <button class="tab-btn" data-tab="settings">Réglages</button>
     <button id="night-mode-btn" class="night-toggle">☾ Mode nuit</button>
   </nav>
@@ -58,6 +59,35 @@
     <div id="direction-grid"></div>
   </section>
 
+  <section id="tab-ar" class="tab-panel">
+    <div id="ar-intro" class="ar-intro">
+      <p class="hint">
+        Pointez votre téléphone vers le ciel : les objets actuellement observables
+        (selon vos catégories sélectionnées dans Calendrier), ainsi que le Soleil et
+        la Lune, s'affichent en superposition sur l'image de la caméra, à leur
+        position réelle.
+      </p>
+      <p class="hint">
+        Tenez le téléphone à la verticale, comme pour prendre une photo. Nécessite
+        une connexion sécurisée (HTTPS), une caméra et des capteurs d'orientation
+        (boussole/gyroscope) — l'autorisation vous sera demandée au démarrage.
+      </p>
+      <button id="ar-start-btn" class="primary">Activer la réalité augmentée</button>
+      <p id="ar-status" class="hint ar-status"></p>
+    </div>
+
+    <div id="ar-view" class="ar-view" style="display:none;">
+      <video id="ar-video" class="ar-video" autoplay playsinline muted></video>
+      <div id="ar-overlay" class="ar-overlay">
+        <div class="ar-crosshair"></div>
+      </div>
+      <div class="ar-hud">
+        <span id="ar-heading-readout"></span>
+      </div>
+      <button id="ar-stop-btn" class="ar-stop-btn">✕ Fermer</button>
+    </div>
+  </section>
+
   <section id="tab-settings" class="tab-panel">
 
     <div class="settings-section">
@@ -99,5 +129,6 @@
 <script src="catalog.js"></script>
 <script src="astro.js"></script>
 <script src="app.js"></script>
+<script src="ar.js"></script>
 </body>
 </html>
