@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calendrier d'observation — Smart Télescope</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header__inner">
+    <h1>Calendrier du <span class="accent">ciel</span></h1>
+    <p class="subtitle">Quoi photographier ce soir avec votre smart télescope, et dans quelle direction</p>
+  </div>
+  <nav class="tabs">
+    <button class="tab-btn active" data-tab="calendar">Calendrier</button>
+    <button class="tab-btn" data-tab="settings">Réglages</button>
+    <button id="night-mode-btn" class="night-toggle">☾ Mode nuit</button>
+  </nav>
+</header>
+
+<main>
+
+  <section id="tab-calendar" class="tab-panel active">
+    <div class="control-row">
+      <input type="date" id="date-input">
+      <button id="date-today">Aujourd'hui</button>
+      <button id="locate-btn">Actualiser ma position</button>
+      <span id="location-status"></span>
+    </div>
+
+    <div class="chips">
+      <button class="cat-filter" data-cat="nebuleuse">Nébuleuses</button>
+      <button class="cat-filter" data-cat="galaxie">Galaxies</button>
+      <button class="cat-filter" data-cat="amas">Amas</button>
+      <button class="cat-filter" data-cat="autre">Autres</button>
+    </div>
+
+    <p id="no-location-msg" class="hint" style="display:none;">
+      Activez la géolocalisation ou saisissez une position manuelle dans l'onglet Réglages pour voir le calendrier d'observation.
+    </p>
+
+    <div id="sun-moon-row"></div>
+
+    <div id="direction-grid"></div>
+  </section>
+
+  <section id="tab-settings" class="tab-panel">
+
+    <div class="settings-section">
+      <h2>Position</h2>
+      <p class="hint">La géolocalisation GPS est utilisée automatiquement. En cas d'échec, saisissez votre position manuellement.</p>
+      <div class="field-row">
+        <label>Latitude</label>
+        <input type="text" id="manual-lat" placeholder="ex : 48.8566">
+        <label>Longitude</label>
+        <input type="text" id="manual-lon" placeholder="ex : 2.3522">
+        <button id="manual-location-save">Enregistrer</button>
+      </div>
+      <span id="manual-location-status" class="hint"></span>
+    </div>
+
+    <div class="settings-section">
+      <h2>Altitude minimale d'observation</h2>
+      <p class="hint">En dessous de cette hauteur au-dessus de l'horizon, un objet est considéré comme trop bas (turbulence, obstacles).</p>
+      <div class="slider-row">
+        <input type="range" id="min-alt-slider" min="5" max="45" step="1">
+        <span id="min-alt-value"></span>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <h2>Favoris</h2>
+      <p class="hint">Les objets marqués d'une étoile ★ dans le calendrier sont sauvegardés localement sur cet appareil (aucun compte requis, chaque utilisateur a ses propres favoris).</p>
+    </div>
+
+  </section>
+
+</main>
+
+<footer>
+  Catalogue : objets Messier + sélection NGC/IC. Calculs de visibilité approximatifs (précision suffisante pour la planification d'observation, pas pour un pointage de précision).
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/suncalc@1.9.0/suncalc.js"></script>
+<script src="catalog.js"></script>
+<script src="astro.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

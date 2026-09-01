@@ -1,0 +1,331 @@
+// Application principale : orchestration UI + calculs.
+
+const DEFAULT_SETTINGS = {
+  lat: null,
+  lon: null,
+  locationLabel: 'Position non définie',
+  minAlt: 20,
+  categories: { nebuleuse: true, galaxie: true, amas: true, autre: false },
+  favorites: [],
+  nightMode: false,
+};
+
+let settings = loadSettings();
+let selectedDate = new Date();
+selectedDate.setHours(12, 0, 0, 0);
+
+function loadSettings() {
+  try {
+    const raw = localStorage.getItem('telescopeAppSettings');
+    if (!raw) return structuredClone(DEFAULT_SETTINGS);
+    const parsed = JSON.parse(raw);
+    return Object.assign(structuredClone(DEFAULT_SETTINGS), parsed, {
+      categories: Object.assign({}, DEFAULT_SETTINGS.categories, parsed.categories || {}),
+    });
+  } catch (e) {
+    return structuredClone(DEFAULT_SETTINGS);
+  }
+}
+
+function persistSettings() {
+  localStorage.setItem('telescopeAppSettings', JSON.stringify(settings));
+}
+
+// ---------- Onglets ----------
+function initTabs() {
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(`tab-${btn.dataset.tab}`).classList.add('active');
+    });
+  });
+}
+
+// ---------- Géolocalisation ----------
+function requestGeolocation() {
+  const statusEl = document.getElementById('location-status');
+  if (!navigator.geolocation) {
+    statusEl.textContent = "Géolocalisation non disponible sur cet appareil — utilisez la saisie manuelle dans Réglages.";
+    return;
+  }
+  statusEl.textContent = 'Localisation en cours…';
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      settings.lat = pos.coords.latitude;
+      settings.lon = pos.coords.longitude;
+      settings.locationLabel = `${settings.lat.toFixed(3)}°, ${settings.lon.toFixed(3)}°`;
+      persistSettings();
+      updateLocationUI();
+      renderCalendar();
+    },
+    err => {
+      statusEl.textContent = "Position refusée ou indisponible — vous pouvez la saisir manuellement dans Réglages.";
+    },
+    { enableHighAccuracy: false, timeout: 10000 }
+  );
+}
+
+function updateLocationUI() {
+  const statusEl = document.getElementById('location-status');
+  const settingsLat = document.getElementById('manual-lat');
+  const settingsLon = document.getElementById('manual-lon');
+  if (settings.lat != null && settings.lon != null) {
+    statusEl.textContent = `Position : ${settings.locationLabel}`;
+    settingsLat.value = settings.lat.toFixed(4);
+    settingsLon.value = settings.lon.toFixed(4);
+  } else {
+    statusEl.textContent = 'Position non définie';
+  }
+}
+
+// ---------- Fenêtre de nuit noire ----------
+function getNightWindow(date, lat, lon) {
+  const t1 = SunCalc.getTimes(date, lat, lon);
+  const nextDay = new Date(date.getTime() + 24 * 3600 * 1000);
+  const t2 = SunCalc.getTimes(nextDay, lat, lon);
+
+  const darkStart = t1.night || t1.nauticalDusk || t1.dusk || null;
+  const darkEnd = t2.nightEnd || t2.nauticalDawn || t2.dawn || null;
+  return { darkStart, darkEnd, sunTimesEvening: t1, sunTimesMorning: t2 };
+}
+
+function fmtTime(date) {
+  if (!date) return '--:--';
+  return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+}
+
+const CATEGORY_LABELS = {
+  nebuleuse: 'Nébuleuse',
+  galaxie: 'Galaxie',
+  amas: 'Amas',
+  autre: 'Autre',
+};
+
+// ---------- Rendu du Soleil et de la Lune ----------
+function renderSunMoon(date, lat, lon) {
+  const container = document.getElementById('sun-moon-row');
+  container.innerHTML = '';
+
+  const sunTimes = SunCalc.getTimes(date, lat, lon);
+  const sunCard = document.createElement('div');
+  sunCard.className = 'sky-card sky-card--sun';
+  sunCard.innerHTML = `
+    <div class="sky-card__title">Soleil</div>
+    <div class="sky-card__times">Lever ${fmtTime(sunTimes.sunrise)} · Coucher ${fmtTime(sunTimes.sunset)}</div>
+    <div class="sky-card__note">⚠ Filtre solaire obligatoire pour toute observation ou photo diurne</div>
+  `;
+  container.appendChild(sunCard);
+
+  const moonTimes = SunCalc.getMoonTimes(date, lat, lon, true);
+  const illum = SunCalc.getMoonIllumination(date);
+  const pct = Math.round(illum.fraction * 100);
+  let phaseName = 'Nouvelle Lune';
+  const p = illum.phase;
+  if (p < 0.03 || p > 0.97) phaseName = 'Nouvelle Lune';
+  else if (p < 0.22) phaseName = 'Premier croissant';
+  else if (p < 0.28) phaseName = 'Premier quartier';
+  else if (p < 0.47) phaseName = 'Gibbeuse croissante';
+  else if (p < 0.53) phaseName = 'Pleine Lune';
+  else if (p < 0.72) phaseName = 'Gibbeuse décroissante';
+  else if (p < 0.78) phaseName = 'Dernier quartier';
+  else phaseName = 'Dernier croissant';
+
+  const moonCard = document.createElement('div');
+  moonCard.className = 'sky-card sky-card--moon';
+  const riseTxt = moonTimes.rise ? fmtTime(moonTimes.rise) : (moonTimes.alwaysUp ? 'toujours levée' : '—');
+  const setTxt = moonTimes.set ? fmtTime(moonTimes.set) : (moonTimes.alwaysDown ? 'toujours couchée' : '—');
+  moonCard.innerHTML = `
+    <div class="sky-card__title">Lune</div>
+    <div class="sky-card__times">Lever ${riseTxt} · Coucher ${setTxt}</div>
+    <div class="sky-card__note">${phaseName} — ${pct}% illuminée</div>
+  `;
+  container.appendChild(moonCard);
+}
+
+// ---------- Rendu du calendrier par direction ----------
+function renderCalendar() {
+  const grid = document.getElementById('direction-grid');
+  const emptyMsg = document.getElementById('no-location-msg');
+  grid.innerHTML = '';
+
+  if (settings.lat == null || settings.lon == null) {
+    emptyMsg.style.display = 'block';
+    document.getElementById('sun-moon-row').innerHTML = '';
+    return;
+  }
+  emptyMsg.style.display = 'none';
+
+  renderSunMoon(selectedDate, settings.lat, settings.lon);
+
+  const { darkStart, darkEnd } = getNightWindow(selectedDate, settings.lat, settings.lon);
+
+  if (!darkStart || !darkEnd) {
+    grid.innerHTML = '<p class="hint">Nuit noire indisponible à cette latitude/date (soleil de minuit ou jour polaire proche).</p>';
+    return;
+  }
+
+  const activeCats = Object.keys(settings.categories).filter(c => settings.categories[c]);
+  const results = {};
+  Astro.DIRECTIONS.forEach(d => results[d] = []);
+
+  for (const obj of CATALOG) {
+    if (!activeCats.includes(obj.type)) continue;
+    const vis = Astro.visibilityWindow(obj, settings.lat, settings.lon, darkStart, darkEnd, settings.minAlt);
+    if (vis.visible) {
+      results[vis.direction].push({ obj, vis });
+    }
+  }
+
+  let anyResults = false;
+  for (const dir of Astro.DIRECTIONS) {
+    const items = results[dir];
+    if (items.length === 0) continue;
+    anyResults = true;
+    items.sort((a, b) => a.vis.start - b.vis.start);
+
+    const section = document.createElement('section');
+    section.className = 'dir-section';
+    section.innerHTML = `<h3 class="dir-section__title">${dir} <span class="dir-count">${items.length}</span></h3>`;
+    const list = document.createElement('div');
+    list.className = 'object-list';
+
+    for (const { obj, vis } of items) {
+      const card = document.createElement('div');
+      card.className = 'object-card';
+      const isFav = settings.favorites.includes(obj.cat);
+      card.innerHTML = `
+        <div class="object-card__head">
+          <span class="object-card__cat">${obj.cat}</span>
+          <span class="badge badge--${obj.type}">${CATEGORY_LABELS[obj.type]}</span>
+          <button class="fav-btn ${isFav ? 'is-fav' : ''}" data-cat="${obj.cat}" title="Favori">★</button>
+        </div>
+        <div class="object-card__name">${obj.name}</div>
+        <div class="object-card__times">${fmtTime(vis.start)} → ${fmtTime(vis.end)}${vis.circumpolar ? ' (circumpolaire)' : ''}</div>
+        <div class="object-card__meta">mag ${obj.mag} · alt. max ${Math.round(vis.peakAlt)}°</div>
+      `;
+      list.appendChild(card);
+    }
+    section.appendChild(list);
+    grid.appendChild(section);
+  }
+
+  if (!anyResults) {
+    grid.innerHTML = '<p class="hint">Aucun objet des catégories sélectionnées n\'est observable cette nuit avec ces réglages.</p>';
+  }
+}
+
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.fav-btn');
+  if (!btn) return;
+  const cat = btn.dataset.cat;
+  const idx = settings.favorites.indexOf(cat);
+  if (idx >= 0) settings.favorites.splice(idx, 1);
+  else settings.favorites.push(cat);
+  persistSettings();
+  btn.classList.toggle('is-fav');
+});
+
+// ---------- Filtres de catégories ----------
+function initCategoryFilters() {
+  document.querySelectorAll('.cat-filter').forEach(chip => {
+    const cat = chip.dataset.cat;
+    chip.classList.toggle('active', !!settings.categories[cat]);
+    chip.addEventListener('click', () => {
+      settings.categories[cat] = !settings.categories[cat];
+      chip.classList.toggle('active', settings.categories[cat]);
+      persistSettings();
+      renderCalendar();
+    });
+  });
+}
+
+// ---------- Date ----------
+function initDatePicker() {
+  const input = document.getElementById('date-input');
+  const iso = selectedDate.toISOString().slice(0, 10);
+  input.value = iso;
+  input.addEventListener('change', () => {
+    if (!input.value) return;
+    const [y, m, d] = input.value.split('-').map(Number);
+    selectedDate = new Date(y, m - 1, d, 12, 0, 0, 0);
+    renderCalendar();
+  });
+  document.getElementById('date-today').addEventListener('click', () => {
+    selectedDate = new Date();
+    selectedDate.setHours(12, 0, 0, 0);
+    input.value = selectedDate.toISOString().slice(0, 10);
+    renderCalendar();
+  });
+}
+
+// ---------- Réglages : altitude min ----------
+function initAltitudeSlider() {
+  const slider = document.getElementById('min-alt-slider');
+  const label = document.getElementById('min-alt-value');
+  slider.value = settings.minAlt;
+  label.textContent = `${settings.minAlt}°`;
+  slider.addEventListener('input', () => {
+    settings.minAlt = Number(slider.value);
+    label.textContent = `${settings.minAlt}°`;
+  });
+  slider.addEventListener('change', () => {
+    persistSettings();
+    renderCalendar();
+  });
+}
+
+// ---------- Réglages : position manuelle ----------
+function initManualLocation() {
+  document.getElementById('manual-location-save').addEventListener('click', () => {
+    const lat = parseFloat(document.getElementById('manual-lat').value);
+    const lon = parseFloat(document.getElementById('manual-lon').value);
+    if (Number.isNaN(lat) || Number.isNaN(lon) || lat < -90 || lat > 90 || lon < -180 || lon > 180) {
+      document.getElementById('manual-location-status').textContent = 'Coordonnées invalides.';
+      return;
+    }
+    settings.lat = lat;
+    settings.lon = lon;
+    settings.locationLabel = `${lat.toFixed(3)}°, ${lon.toFixed(3)}°`;
+    persistSettings();
+    updateLocationUI();
+    document.getElementById('manual-location-status').textContent = 'Position enregistrée.';
+    renderCalendar();
+  });
+}
+
+// ---------- Mode nuit ----------
+function initNightMode() {
+  const btn = document.getElementById('night-mode-btn');
+  function apply() {
+    document.documentElement.dataset.theme = settings.nightMode ? 'night' : '';
+    btn.textContent = settings.nightMode ? '☾ Mode nuit activé' : '☾ Mode nuit';
+    btn.classList.toggle('active', settings.nightMode);
+  }
+  apply();
+  btn.addEventListener('click', () => {
+    settings.nightMode = !settings.nightMode;
+    persistSettings();
+    apply();
+  });
+}
+
+// ---------- Initialisation ----------
+document.addEventListener('DOMContentLoaded', () => {
+  initTabs();
+  initDatePicker();
+  initCategoryFilters();
+  initAltitudeSlider();
+  initManualLocation();
+  initNightMode();
+  updateLocationUI();
+
+  document.getElementById('locate-btn').addEventListener('click', requestGeolocation);
+
+  if (settings.lat == null) {
+    requestGeolocation();
+  } else {
+    renderCalendar();
+  }
+});
