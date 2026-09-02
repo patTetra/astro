@@ -161,20 +161,25 @@
         const LAT = 48.57;
         const LON = -3.83;
 
-        // Catalog complet d'objets répartis sur toute l'année
         const dsoDatabase = [
-            // Hiver / Printemps
             { id: "M42", name: "Orion Nebula", type: "Nébuleuse", mag: "4.0", ra: 5.58, dec: -5.38, img: "https://images-assets.nasa.gov/image/PIA04225/PIA04225~thumb.jpg" },
             { id: "M1", name: "Crab Nebula", type: "Nébuleuse", mag: "8.4", ra: 5.58, dec: 22.01, img: "https://images-assets.nasa.gov/image/PIA03606/PIA03606~thumb.jpg" },
             { id: "M45", name: "Pleiades", type: "Amas Ouvert", mag: "1.6", ra: 3.79, dec: 24.11, img: "https://images-assets.nasa.gov/image/PIA04204/PIA04204~thumb.jpg" },
             { id: "M51", name: "Whirlpool Galaxy", type: "Galaxie", mag: "8.4", ra: 13.50, dec: 47.19, img: "https://images-assets.nasa.gov/image/PIA04204/PIA04204~thumb.jpg" },
-            
-            // Été / Automne
             { id: "M31", name: "Andromeda Galaxy", type: "Galaxie", mag: "3.4", ra: 0.71, dec: 41.27, img: "https://images-assets.nasa.gov/image/PIA04921/PIA04921~thumb.jpg" },
             { id: "M57", name: "Ring Nebula", type: "Nébuleuse", mag: "8.8", ra: 18.89, dec: 33.02, img: "https://images-assets.nasa.gov/image/PIA04225/PIA04225~thumb.jpg" },
             { id: "M27", name: "Dumbbell Nebula", type: "Nébuleuse", mag: "7.5", ra: 19.99, dec: 22.72, img: "https://images-assets.nasa.gov/image/PIA09178/PIA09178~thumb.jpg" },
             { id: "M13", name: "Hercules Cluster", type: "Amas Globulaire", mag: "5.8", ra: 16.69, dec: 36.46, img: "https://images-assets.nasa.gov/image/GSFC_20171208_archive_e000263/GSFC_20171208_archive_e000263~thumb.jpg" },
             { id: "NGC 7293", name: "Helix Nebula", type: "Nébuleuse", mag: "7.6", ra: 22.49, dec: -20.83, img: "https://images-assets.nasa.gov/image/PIA09178/PIA09178~thumb.jpg" }
+        ];
+
+        // Base de données des 5 planètes majeures (Ascension Droite et Déclinaison moyennes)
+        const planetsCatalog = [
+            { name: "Mercure", mag: "-0.4", icon: "☿️", ra: 11.5, dec: 3.0, window: "Crépuscule / Aube", note: "Bas sur l'horizon" },
+            { name: "Vénus", mag: "-4.1", icon: "♀️", ra: 9.2, dec: 16.0, window: "Coucher de soleil", note: "Très brillante" },
+            { name: "Mars", mag: "0.8", icon: "♂️", ra: 6.8, dec: 23.5, window: "02h00 - Aube", note: "Éclat rouge distinct" },
+            { name: "Jupiter", mag: "-2.4", icon: "♃", ra: 3.5, dec: 17.2, window: "23h00 - 05h00", note: "Bandes & 4 lunes" },
+            { name: "Saturne", mag: "0.5", icon: "♄", ra: 22.8, dec: -9.5, window: "21h00 - 03h00", note: "Anneaux visibles" }
         ];
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -259,12 +264,11 @@
         function renderDSO(dateObj) {
             const container = document.getElementById('objects-container');
             
-            // FILTRE DYNAMIQUE : On ne garde que les objets ayant une hauteur > 20° la nuit choisie !
             const visibleObjects = dsoDatabase.map(obj => {
                 const coords = getHorizontalCoords(obj.ra, obj.dec, dateObj);
                 const window = getBestWindow(obj.ra);
                 return { ...obj, altDeg: coords.alt, dir: coords.dir, window };
-            }).filter(obj => obj.altDeg > 20); // Filtre d'altitude minimale
+            }).filter(obj => obj.altDeg > 20);
 
             document.getElementById('visible-count').textContent = `${visibleObjects.length} objet(s) > 20°`;
 
@@ -307,21 +311,36 @@
             `).join('');
         }
 
+        // Rend les 5 planètes avec leurs coordonnées calculées dynamiquement selon la date
         function renderPlanets(dateObj) {
             const container = document.getElementById('planets-container');
-            const planets = [
-                { name: "Saturne", mag: "0.6", window: "21h30 - 03h00", status: "Idéal ce soir", dir: "SE" },
-                { name: "Jupiter", mag: "-2.2", window: "01h15 - Aube", status: "En fin de nuit", dir: "E" }
-            ];
 
-            container.innerHTML = planets.map(p => `
+            const calculatedPlanets = planetsCatalog.map(p => {
+                const coords = getHorizontalCoords(p.ra, p.dec, dateObj);
+                const isVisible = coords.alt > 5;
+                return {
+                    ...p,
+                    altDeg: coords.alt,
+                    dir: coords.dir,
+                    statusText: isVisible ? `${coords.alt}° au-dessus du sol` : 'Sous l\'horizon'
+                };
+            });
+
+            container.innerHTML = calculatedPlanets.map(p => `
                 <div class="bg-astroCard border border-gray-800 p-4 rounded-2xl flex justify-between items-center">
-                    <div>
-                        <h3 class="text-base font-bold text-white">${p.name}</h3>
-                        <p class="text-xs text-gray-400">Visible : ${p.window}</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-lg">
+                            ${p.icon}
+                        </div>
+                        <div>
+                            <h3 class="text-base font-bold text-white">${p.name}</h3>
+                            <p class="text-xs text-gray-400">${p.note} · ${p.window}</p>
+                        </div>
                     </div>
                     <div class="text-right">
-                        <span class="text-xs text-blue-400 font-bold bg-blue-500/10 px-2 py-1 rounded-lg">${p.dir}</span>
+                        <span class="text-xs ${p.altDeg > 15 ? 'text-blue-400 bg-blue-500/10' : 'text-amber-400 bg-amber-500/10'} font-bold px-2 py-1 rounded-lg">
+                            ${p.dir} · ${p.altDeg}°
+                        </span>
                         <p class="text-[10px] text-gray-500 mt-1">Mag ${p.mag}</p>
                     </div>
                 </div>
