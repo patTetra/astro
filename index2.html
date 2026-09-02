@@ -33,18 +33,10 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* Cacher l'icône calendrier native tout en gardant le champ fonctionnel */
         input[type="date"]::-webkit-calendar-picker-indicator {
             background: transparent;
-            bottom: 0;
-            color: transparent;
-            cursor: pointer;
-            height: auto;
-            left: 0;
-            position: absolute;
-            right: 0;
-            top: 0;
-            width: auto;
+            bottom: 0; color: transparent; cursor: pointer;
+            height: auto; left: 0; position: absolute; right: 0; top: 0; width: auto;
         }
     </style>
 </head>
@@ -55,7 +47,7 @@
             <div>
                 <div onclick="openDatePicker()" class="relative inline-flex items-center gap-1.5 bg-blue-500/10 border border-blue-500/20 px-2.5 py-1 rounded-full cursor-pointer active:scale-95 transition-transform">
                     <span class="text-xs">📅</span>
-                    <span id="date-display" class="text-blue-400 font-extrabold text-[10px] tracking-wider uppercase">MERCREDI 2 SEPT.</span>
+                    <span id="date-display" class="text-blue-400 font-extrabold text-[10px] tracking-wider uppercase">SELECTIONNER DATE</span>
                     <input type="date" id="date-picker" onchange="onDateChange(this.value)" class="opacity-0 absolute inset-0 w-full h-full cursor-pointer">
                 </div>
                 <h1 id="city-title" class="text-2xl font-black text-white tracking-tight mt-1">Morlaix</h1>
@@ -100,7 +92,7 @@
         <section id="tab-ciel-profond" class="tab-content space-y-4">
             <div class="flex justify-between items-center">
                 <h2 class="text-xs font-extrabold tracking-widest text-gray-400 uppercase" id="section-title">VISIBLES CE SOIR</h2>
-                <span class="text-xs text-blue-400 font-semibold bg-blue-500/10 px-2.5 py-0.5 rounded-full">Hauteur > 20°</span>
+                <span id="visible-count" class="text-xs text-blue-400 font-semibold bg-blue-500/10 px-2.5 py-0.5 rounded-full">Hauteur > 20°</span>
             </div>
             <div id="objects-container" class="space-y-4"></div>
         </section>
@@ -169,12 +161,20 @@
         const LAT = 48.57;
         const LON = -3.83;
 
+        // Catalog complet d'objets répartis sur toute l'année
         const dsoDatabase = [
+            // Hiver / Printemps
             { id: "M42", name: "Orion Nebula", type: "Nébuleuse", mag: "4.0", ra: 5.58, dec: -5.38, img: "https://images-assets.nasa.gov/image/PIA04225/PIA04225~thumb.jpg" },
-            { id: "M31", name: "Andromeda Galaxy", type: "Galaxie", mag: "3.4", ra: 0.71, dec: 41.27, img: "https://images-assets.nasa.gov/image/PIA04921/PIA04921~thumb.jpg" },
-            { id: "NGC 7293", name: "Helix Nebula", type: "Nébuleuse", mag: "7.6", ra: 22.49, dec: -20.83, img: "https://images-assets.nasa.gov/image/PIA09178/PIA09178~thumb.jpg" },
+            { id: "M1", name: "Crab Nebula", type: "Nébuleuse", mag: "8.4", ra: 5.58, dec: 22.01, img: "https://images-assets.nasa.gov/image/PIA03606/PIA03606~thumb.jpg" },
+            { id: "M45", name: "Pleiades", type: "Amas Ouvert", mag: "1.6", ra: 3.79, dec: 24.11, img: "https://images-assets.nasa.gov/image/PIA04204/PIA04204~thumb.jpg" },
             { id: "M51", name: "Whirlpool Galaxy", type: "Galaxie", mag: "8.4", ra: 13.50, dec: 47.19, img: "https://images-assets.nasa.gov/image/PIA04204/PIA04204~thumb.jpg" },
-            { id: "M1", name: "Crab Nebula", type: "Nébuleuse", mag: "8.4", ra: 5.58, dec: 22.01, img: "https://images-assets.nasa.gov/image/PIA03606/PIA03606~thumb.jpg" }
+            
+            // Été / Automne
+            { id: "M31", name: "Andromeda Galaxy", type: "Galaxie", mag: "3.4", ra: 0.71, dec: 41.27, img: "https://images-assets.nasa.gov/image/PIA04921/PIA04921~thumb.jpg" },
+            { id: "M57", name: "Ring Nebula", type: "Nébuleuse", mag: "8.8", ra: 18.89, dec: 33.02, img: "https://images-assets.nasa.gov/image/PIA04225/PIA04225~thumb.jpg" },
+            { id: "M27", name: "Dumbbell Nebula", type: "Nébuleuse", mag: "7.5", ra: 19.99, dec: 22.72, img: "https://images-assets.nasa.gov/image/PIA09178/PIA09178~thumb.jpg" },
+            { id: "M13", name: "Hercules Cluster", type: "Amas Globulaire", mag: "5.8", ra: 16.69, dec: 36.46, img: "https://images-assets.nasa.gov/image/GSFC_20171208_archive_e000263/GSFC_20171208_archive_e000263~thumb.jpg" },
+            { id: "NGC 7293", name: "Helix Nebula", type: "Nébuleuse", mag: "7.6", ra: 22.49, dec: -20.83, img: "https://images-assets.nasa.gov/image/PIA09178/PIA09178~thumb.jpg" }
         ];
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -183,7 +183,6 @@
             onDateChange(today);
         });
 
-        // Déclenche l'ouverture explicite du calendrier natif du smartphone
         function openDatePicker() {
             const picker = document.getElementById('date-picker');
             if ('showPicker' in HTMLInputElement.prototype) {
@@ -197,11 +196,9 @@
             const dateObj = new Date(selectedDate + 'T22:00:00');
             const todayStr = new Date().toISOString().split('T')[0];
             
-            // Mise à jour du libellé sur le bouton du calendrier
             const optionsBtn = { weekday: 'short', day: 'numeric', month: 'short' };
             document.getElementById('date-display').textContent = dateObj.toLocaleDateString('fr-FR', optionsBtn).toUpperCase();
 
-            // Titre de section
             const sectionTitle = document.getElementById('section-title');
             if (selectedDate === todayStr) {
                 sectionTitle.textContent = "VISIBLES CE SOIR";
@@ -210,7 +207,6 @@
                 sectionTitle.textContent = `VISIBLES LE ${dateObj.toLocaleDateString('fr-FR', optionsTitle).toUpperCase()}`;
             }
 
-            // Calcul lune SunCalc
             const moonTimes = SunCalc.getMoonTimes(dateObj, LAT, LON);
             const moonIllum = SunCalc.getMoonIllumination(dateObj);
             const moonTimeStr = moonTimes.set ? moonTimes.set.toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'}) : "Pas de coucher";
@@ -263,13 +259,21 @@
         function renderDSO(dateObj) {
             const container = document.getElementById('objects-container');
             
-            const calculatedObjects = dsoDatabase.map(obj => {
+            // FILTRE DYNAMIQUE : On ne garde que les objets ayant une hauteur > 20° la nuit choisie !
+            const visibleObjects = dsoDatabase.map(obj => {
                 const coords = getHorizontalCoords(obj.ra, obj.dec, dateObj);
                 const window = getBestWindow(obj.ra);
                 return { ...obj, altDeg: coords.alt, dir: coords.dir, window };
-            });
+            }).filter(obj => obj.altDeg > 20); // Filtre d'altitude minimale
 
-            container.innerHTML = calculatedObjects.map(obj => `
+            document.getElementById('visible-count').textContent = `${visibleObjects.length} objet(s) > 20°`;
+
+            if (visibleObjects.length === 0) {
+                container.innerHTML = `<div class="text-center py-8 text-gray-500 text-xs">Aucun objet majeur > 20° pour cette date à 22h.</div>`;
+                return;
+            }
+
+            container.innerHTML = visibleObjects.map(obj => `
                 <div class="bg-astroCard border border-gray-800/80 rounded-3xl overflow-hidden shadow-xl active:scale-[0.98] transition-all duration-200">
                     <div class="relative h-48 w-full bg-slate-900">
                         <img src="${obj.img}" 
