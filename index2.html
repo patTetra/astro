@@ -99,7 +99,7 @@
         </section>
 
         <section id="tab-planetes" class="tab-content hidden space-y-4">
-            <h2 class="text-xs font-extrabold tracking-widest text-gray-400 uppercase">SYSTÈME SOLAIRE (ÉPHÉMÉRIDES EXACTES)</h2>
+            <h2 class="text-xs font-extrabold tracking-widest text-gray-400 uppercase">SYSTÈME SOLAIRE</h2>
             <div id="planets-container" class="space-y-3"></div>
         </section>
 
@@ -311,40 +311,41 @@
             `).join('');
         }
 
-        // Calcul astronomique haute précision via Astronomy Engine
         function renderPlanetsCalculated(dateObj) {
             const container = document.getElementById('planets-container');
+            if (typeof Astronomy === 'undefined') {
+                container.innerHTML = `<div class="text-center py-8 text-gray-500 text-xs">Chargement des éphémérides...</div>`;
+                return;
+            }
+
             const observer = new Astronomy.Observer(LAT, LON, 0);
+            const astroTime = Astronomy.MakeTime(dateObj);
 
             const results = planetsList.map(p => {
                 const body = p.body;
                 
-                // Position actuelle à la date/heure choisie (22h)
-                const hor = Astronomy.Horizon(dateObj, observer, null, null, 'Refracted');
-                const equ = Astronomy.Equator(body, dateObj, observer, true, true);
-                const pos = Astronomy.Horizon(dateObj, observer, equ.ra, equ.dec, 'Refracted');
-                const mag = Astronomy.Illumination(body, dateObj).mag.toFixed(1);
+                // Calcul de position à 22h local
+                const equ = Astronomy.Equator(body, astroTime, observer, true, true);
+                const hor = Astronomy.Horizon(astroTime, observer, equ.ra, equ.dec, 'Refracted');
+                const mag = Astronomy.Illumination(body, astroTime).mag.toFixed(1);
 
-                // Recherche heure du lever et coucher pour ce jour
+                // Calcul lever et coucher pour la journée sélectionnée
                 const startOfDay = new Date(dateObj);
                 startOfDay.setHours(0,0,0,0);
                 
                 const riseSearch = Astronomy.SearchRiseSet(body, observer, +1, startOfDay, 1);
                 const setSearch = Astronomy.SearchRiseSet(body, observer, -1, startOfDay, 1);
 
-                const fmtTime = (astroTime) => astroTime ? astroTime.date.toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'}) : '--:--';
-                
-                const riseStr = fmtTime(riseSearch);
-                const setStr = fmtTime(setSearch);
+                const fmtTime = (astroTimeRes) => astroTimeRes ? astroTimeRes.date.toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'}) : '--:--';
 
                 return {
                     name: p.name,
                     icon: p.icon,
                     mag: mag,
-                    alt: Math.round(pos.altitude),
-                    dir: getCardinalDirection(pos.azimuth),
-                    rise: riseStr,
-                    set: setStr
+                    alt: Math.round(hor.altitude),
+                    dir: getCardinalDirection(hor.azimuth),
+                    rise: fmtTime(riseSearch),
+                    set: fmtTime(setSearch)
                 };
             });
 
