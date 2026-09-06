@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>La Grande Année Astronomique — Atlas d'observation</title>
+<meta name="description" content="Atlas interactif des 954 objets du ciel profond de La Grande Année Astronomique : favoris, calendrier d'observation et suivi personnel.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22><circle cx=%2212%22 cy=%2212%22 r=%224%22 fill=%22%23E8C170%22/><circle cx=%2212%22 cy=%2212%22 r=%2210%22 fill=%22none%22 stroke=%22%234FD6C4%22 stroke-width=%221%22/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="skyfield" aria-hidden="true"></div>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="brand">
+      <p class="brand-eyebrow">Atlas personnel du ciel profond</p>
+      <h1 class="brand-title">La Grande Année<br>Astronomique</h1>
+      <p class="brand-sub">954 objets à observer &middot; Seestar S50 Pro &middot; latitude 45,83° N</p>
+    </div>
+    <div class="progress-card">
+      <div class="progress-numbers">
+        <span id="progressCount">0</span><span class="progress-total">/ 954</span>
+      </div>
+      <p class="progress-label">objets observés</p>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+  </div>
+
+  <nav class="tabbar" aria-label="Navigation principale">
+    <button class="tab-btn is-active" data-tab="catalogue" type="button">
+      <svg viewBox="0 0 24 24" class="tab-icon"><path d="M4 4h16v16H4z" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M4 9h16M9 4v16" stroke="currentColor" stroke-width="1.4"/></svg>
+      Catalogue
+    </button>
+    <button class="tab-btn" data-tab="favoris" type="button">
+      <svg viewBox="0 0 24 24" class="tab-icon"><path d="M12 4l2.2 5.6 6 .4-4.6 3.9 1.5 5.8L12 16.8 6.9 19.7l1.5-5.8L3.8 10l6-.4z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+      Favoris
+    </button>
+    <button class="tab-btn" data-tab="calendrier" type="button">
+      <svg viewBox="0 0 24 24" class="tab-icon"><rect x="4" y="5" width="16" height="15" rx="1" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M4 9.5h16M8 3v3.4M16 3v3.4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      Calendrier
+    </button>
+    <button class="tab-btn" data-tab="journal" type="button">
+      <svg viewBox="0 0 24 24" class="tab-icon"><path d="M6 3.5h10.5c.8 0 1.5.7 1.5 1.5v15l-6-3-6 3v-15c0-.8.7-1.5 1.5-1.5z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+      Journal
+    </button>
+  </nav>
+</header>
+
+<main id="mainContent">
+
+  <!-- CATALOGUE -->
+  <section id="panel-catalogue" class="panel is-active">
+
+    <div class="tonight-strip" id="tonightStrip">
+      <div class="tonight-head">
+        <span class="tonight-dot" aria-hidden="true"></span>
+        <div>
+          <p class="tonight-title">Bien placés ce mois-ci</p>
+          <p class="tonight-sub" id="tonightMonthLabel"></p>
+        </div>
+      </div>
+      <div class="tonight-row" id="tonightRow"></div>
+    </div>
+
+    <div class="filterbar">
+      <div class="search-field">
+        <svg viewBox="0 0 24 24" class="search-icon"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M20 20l-4.8-4.8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        <input type="search" id="searchInput" placeholder="Chercher un objet, une désignation, une constellation…" autocomplete="off">
+      </div>
+
+      <div class="filter-row">
+        <select id="filterType" class="select-field">
+          <option value="">Tous les types</option>
+        </select>
+        <select id="filterConstellation" class="select-field">
+          <option value="">Toutes les constellations</option>
+        </select>
+        <select id="filterDifficulte" class="select-field">
+          <option value="">Toute difficulté</option>
+        </select>
+        <select id="filterCollection" class="select-field">
+          <option value="">Tout le catalogue</option>
+        </select>
+        <select id="sortField" class="select-field">
+          <option value="fiche">Tri : ordre du livre</option>
+          <option value="magnitude">Tri : magnitude (plus brillant)</option>
+          <option value="difficulte">Tri : difficulté croissante</option>
+          <option value="hauteur">Tri : hauteur max.</option>
+          <option value="nom">Tri : alphabétique</option>
+        </select>
+      </div>
+
+      <div class="chip-row">
+        <button class="chip" id="chipMonth" type="button">Visible ce mois-ci</button>
+        <button class="chip" id="chipFav" type="button">Favoris</button>
+        <button class="chip" id="chipUnseen" type="button">Non observés</button>
+        <button class="chip chip-reset" id="chipReset" type="button">Réinitialiser</button>
+      </div>
+    </div>
+
+    <p class="result-count" id="resultCount"></p>
+
+    <div class="grid" id="catalogGrid"></div>
+    <div id="loadSentinel" class="load-sentinel"></div>
+    <p class="empty-state" id="emptyState" hidden>Aucun objet ne correspond à ces filtres. Essayez d'élargir votre recherche.</p>
+  </section>
+
+  <!-- FAVORIS -->
+  <section id="panel-favoris" class="panel">
+    <div class="panel-head">
+      <h2>Vos favoris</h2>
+      <p class="panel-sub">Les cibles que vous voulez garder sous la main pour votre prochaine sortie.</p>
+    </div>
+    <div class="grid" id="favGrid"></div>
+    <p class="empty-state" id="favEmpty" hidden>Aucun favori pour l'instant. Touchez l'étoile sur une fiche pour l'ajouter ici.</p>
+  </section>
+
+  <!-- CALENDRIER -->
+  <section id="panel-calendrier" class="panel">
+    <div class="panel-head">
+      <h2>Calendrier d'observation</h2>
+      <p class="panel-sub">Planifiez vos prochaines nuits et gardez un œil sur ce qui vous attend.</p>
+    </div>
+
+    <div class="cal-toolbar">
+      <button id="calPrev" class="cal-nav" type="button" aria-label="Mois précédent">‹</button>
+      <h3 id="calLabel" class="cal-month-label"></h3>
+      <button id="calNext" class="cal-nav" type="button" aria-label="Mois suivant">›</button>
+      <button id="calToday" class="cal-today" type="button">Aujourd'hui</button>
+    </div>
+
+    <div class="cal-grid-heads">
+      <span>Lun</span><span>Mar</span><span>Mer</span><span>Jeu</span><span>Ven</span><span>Sam</span><span>Dim</span>
+    </div>
+    <div class="cal-grid" id="calGrid"></div>
+
+    <div class="cal-daypanel" id="calDayPanel" hidden>
+      <div class="cal-daypanel-head">
+        <h4 id="calDayTitle"></h4>
+        <button id="calDayClose" class="icon-btn" type="button" aria-label="Fermer">✕</button>
+      </div>
+      <div id="calDaySessions" class="cal-session-list"></div>
+      <button id="calAddSession" class="btn btn-outline" type="button">+ Ajouter un objet à cette nuit</button>
+    </div>
+  </section>
+
+  <!-- JOURNAL -->
+  <section id="panel-journal" class="panel">
+    <div class="panel-head">
+      <h2>Journal d'observation</h2>
+      <p class="panel-sub">L'historique de tout ce que vous avez pointé, dans l'ordre.</p>
+    </div>
+    <div id="journalList" class="journal-list"></div>
+    <p class="empty-state" id="journalEmpty" hidden>Votre journal est vide. Cochez « observé » sur une fiche pour commencer.</p>
+  </section>
+
+</main>
+
+<!-- MODALE FICHE OBJET -->
+<div class="modal-backdrop" id="modalBackdrop" hidden>
+  <div class="modal-sheet" id="modalSheet" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <button class="modal-close" id="modalClose" type="button" aria-label="Fermer la fiche">✕</button>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<!-- MINI DIALOGUE PLANIFICATION -->
+<div class="modal-backdrop modal-backdrop-mini" id="pickerBackdrop" hidden>
+  <div class="modal-sheet modal-sheet-mini" role="dialog" aria-modal="true">
+    <button class="modal-close" id="pickerClose" type="button" aria-label="Fermer">✕</button>
+    <h3 id="pickerTitle">Ajouter un objet</h3>
+    <input type="search" id="pickerSearch" placeholder="Chercher un objet…" autocomplete="off">
+    <div id="pickerResults" class="picker-results"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
