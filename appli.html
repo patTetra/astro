@@ -272,7 +272,7 @@ function fitsToSrc(buf,name){
   normalizePlanes(planes);
   const rowOrder=String(hdr.ROWORDER||'').toUpperCase();
   return {name:name.replace(/\.[^.]+$/,''),w,h,planes,linear:true,kind,
-          flipDefault:rowOrder!=='TOP-DOWN'};
+          flipDefault:rowOrder==='BOTTOM-UP'};
 }
 function flipV(planes,w,h){
   const tmp=new Float32Array(w);
@@ -685,12 +685,12 @@ function renderPixels(P,prm,spk,out){
 }
 
 /* ---------- réglages ---------- */
-const BASE_PRM={black:25,bright:0,satG:100,neb:85,fil:85,satN:75,vis:100,shr:0,halo:70,starB:100,spkN:7,spkL:130,spkT:100,spkI:130,shape:'4+'};
+const BASE_PRM={black:40,bright:0,satG:100,neb:140,fil:110,satN:100,vis:100,shr:0,halo:75,starB:100,spkN:7,spkL:130,spkT:100,spkI:130,shape:'4+'};
 const PRESETS={
   amas:{},
-  emission:{neb:120,fil:80,satN:85,halo:50,spkN:3},
-  galaxie:{neb:60,fil:70,halo:40,vis:85,black:35,spkN:0},
-  champ:{neb:50,fil:50,halo:60,spkN:6}
+  emission:{neb:160,fil:100,halo:55,spkN:3},
+  galaxie:{neb:90,fil:90,halo:45,vis:85,black:45,spkN:0},
+  champ:{neb:70,fil:60,halo:65,spkN:6}
 };
 const STRETCH={douce:0.08,normale:0.12,forte:0.18};
 //==CORE-END==
@@ -902,4 +902,3 @@ $('#btn-export').addEventListener('click',()=>{
 </script>
 </body>
 </html>
-
