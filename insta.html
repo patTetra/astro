@@ -49,6 +49,13 @@ input[type=file]{display:none}
 .res{margin:12px 0;display:flex;flex-direction:column;gap:8px}
 .res img,.res video{width:100%;max-width:260px;margin:0 auto;border-radius:10px;border:1px solid var(--line);background:#000}
 small{color:var(--mut)}
+details.sync{margin-top:10px;border-top:1px solid var(--line);padding-top:10px}
+details.sync summary{font-size:13px;color:var(--mut);cursor:pointer;margin-bottom:8px}
+.models{display:flex;flex-direction:column;gap:8px}
+.mod{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:#0f1424;border:1px solid var(--line);border-radius:10px;padding:12px;font-size:15px}
+.mod::before{content:"";flex:0 0 18px;height:18px;border-radius:50%;border:2px solid var(--mut)}
+.mod.on{border-color:var(--acc);background:#16233d;color:var(--acc)}
+.mod.on::before{border-color:var(--acc);background:radial-gradient(var(--acc) 45%,transparent 50%)}
 </style>
 </head>
 <body>
@@ -73,11 +80,31 @@ small{color:var(--mut)}
 <div class="card">
   <h2>Photo</h2>
   <label class="btn" for="file" style="display:block;cursor:pointer">📷 Importer une photo</label>
-  <input type="file" id="file" accept="image/*">
+  <input type="file" id="file">
+  <p class="msg" id="photoMsg"></p>
   <label class="f" for="reuse">…ou réutiliser la photo d’une autre diapo</label>
   <select id="reuse"></select>
   <label class="f" for="zoom">Zoom</label>
   <input type="range" id="zoom" min="1" max="3" step="0.01" value="1">
+</div>
+
+<div class="card">
+  <h2>Télescope utilisé pour la photo</h2>
+  <div class="models" id="models"></div>
+  <div class="row" style="margin-top:10px">
+    <input type="text" id="newModel" autocomplete="off" placeholder="Autre modèle (ex. Vespera II)" style="flex:2">
+    <button id="addModel" style="flex:1">Ajouter</button>
+  </div>
+  <button id="delModel" class="danger" style="width:100%;margin-top:8px;display:none">Supprimer ce modèle</button>
+  <p class="hint">Remplit la ligne du bas de la diapo 1 : « avec le … »</p>
+  <p class="msg" id="syncMsg"></p>
+  <details class="sync">
+    <summary>Partager la liste via GitHub (PatTetra/astro)</summary>
+    <p class="hint" id="tokState" style="text-align:left"></p>
+    <input type="password" id="tok" autocomplete="off" placeholder="Jeton GitHub (github_pat_…)">
+    <button id="saveTok" class="pri" style="width:100%;margin-top:8px">Enregistrer le jeton</button>
+    <button id="rmTok" class="danger" style="width:100%;margin-top:8px;display:none">Retirer le jeton de cet appareil</button>
+  </details>
 </div>
 
 <div class="card">
@@ -246,6 +273,130 @@ function render(){
   raf=requestAnimationFrame(()=>{raf=0;drawSlide(ctx,slides[cur],true)});
 }
 
+/* ---------- Modèles de télescopes (liste partagée via GitHub) ---------- */
+const DEFAULT_MODELS=['Seestar S30 Pro','Seestar S50 Pro','Dwarf mini'];
+const GH={owner:'PatTetra',repo:'astro',path:'models.json'};
+const API=`https://api.github.com/repos/${GH.owner}/${GH.repo}/contents/${GH.path}`;
+const store={
+  get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},
+  del(k){try{localStorage.removeItem(k)}catch(e){}}
+};
+const cleanList=a=>{
+  const out=[];
+  (Array.isArray(a)?a:[]).forEach(x=>{
+    if(typeof x!=='string')return;
+    const v=x.trim().slice(0,60);
+    if(v&&!DEFAULT_MODELS.concat(out).some(m=>m.toLowerCase()===v.toLowerCase()))out.push(v);
+  });
+  return out.slice(0,30);
+};
+let customModels=cleanList(store.get('reel.custom',[]));
+let model=store.get('reel.model','Seestar S50 Pro');
+let token=store.get('reel.token','');
+let remoteSha=null;
+const allModels=()=>DEFAULT_MODELS.concat(customModels);
+if(!allModels().includes(model))model='Seestar S50 Pro';
+const sync=t=>{$('syncMsg').textContent=t};
+const b64enc=s=>btoa(unescape(encodeURIComponent(s)));
+const b64dec=s=>decodeURIComponent(escape(atob(s.replace(/\s/g,''))));
+const ghHeaders=()=>({'Accept':'application/vnd.github+json','Authorization':'Bearer '+token,'X-GitHub-Api-Version':'2022-11-28'});
+
+function applyModel(){
+  slides[0].bottom='avec le '+model;
+  if(cur===0)$('bottom').value=slides[0].bottom;
+  render();
+}
+function renderModels(){
+  const box=$('models');box.innerHTML='';
+  allModels().forEach(m=>{
+    const b=document.createElement('button');
+    b.className='mod'+(m===model?' on':'');b.textContent=m;
+    b.onclick=()=>{model=m;store.set('reel.model',m);applyModel();renderModels()};
+    box.append(b);
+  });
+  $('delModel').style.display=customModels.includes(model)?'block':'none';
+  $('tokState').textContent=token?'Jeton enregistré sur cet appareil ✔':'Aucun jeton : la liste reste sur cet appareil.';
+  $('rmTok').style.display=token?'block':'none';
+}
+function setCustom(list){
+  customModels=cleanList(list);store.set('reel.custom',customModels);
+  if(!allModels().includes(model))model='Seestar S50 Pro';
+  renderModels();
+}
+
+/* Lecture : avec jeton via l’API (toujours à jour), sans jeton via le fichier du site */
+async function loadRemote(union){
+  try{
+    let remote=null;
+    if(token){
+      const r=await fetch(API+'?t='+Date.now(),{headers:ghHeaders(),cache:'no-store'});
+      if(r.status===404){remoteSha=null;sync('Pas encore de models.json sur GitHub : il sera créé au prochain ajout.');return []}
+      if(r.status===401||r.status===403){sync('Jeton refusé par GitHub : vérifie sa validité et la permission « Contents : Read and write ».');return null}
+      if(!r.ok){sync('GitHub : erreur '+r.status+'.');return null}
+      const j=await r.json();remoteSha=j.sha;
+      remote=cleanList(JSON.parse(b64dec(j.content)).custom);
+    }else{
+      const r=await fetch(GH.path+'?t='+Date.now(),{cache:'no-store'});
+      if(!r.ok)return null;
+      remote=cleanList((await r.json()).custom);
+    }
+    setCustom(union?remote.concat(customModels):(token?remote:remote.concat(customModels)));
+    sync(token?'Liste synchronisée avec GitHub ✔':'');
+    return remote;
+  }catch(e){return null}
+}
+
+/* Écriture : crée ou met à jour models.json dans le dépôt (branche par défaut) */
+async function saveRemote(){
+  if(!token){sync('Enregistré sur cet appareil seulement. Colle un jeton GitHub pour partager la liste.');return}
+  sync('Enregistrement sur GitHub…');
+  const body={
+    message:'Mise à jour des modèles de télescopes',
+    content:b64enc(JSON.stringify({custom:customModels},null,2)+'\n')
+  };
+  if(remoteSha)body.sha=remoteSha;
+  try{
+    for(let attempt=0;attempt<2;attempt++){
+      const r=await fetch(API,{method:'PUT',headers:{...ghHeaders(),'Content-Type':'application/json'},body:JSON.stringify(body)});
+      if(r.ok){const j=await r.json();remoteSha=j.content.sha;sync('Enregistré sur GitHub ✔ (visible sur le site dans environ 1 minute)');return}
+      if((r.status===409||r.status===422)&&attempt===0){
+        const g=await fetch(API+'?t='+Date.now(),{headers:ghHeaders(),cache:'no-store'});
+        if(g.ok)body.sha=(await g.json()).sha;else delete body.sha;
+        continue;
+      }
+      if(r.status===401||r.status===403){sync('Jeton refusé : il faut la permission « Contents : Read and write » sur '+GH.owner+'/'+GH.repo+'.');return}
+      if(r.status===404){sync('Dépôt introuvable avec ce jeton : vérifie qu’il donne accès à '+GH.owner+'/'+GH.repo+'.');return}
+      sync('Échec de l’enregistrement sur GitHub ('+r.status+').');return;
+    }
+  }catch(e){sync('Pas de connexion : ajout gardé sur cet appareil seulement.')}
+}
+
+$('addModel').onclick=()=>{
+  const v=$('newModel').value.trim();if(!v)return;
+  const known=allModels().find(m=>m.toLowerCase()===v.toLowerCase());
+  const isNew=!known;
+  if(isNew)setCustom(customModels.concat(v));
+  model=known||v.slice(0,60);store.set('reel.model',model);
+  $('newModel').value='';applyModel();renderModels();
+  if(isNew)saveRemote();
+};
+$('newModel').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('addModel').click()}});
+$('delModel').onclick=()=>{
+  setCustom(customModels.filter(m=>m!==model));
+  model='Seestar S50 Pro';store.set('reel.model',model);renderModels();
+  saveRemote();
+};
+$('saveTok').onclick=async()=>{
+  const v=$('tok').value.trim();if(!v)return;
+  token=v;store.set('reel.token',token);$('tok').value='';renderModels();
+  sync('Vérification…');
+  const remote=await loadRemote(true);
+  // si cet appareil avait des modèles que GitHub n’a pas encore, on les envoie
+  if(remote&&customModels.some(m=>!remote.includes(m)))await saveRemote();
+};
+$('rmTok').onclick=()=>{token='';store.del('reel.token');remoteSha=null;sync('');renderModels()};
+
 /* ---------- Interface ---------- */
 function refreshStrip(){
   const st=$('strip');st.innerHTML='';
@@ -299,15 +450,37 @@ $('del').onclick=()=>{
   slides.forEach(d=>{if(d.reuse===s.id){d.img=s.img;d.reuse=null}});
   slides.splice(cur,1);cur=Math.min(cur,slides.length-1);refreshAll();
 };
-$('file').onchange=e=>{
+const ascii=(u,a,b)=>String.fromCharCode(...u.slice(a,b));
+async function fileToImage(f){
+  // Détecte le vrai format d’après le contenu : fonctionne même sans extension ni type MIME
+  const buf=await f.arrayBuffer();
+  const u=new Uint8Array(buf.slice(0,16));
+  let type=f.type||'';
+  if(u[0]===0xFF&&u[1]===0xD8)type='image/jpeg';
+  else if(u[0]===0x89&&ascii(u,1,4)==='PNG')type='image/png';
+  else if(ascii(u,0,4)==='RIFF'&&ascii(u,8,12)==='WEBP')type='image/webp';
+  else if(ascii(u,0,3)==='GIF')type='image/gif';
+  else if(ascii(u,4,8)==='ftyp')type=type||'image/heic';
+  const url=URL.createObjectURL(new Blob([buf],{type:type||'image/jpeg'}));
+  return new Promise((res,rej)=>{
+    const img=new Image();
+    img.onload=()=>res(img);
+    img.onerror=()=>rej(new Error('format non pris en charge'));
+    img.src=url;
+  });
+}
+$('file').onchange=async e=>{
   const f=e.target.files[0];if(!f)return;
-  const img=new Image();
   const s=slides[cur];
-  img.onload=()=>{
+  $('photoMsg').textContent='Chargement…';
+  try{
+    const img=await fileToImage(f);
     s.img=img;s.reuse=null;s.ox=0;s.oy=0;s.zoom=1;
+    $('photoMsg').textContent='';
     refreshAll();
-  };
-  img.src=URL.createObjectURL(f);
+  }catch(err){
+    $('photoMsg').textContent='Impossible de lire cette image ('+err.message+'). Essaie une exportation en JPG ou PNG.';
+  }
   e.target.value='';
 };
 $('reuse').onchange=e=>{
@@ -318,7 +491,7 @@ $('reuse').onchange=e=>{
 };
 $('tpl').onclick=()=>{
   const T=[
-    ['J’ai obtenu cette photo des','Pléiades','avec le Seestar S50 Pro','blue'],
+    ['J’ai obtenu cette photo des','Pléiades','avec le '+model,'blue'],
     ['','3 h 29 de pose','Sortie brute du télescope','gold'],
     ['Amélioration par','l’appli Seestar','','blue'],
     ['Puis mon','traitement perso','','gold'],
@@ -461,11 +634,12 @@ $('go').onclick=async()=>{
 
 /* ---------- Démarrage ---------- */
 slides=[newSlide()];
+renderModels();
 refreshAll();
+loadRemote(false);
 loadFonts().then(render);
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(render);
 })();
 </script>
 </body>
 </html>
-
