@@ -1,1 +1,471 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b0f1a">
+<title>Atelier Réel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b0f1a;--card:#141a2b;--line:#252d45;--txt:#eef2ff;--mut:#8f9ab8;--acc:#8cc3ff;--gold:#ffd678}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif}
+body{padding:max(12px,env(safe-area-inset-top)) 14px max(28px,env(safe-area-inset-bottom));max-width:560px;margin:0 auto}
+h1{font-size:20px;margin:6px 0 2px}
+.sub{color:var(--mut);font-size:13px;margin:0 0 12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin:12px 0}
+.card h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);margin:0 0 10px;font-weight:600}
+canvas#cv{display:block;margin:0 auto;width:min(100%,calc(56vh*9/16));height:auto;aspect-ratio:9/16;border-radius:12px;background:#000;touch-action:none;cursor:grab}
+.hint{font-size:12px;color:var(--mut);text-align:center;margin:6px 0 0}
+.strip{display:flex;gap:8px;overflow-x:auto;padding:2px 0 8px;align-items:center}
+.chip{flex:0 0 auto;min-width:42px;height:42px;border-radius:10px;border:1px solid var(--line);background:#0f1424;color:var(--txt);font-size:15px;font-weight:600;position:relative}
+.chip.on{border-color:var(--acc);background:#16233d;color:var(--acc)}
+.chip i{position:absolute;right:4px;top:3px;width:6px;height:6px;border-radius:50%;background:#3ddc84;display:none}
+.chip.has i{display:block}
+.tools{display:flex;gap:8px;flex-wrap:wrap}
+button,.btn{font:inherit;font-size:14px;font-weight:600;color:var(--txt);background:#1c2540;border:1px solid var(--line);border-radius:10px;padding:10px 12px;text-decoration:none;display:inline-block;text-align:center}
+button:active,.btn:active{opacity:.7}
+button.pri{background:var(--acc);color:#06101f;border-color:var(--acc)}
+button.big{width:100%;padding:14px;font-size:16px}
+button.danger{color:#ff8a8a}
+button:disabled{opacity:.45}
+label.f{display:block;font-size:12px;color:var(--mut);margin:10px 0 4px}
+input[type=text],input[type=number],select{width:100%;font:inherit;font-size:16px;color:var(--txt);background:#0f1424;border:1px solid var(--line);border-radius:10px;padding:11px}
+input[type=range]{width:100%}
+input[type=file]{display:none}
+.row{display:flex;gap:8px;align-items:center}
+.row>*{flex:1}
+.cols{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.sw{height:42px;border-radius:10px;border:2px solid transparent;font-weight:700;font-size:13px;color:#06101f}
+.sw.on{border-color:#fff;box-shadow:0 0 0 2px #0b0f1a inset}
+.nav{display:grid;grid-template-columns:1fr 1.4fr;gap:8px;margin-top:12px}
+.chk{display:flex;align-items:center;gap:10px;font-size:15px;margin:6px 0}
+.chk input{width:20px;height:20px}
+.msg{font-size:13px;color:var(--gold);margin:8px 0 0;min-height:18px}
+.bar{height:6px;background:#0f1424;border-radius:3px;overflow:hidden;margin-top:8px;display:none}
+.bar>div{height:100%;width:0;background:var(--acc)}
+.res{margin:12px 0;display:flex;flex-direction:column;gap:8px}
+.res img,.res video{width:100%;max-width:260px;margin:0 auto;border-radius:10px;border:1px solid var(--line);background:#000}
+small{color:var(--mut)}
+</style>
+</head>
+<body>
+<h1>Atelier Réel</h1>
+<p class="sub">Une photo + un texte par diapo → images 1080×1920 et vidéo pour Instagram.</p>
+
+<div class="card">
+  <canvas id="cv" width="1080" height="1920"></canvas>
+  <p class="hint" id="hint">Glisse sur l’aperçu pour recadrer la photo</p>
+</div>
+
+<div class="card">
+  <h2>Diapos</h2>
+  <div class="strip" id="strip"></div>
+  <div class="tools">
+    <button id="mvL">◀ Déplacer</button>
+    <button id="mvR">Déplacer ▶</button>
+    <button id="del" class="danger">Supprimer</button>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Photo</h2>
+  <label class="btn" for="file" style="display:block;cursor:pointer">📷 Importer une photo</label>
+  <input type="file" id="file" accept="image/*">
+  <label class="f" for="reuse">…ou réutiliser la photo d’une autre diapo</label>
+  <select id="reuse"></select>
+  <label class="f" for="zoom">Zoom</label>
+  <input type="range" id="zoom" min="1" max="3" step="0.01" value="1">
+</div>
+
+<div class="card">
+  <h2>Texte</h2>
+  <label class="f" for="top">Ligne du haut (facultatif)</label>
+  <input type="text" id="top" autocomplete="off" placeholder="ex. J’ai obtenu cette photo des">
+  <label class="f" for="kw">Mot-clé (grand et coloré)</label>
+  <input type="text" id="kw" autocomplete="off" placeholder="ex. Pléiades">
+  <label class="f" for="bottom">Ligne du bas (facultatif)</label>
+  <input type="text" id="bottom" autocomplete="off" placeholder="ex. avec le Seestar S50 Pro">
+  <label class="f">Couleur du mot-clé</label>
+  <div class="cols">
+    <button class="sw" data-c="blue" style="background:#8cc3ff">Bleu</button>
+    <button class="sw" data-c="gold" style="background:#ffd678">Or</button>
+    <button class="sw" data-c="white" style="background:#ffffff">Blanc</button>
+  </div>
+  <div class="nav">
+    <button id="prev">◀ Précédente</button>
+    <button id="next" class="pri">Diapo suivante ▶</button>
+  </div>
+  <div style="margin-top:10px"><button id="tpl" style="width:100%">Remplir le modèle « Pléiades » (5 diapos)</button></div>
+</div>
+
+<div class="card">
+  <h2>Filigrane Le Télégramme</h2>
+  <label class="chk"><input type="checkbox" id="wmOn" checked> Afficher en haut à gauche</label>
+  <label class="f" for="wmOp">Opacité : <span id="wmOpV">40</span> %</label>
+  <input type="range" id="wmOp" min="20" max="60" step="5" value="40">
+</div>
+
+<div class="card">
+  <h2>Export</h2>
+  <label class="chk"><input type="checkbox" id="oPng" checked> Images PNG (1080×1920)</label>
+  <label class="chk"><input type="checkbox" id="oVid" checked> Vidéo</label>
+  <div class="cols" style="margin-top:8px">
+    <div><label class="f" for="dur">Par image (s)</label><input type="number" id="dur" value="3" min="1" max="10" step="0.5" inputmode="decimal"></div>
+    <div><label class="f" for="durL">Dernière (s)</label><input type="number" id="durL" value="4" min="1" max="12" step="0.5" inputmode="decimal"></div>
+    <div><label class="f" for="fade">Fondu (s)</label><input type="number" id="fade" value="0.4" min="0" max="1.5" step="0.1" inputmode="decimal"></div>
+  </div>
+  <div style="margin-top:12px"><button id="go" class="pri big">Générer</button></div>
+  <div class="bar" id="bar"><div></div></div>
+  <p class="msg" id="msg"></p>
+  <div id="results"></div>
+  <p class="hint"><small>Vidéo : MP4 sur iPhone et Chrome récent, sinon WebM. Garde l’écran allumé pendant l’enregistrement.</small></p>
+</div>
+
+<script>
+(()=>{
+const W=1080,H=1920,MAXW=W-170,TEXT_Y=270;
+const COLORS={blue:'#8cc3ff',gold:'#ffd678',white:'#ffffff'};
+const FONT='Poppins, "Helvetica Neue", Arial, sans-serif';
+const $=id=>document.getElementById(id);
+const cv=$('cv'),ctx=cv.getContext('2d');
+let slides=[],cur=0,uid=1;
+
+function newSlide(){return {id:uid++,img:null,reuse:null,ox:0,oy:0,zoom:1,top:'',kw:'',bottom:'',color:'blue'}}
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const byId=id=>slides.find(s=>s.id===id);
+const getImg=s=>s.reuse!=null?(byId(s.reuse)||{}).img||null:s.img;
+
+/* ---------- Texte ---------- */
+function wrapText(c,text,maxW){
+  const words=text.split(/\s+/).filter(Boolean),lines=[];let line='';
+  for(const w of words){
+    const t=line?line+' '+w:w;
+    if(c.measureText(t).width<=maxW||!line)line=t;else{lines.push(line);line=w}
+  }
+  if(line)lines.push(line);
+  return lines;
+}
+function fit(c,text,weight,start,min,maxLines,maxW){
+  let size=start;
+  for(;;){
+    c.font=`${weight} ${size}px ${FONT}`;
+    const lines=wrapText(c,text,maxW);
+    const ok=lines.length<=maxLines&&lines.every(l=>c.measureText(l).width<=maxW);
+    if(ok||size<=min)return {size,lines};
+    size-=4;
+  }
+}
+function fitKeyword(c,text){
+  // privilégie une seule ligne, sinon deux lignes
+  c.font=`700 104px ${FONT}`;
+  let one=fit(c,text,700,104,76,1,MAXW);
+  c.font=`700 ${one.size}px ${FONT}`;
+  if(one.lines.length===1&&c.measureText(one.lines[0]).width<=MAXW)return one;
+  return fit(c,text,700,96,56,2,MAXW);
+}
+function layout(c,s){
+  const blocks=[];
+  const t=s.top.trim(),k=s.kw.trim(),b=s.bottom.trim();
+  if(t)blocks.push({...fit(c,t,600,62,40,3,MAXW),weight:600,color:'#ffffff',gap:8});
+  if(k)blocks.push({...fitKeyword(c,k),weight:700,color:COLORS[s.color]||COLORS.blue,gap:30});
+  if(b)blocks.push({...fit(c,b,500,52,34,3,MAXW),weight:500,color:'#ffffff',gap:0});
+  let y=TEXT_Y;
+  for(const bl of blocks){bl.y=y;y+=bl.lines.length*Math.round(bl.size*1.22)+bl.gap}
+  return {blocks,bottom:y};
+}
+
+/* ---------- Filigrane (4 traits du T, dessinés en vectoriel) ---------- */
+function drawWatermark(c,opacity){
+  // proportions relevées sur l’icône : boîte 86×98
+  const w=96,sc=w/86,x0=64,y0=140;
+  c.save();
+  c.globalAlpha=opacity;
+  c.fillStyle='#ffffff';
+  const bars=[[0,0,86,14],[0,28,86,14],[27,56,32,14],[27,84,32,14]];
+  for(const [x,y,bw,bh] of bars){
+    const r=2*sc;
+    c.beginPath();
+    c.roundRect?c.roundRect(x0+x*sc,y0+y*sc,bw*sc,bh*sc,r):c.rect(x0+x*sc,y0+y*sc,bw*sc,bh*sc);
+    c.fill();
+  }
+  c.restore();
+}
+
+/* ---------- Rendu d’une diapo ---------- */
+function drawPhoto(c,s,preview){
+  c.fillStyle='#000';c.fillRect(0,0,W,H);
+  const img=getImg(s);
+  if(!img){
+    if(preview){
+      const g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,'#0b1428');g.addColorStop(1,'#04060d');
+      c.fillStyle=g;c.fillRect(0,0,W,H);
+      c.fillStyle='#4b5a80';c.textAlign='center';c.textBaseline='middle';
+      c.font=`600 54px ${FONT}`;c.fillText('Choisis une photo',W/2,H/2);
+    }
+    return;
+  }
+  const iw=img.naturalWidth,ih=img.naturalHeight;
+  const sc=Math.max(W/iw,H/ih)*s.zoom,dw=iw*sc,dh=ih*sc;
+  const mx=(dw-W)/2,my=(dh-H)/2;
+  s.ox=clamp(s.ox,-mx,mx);s.oy=clamp(s.oy,-my,my);
+  c.imageSmoothingQuality='high';
+  c.drawImage(img,W/2-dw/2+s.ox,H/2-dh/2+s.oy,dw,dh);
+}
+function drawSlide(c,s,preview){
+  c.save();
+  c.globalAlpha=1;
+  drawPhoto(c,s,preview);
+  const L=layout(c,s);
+  if(L.blocks.length||$('wmOn').checked){
+    const gh=Math.max(720,L.bottom+180);
+    const g=c.createLinearGradient(0,0,0,gh);
+    g.addColorStop(0,'rgba(0,0,0,.78)');g.addColorStop(.5,'rgba(0,0,0,.30)');g.addColorStop(1,'rgba(0,0,0,0)');
+    c.fillStyle=g;c.fillRect(0,0,W,gh);
+  }
+  c.textAlign='center';c.textBaseline='top';c.lineJoin='round';
+  for(const b of L.blocks){
+    c.font=`${b.weight} ${b.size}px ${FONT}`;
+    const lh=Math.round(b.size*1.22);
+    b.lines.forEach((line,i)=>{
+      const y=b.y+i*lh;
+      c.fillStyle='#000';c.fillText(line,W/2+2,y+3);
+      c.lineWidth=4;c.strokeStyle='#000';c.strokeText(line,W/2,y);
+      c.fillStyle=b.color;c.fillText(line,W/2,y);
+    });
+  }
+  if($('wmOn').checked)drawWatermark(c,(+$('wmOp').value)/100);
+  c.restore();
+}
+
+let raf=0;
+function render(){
+  if(raf)return;
+  raf=requestAnimationFrame(()=>{raf=0;drawSlide(ctx,slides[cur],true)});
+}
+
+/* ---------- Interface ---------- */
+function refreshStrip(){
+  const st=$('strip');st.innerHTML='';
+  slides.forEach((s,i)=>{
+    const b=document.createElement('button');
+    b.className='chip'+(i===cur?' on':'')+(getImg(s)?' has':'');
+    b.innerHTML=(i+1)+'<i></i>';
+    b.onclick=()=>{cur=i;refreshAll()};
+    st.append(b);
+  });
+  const add=document.createElement('button');
+  add.className='chip';add.textContent='+';add.onclick=addSlide;st.append(add);
+  const on=st.querySelector('.on');if(on)on.scrollIntoView({block:'nearest',inline:'nearest'});
+}
+function refreshReuse(){
+  const sel=$('reuse'),s=slides[cur];
+  sel.innerHTML='';
+  const o0=document.createElement('option');o0.value='';o0.textContent='—';sel.append(o0);
+  slides.forEach((x,i)=>{
+    if(x.id===s.id||x.reuse!=null||!x.img)return;
+    const o=document.createElement('option');o.value=x.id;o.textContent='Diapo '+(i+1);sel.append(o);
+  });
+  sel.value=s.reuse!=null?String(s.reuse):'';
+}
+function refreshFields(){
+  const s=slides[cur];
+  $('top').value=s.top;$('kw').value=s.kw;$('bottom').value=s.bottom;
+  $('zoom').value=s.zoom;
+  document.querySelectorAll('.sw').forEach(b=>b.classList.toggle('on',b.dataset.c===s.color));
+  $('prev').disabled=cur===0;
+  $('next').textContent=cur===slides.length-1?'Nouvelle diapo ▶':'Diapo suivante ▶';
+  $('mvL').disabled=cur===0;$('mvR').disabled=cur===slides.length-1;
+}
+function refreshAll(){refreshStrip();refreshReuse();refreshFields();render()}
+function addSlide(){slides.push(newSlide());cur=slides.length-1;refreshAll()}
+
+$('top').oninput=e=>{slides[cur].top=e.target.value;render()};
+$('kw').oninput=e=>{slides[cur].kw=e.target.value;render()};
+$('bottom').oninput=e=>{slides[cur].bottom=e.target.value;render()};
+$('zoom').oninput=e=>{slides[cur].zoom=+e.target.value;render()};
+document.querySelectorAll('.sw').forEach(b=>b.onclick=()=>{slides[cur].color=b.dataset.c;refreshFields();render()});
+$('wmOn').onchange=render;
+$('wmOp').oninput=e=>{$('wmOpV').textContent=e.target.value;render()};
+$('prev').onclick=()=>{if(cur>0){cur--;refreshAll()}};
+$('next').onclick=()=>{if(cur<slides.length-1){cur++;refreshAll()}else addSlide()};
+$('mvL').onclick=()=>{if(cur>0){[slides[cur-1],slides[cur]]=[slides[cur],slides[cur-1]];cur--;refreshAll()}};
+$('mvR').onclick=()=>{if(cur<slides.length-1){[slides[cur+1],slides[cur]]=[slides[cur],slides[cur+1]];cur++;refreshAll()}};
+$('del').onclick=()=>{
+  const s=slides[cur];
+  if(slides.length===1){slides[0]=newSlide();refreshAll();return}
+  slides.forEach(d=>{if(d.reuse===s.id){d.img=s.img;d.reuse=null}});
+  slides.splice(cur,1);cur=Math.min(cur,slides.length-1);refreshAll();
+};
+$('file').onchange=e=>{
+  const f=e.target.files[0];if(!f)return;
+  const img=new Image();
+  const s=slides[cur];
+  img.onload=()=>{
+    s.img=img;s.reuse=null;s.ox=0;s.oy=0;s.zoom=1;
+    refreshAll();
+  };
+  img.src=URL.createObjectURL(f);
+  e.target.value='';
+};
+$('reuse').onchange=e=>{
+  const s=slides[cur];
+  s.reuse=e.target.value?+e.target.value:null;
+  s.ox=0;s.oy=0;s.zoom=1;
+  refreshAll();
+};
+$('tpl').onclick=()=>{
+  const T=[
+    ['J’ai obtenu cette photo des','Pléiades','avec le Seestar S50 Pro','blue'],
+    ['','3 h 29 de pose','Sortie brute du télescope','gold'],
+    ['Amélioration par','l’appli Seestar','','blue'],
+    ['Puis mon','traitement perso','','gold'],
+    ['Je teste 3 télescopes connectés pour','Le Télégramme','Retrouvez ici mes photos et vidéos au fur et à mesure des tests','blue']
+  ];
+  const old=slides;
+  slides=T.map(t=>{const s=newSlide();[s.top,s.kw,s.bottom,s.color]=t;return s});
+  // conserve les photos déjà importées sur les 5 premières diapos
+  old.forEach((o,i)=>{if(slides[i]&&o.img&&o.reuse==null){slides[i].img=o.img}});
+  // les diapos 4 et 5 réutilisent la photo de la diapo 1
+  slides[3].reuse=slides[0].id;slides[4].reuse=slides[0].id;
+  cur=0;refreshAll();
+};
+
+/* Recadrage au doigt / à la souris */
+let drag=null;
+cv.addEventListener('pointerdown',e=>{if(!getImg(slides[cur]))return;drag={x:e.clientX,y:e.clientY};cv.setPointerCapture(e.pointerId);cv.style.cursor='grabbing'});
+cv.addEventListener('pointermove',e=>{
+  if(!drag)return;
+  const k=W/cv.clientWidth,s=slides[cur];
+  s.ox+=(e.clientX-drag.x)*k;s.oy+=(e.clientY-drag.y)*k;
+  drag={x:e.clientX,y:e.clientY};render();
+});
+const endDrag=()=>{drag=null;cv.style.cursor='grab'};
+cv.addEventListener('pointerup',endDrag);cv.addEventListener('pointercancel',endDrag);
+
+/* ---------- Export ---------- */
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const msg=t=>{$('msg').textContent=t};
+function progress(p){const b=$('bar');b.style.display=p==null?'none':'block';if(p!=null)b.firstElementChild.style.width=Math.round(p*100)+'%'}
+const sharedPng=[];
+
+function addResult(blob,name){
+  const url=URL.createObjectURL(blob);
+  const isVid=blob.type.startsWith('video');
+  const div=document.createElement('div');div.className='res';
+  const m=document.createElement(isVid?'video':'img');
+  m.src=url;
+  if(isVid){m.controls=true;m.playsInline=true;m.muted=true}
+  const a=document.createElement('a');a.href=url;a.download=name;a.className='btn';a.textContent='⬇ '+name;
+  div.append(m,a);
+  const file=new File([blob],name,{type:blob.type});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){
+    const b=document.createElement('button');b.textContent='Partager / enregistrer';
+    b.onclick=()=>navigator.share({files:[file]}).catch(()=>{});
+    div.append(b);
+  }
+  $('results').append(div);
+  return file;
+}
+
+async function loadFonts(){
+  try{await Promise.all(['500','600','700'].map(w=>document.fonts.load(`${w} 60px Poppins`)))}catch(e){}
+}
+
+async function recordVideo(cvs){
+  if(!window.MediaRecorder||!HTMLCanvasElement.prototype.captureStream){
+    msg('Ce navigateur ne sait pas enregistrer de vidéo. Utilise les PNG ou un autre navigateur.');return;
+  }
+  const mime=['video/mp4;codecs=avc1.42E01E','video/mp4','video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm']
+    .find(m=>MediaRecorder.isTypeSupported(m))||'';
+  const rc=document.createElement('canvas');rc.width=W;rc.height=H;
+  const rx=rc.getContext('2d');
+  const n=cvs.length;
+  const per=Math.max(1,+$('dur').value||3),last=Math.max(1,+$('durL').value||per);
+  const X=clamp(+$('fade').value||0,0,per-0.2);
+  const dur=cvs.map((_,i)=>i===n-1?last:per);
+  const starts=[0];
+  for(let i=1;i<n;i++)starts[i]=starts[i-1]+dur[i-1]-X;
+  const total=starts[n-1]+dur[n-1];
+
+  rx.drawImage(cvs[0],0,0);
+  const stream=rc.captureStream(30);
+  const opts={videoBitsPerSecond:12e6};if(mime)opts.mimeType=mime;
+  const rec=new MediaRecorder(stream,opts);
+  const chunks=[];
+  rec.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data)};
+  const stopped=new Promise(r=>rec.onstop=r);
+  let lock=null;try{lock=await navigator.wakeLock.request('screen')}catch(e){}
+  rec.start(250);
+  const t0=performance.now();
+  await new Promise(res=>{
+    const frame=()=>{
+      const t=(performance.now()-t0)/1000;
+      if(t>=total){rx.globalAlpha=1;rx.drawImage(cvs[n-1],0,0);res();return}
+      let i=0;for(let k=0;k<n;k++)if(starts[k]<=t)i=k;
+      rx.globalAlpha=1;
+      if(i>0&&X>0&&t-starts[i]<X){
+        rx.drawImage(cvs[i-1],0,0);
+        rx.globalAlpha=(t-starts[i])/X;
+        rx.drawImage(cvs[i],0,0);
+        rx.globalAlpha=1;
+      }else rx.drawImage(cvs[i],0,0);
+      progress(t/total);msg(`Enregistrement de la vidéo… ${Math.floor(t)} / ${Math.ceil(total)} s`);
+      requestAnimationFrame(frame);
+    };
+    requestAnimationFrame(frame);
+  });
+  await sleep(250);
+  rec.stop();await stopped;
+  try{lock&&lock.release()}catch(e){}
+  const type=rec.mimeType||mime||'video/webm';
+  const blob=new Blob(chunks,{type});
+  addResult(blob,'reel.'+(type.includes('mp4')?'mp4':'webm'));
+}
+
+$('go').onclick=async()=>{
+  const doPng=$('oPng').checked,doVid=$('oVid').checked;
+  if(!doPng&&!doVid){msg('Coche au moins une sortie.');return}
+  const miss=slides.findIndex(s=>!getImg(s));
+  if(miss>=0){msg(`La diapo ${miss+1} n’a pas de photo.`);cur=miss;refreshAll();return}
+  $('go').disabled=true;$('results').innerHTML='';sharedPng.length=0;
+  try{
+    msg('Préparation…');progress(0);
+    await loadFonts();
+    const cvs=slides.map(s=>{
+      const c=document.createElement('canvas');c.width=W;c.height=H;
+      drawSlide(c.getContext('2d'),s,false);return c;
+    });
+    if(doPng){
+      for(let i=0;i<cvs.length;i++){
+        const blob=await new Promise(r=>cvs[i].toBlob(r,'image/png'));
+        sharedPng.push(addResult(blob,`reel_${String(i+1).padStart(2,'0')}.png`));
+        progress((i+1)/cvs.length);
+      }
+      if(sharedPng.length>1&&navigator.canShare&&navigator.canShare({files:sharedPng})){
+        const b=document.createElement('button');b.className='big';b.textContent='Partager toutes les images';
+        b.onclick=()=>navigator.share({files:sharedPng}).catch(()=>{});
+        $('results').prepend(b);
+      }
+    }
+    if(doVid)await recordVideo(cvs);
+    msg('Terminé ✔');
+  }catch(err){
+    console.error(err);msg('Erreur : '+(err&&err.message?err.message:err));
+  }finally{
+    progress(null);$('go').disabled=false;
+  }
+};
+
+/* ---------- Démarrage ---------- */
+slides=[newSlide()];
+refreshAll();
+loadFonts().then(render);
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(render);
+})();
+</script>
+</body>
+</html>
 
