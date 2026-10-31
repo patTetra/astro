@@ -86,6 +86,24 @@ details.sync summary{font-size:13px;color:var(--mut);cursor:pointer;margin-botto
   <select id="reuse"></select>
   <label class="f" for="zoom">Zoom</label>
   <input type="range" id="zoom" min="1" max="3" step="0.01" value="1">
+  <label class="chk" style="margin-top:14px"><input type="checkbox" id="moonOn"> Photo de la Lune : ombre sur les bords</label>
+  <div id="moonBox" style="display:none">
+    <label class="f" for="moonInt">Intensité de l’ombre : <span id="moonIntV">60</span> %</label>
+    <input type="range" id="moonInt" min="0" max="100" step="5" value="60">
+    <label class="f" for="moonExt">Étendue vers le centre : <span id="moonExtV">40</span> %</label>
+    <input type="range" id="moonExt" min="10" max="80" step="5" value="40">
+    <details id="moonAdj" class="sync">
+      <summary>Ajuster le disque (cercle jaune sur l’aperçu)</summary>
+      <label class="f" for="moonK">Taille : <span id="moonKV">100</span> %</label>
+      <input type="range" id="moonK" min="70" max="130" step="1" value="100">
+      <label class="f" for="moonDx">Position horizontale : <span id="moonDxV">0</span></label>
+      <input type="range" id="moonDx" min="-30" max="30" step="1" value="0">
+      <label class="f" for="moonDy">Position verticale : <span id="moonDyV">0</span></label>
+      <input type="range" id="moonDy" min="-30" max="30" step="1" value="0">
+      <button id="moonRe" style="width:100%;margin-top:10px">Détecter à nouveau</button>
+    </details>
+    <p class="msg" id="moonMsg"></p>
+  </div>
 </div>
 
 <div class="card">
@@ -160,7 +178,7 @@ const $=id=>document.getElementById(id);
 const cv=$('cv'),ctx=cv.getContext('2d');
 let slides=[],cur=0,uid=1;
 
-function newSlide(){return {id:uid++,img:null,reuse:null,ox:0,oy:0,zoom:1,top:'',kw:'',bottom:'',color:'blue'}}
+function newSlide(){return {id:uid++,img:null,reuse:null,ox:0,oy:0,zoom:1,top:'',kw:'',bottom:'',color:'blue',moon:{on:false,int:60,ext:40,k:100,dx:0,dy:0}}}
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const byId=id=>slides.find(s=>s.id===id);
 const getImg=s=>s.reuse!=null?(byId(s.reuse)||{}).img||null:s.img;
@@ -221,6 +239,106 @@ function drawWatermark(c,opacity){
   c.restore();
 }
 
+/* ---------- Lune : détection du disque + ombre sur les bords ---------- */
+function minEnclosingCircle(pts){
+  const P=pts.slice();
+  for(let i=P.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[P[i],P[j]]=[P[j],P[i]]}
+  const inC=(c,p)=>Math.hypot(p.x-c.x,p.y-c.y)<=c.r*(1+1e-9)+1e-7;
+  const two=(a,b)=>({x:(a.x+b.x)/2,y:(a.y+b.y)/2,r:Math.hypot(a.x-b.x,a.y-b.y)/2});
+  const three=(a,b,c)=>{
+    const d=2*(a.x*(b.y-c.y)+b.x*(c.y-a.y)+c.x*(a.y-b.y));
+    if(Math.abs(d)<1e-12){
+      const cs=[two(a,b),two(a,c),two(b,c)];return cs.sort((u,v)=>v.r-u.r)[0];
+    }
+    const ux=((a.x*a.x+a.y*a.y)*(b.y-c.y)+(b.x*b.x+b.y*b.y)*(c.y-a.y)+(c.x*c.x+c.y*c.y)*(a.y-b.y))/d;
+    const uy=((a.x*a.x+a.y*a.y)*(c.x-b.x)+(b.x*b.x+b.y*b.y)*(a.x-c.x)+(c.x*c.x+c.y*c.y)*(b.x-a.x))/d;
+    return {x:ux,y:uy,r:Math.hypot(a.x-ux,a.y-uy)};
+  };
+  let c=null;
+  for(let i=0;i<P.length;i++){
+    if(c&&inC(c,P[i]))continue;
+    c={x:P[i].x,y:P[i].y,r:0};
+    for(let j=0;j<i;j++){
+      if(inC(c,P[j]))continue;
+      c=two(P[i],P[j]);
+      for(let k=0;k<j;k++)if(!inC(c,P[k]))c=three(P[i],P[j],P[k]);
+    }
+  }
+  return c;
+}
+function convexHull(pts){
+  const p=pts.slice().sort((a,b)=>a.x-b.x||a.y-b.y);
+  if(p.length<3)return p;
+  const cr=(o,a,b)=>(a.x-o.x)*(b.y-o.y)-(a.y-o.y)*(b.x-o.x);
+  const lo=[];for(const q of p){while(lo.length>=2&&cr(lo[lo.length-2],lo[lo.length-1],q)<=0)lo.pop();lo.push(q)}
+  const up=[];for(let i=p.length-1;i>=0;i--){const q=p[i];while(up.length>=2&&cr(up[up.length-2],up[up.length-1],q)<=0)up.pop();up.push(q)}
+  lo.pop();up.pop();return lo.concat(up);
+}
+/* Le plus petit cercle qui contient toute la partie éclairée = le disque entier de la Lune,
+   que ce soit une pleine Lune, un quartier ou un croissant (les pointes touchent les pôles). */
+function detectMoon(img){
+  if(img._disc!==undefined)return img._disc;
+  let res=null;
+  try{
+    const k=Math.min(1,500/Math.max(img.naturalWidth,img.naturalHeight));
+    const w=Math.max(1,Math.round(img.naturalWidth*k)),h=Math.max(1,Math.round(img.naturalHeight*k));
+    const cn=document.createElement('canvas');cn.width=w;cn.height=h;
+    const x=cn.getContext('2d',{willReadFrequently:true});x.drawImage(img,0,0,w,h);
+    const d=x.getImageData(0,0,w,h).data,n=w*h;
+    const lum=new Uint8Array(n),hist=new Uint32Array(256);
+    for(let i=0;i<n;i++){const l=(0.299*d[i*4]+0.587*d[i*4+1]+0.114*d[i*4+2])|0;lum[i]=l;hist[l]++}
+    let acc=0,top=255;for(let v=255;v>=0;v--){acc+=hist[v];if(acc>=n*0.005){top=v;break}}
+    const thr=Math.max(18,top*0.22);
+    // plus grande zone connectée de pixels lumineux
+    const lab=new Int32Array(n),stack=new Int32Array(n);
+    let best=0,bestId=0,id=0;
+    for(let s0=0;s0<n;s0++){
+      if(lum[s0]<=thr||lab[s0])continue;
+      id++;let sp=0,cnt=0;stack[sp++]=s0;lab[s0]=id;
+      while(sp){
+        const q=stack[--sp];cnt++;
+        const qx=q%w,qy=(q-qx)/w;
+        if(qx>0&&!lab[q-1]&&lum[q-1]>thr){lab[q-1]=id;stack[sp++]=q-1}
+        if(qx<w-1&&!lab[q+1]&&lum[q+1]>thr){lab[q+1]=id;stack[sp++]=q+1}
+        if(qy>0&&!lab[q-w]&&lum[q-w]>thr){lab[q-w]=id;stack[sp++]=q-w}
+        if(qy<h-1&&!lab[q+w]&&lum[q+w]>thr){lab[q+w]=id;stack[sp++]=q+w}
+      }
+      if(cnt>best){best=cnt;bestId=id}
+    }
+    if(best>=n*0.002){
+      const pts=[];
+      for(let y=0;y<h;y++)for(let xx=0;xx<w;xx++){
+        const q=y*w+xx;if(lab[q]!==bestId)continue;
+        if(xx===0||y===0||xx===w-1||y===h-1||lab[q-1]!==bestId||lab[q+1]!==bestId||lab[q-w]!==bestId||lab[q+w]!==bestId)pts.push({x:xx+.5,y:y+.5});
+      }
+      const c=minEnclosingCircle(convexHull(pts));
+      if(c&&c.r>0)res={cx:c.x/k,cy:c.y/k,r:(c.r+0.5)/k};
+    }
+  }catch(e){res=null}
+  img._disc=res;
+  return res;
+}
+function moonCircle(s,img,pl){
+  let d=detectMoon(img),found=!!d;
+  if(!d)d={cx:img.naturalWidth/2,cy:img.naturalHeight/2,r:Math.min(img.naturalWidth,img.naturalHeight)*0.4};
+  const m=s.moon,r0=d.r*pl.sc;
+  return {cx:pl.x+d.cx*pl.sc+m.dx/100*r0,cy:pl.y+d.cy*pl.sc+m.dy/100*r0,r:r0*m.k/100,found};
+}
+function drawMoon(c,s,pl,preview){
+  const img=getImg(s),m=s.moon,C=moonCircle(s,img,pl);
+  const I=m.int/100,t0=1-m.ext/100;
+  c.save();
+  c.beginPath();c.arc(C.cx,C.cy,C.r*1.03,0,Math.PI*2);c.clip();
+  const g=c.createRadialGradient(C.cx,C.cy,C.r*t0,C.cx,C.cy,C.r);
+  for(let i=0;i<=8;i++){const u=i/8;g.addColorStop(u,`rgba(0,0,0,${(I*u*u).toFixed(3)})`)}
+  c.fillStyle=g;c.fillRect(0,0,W,H);
+  c.restore();
+  if(preview&&$('moonAdj').open){
+    c.save();c.strokeStyle='rgba(255,230,0,.9)';c.lineWidth=3;c.setLineDash([14,10]);
+    c.beginPath();c.arc(C.cx,C.cy,C.r,0,Math.PI*2);c.stroke();c.restore();
+  }
+}
+
 /* ---------- Rendu d’une diapo ---------- */
 function drawPhoto(c,s,preview){
   c.fillStyle='#000';c.fillRect(0,0,W,H);
@@ -232,19 +350,22 @@ function drawPhoto(c,s,preview){
       c.fillStyle='#4b5a80';c.textAlign='center';c.textBaseline='middle';
       c.font=`600 54px ${FONT}`;c.fillText('Choisis une photo',W/2,H/2);
     }
-    return;
+    return null;
   }
   const iw=img.naturalWidth,ih=img.naturalHeight;
   const sc=Math.max(W/iw,H/ih)*s.zoom,dw=iw*sc,dh=ih*sc;
   const mx=(dw-W)/2,my=(dh-H)/2;
   s.ox=clamp(s.ox,-mx,mx);s.oy=clamp(s.oy,-my,my);
   c.imageSmoothingQuality='high';
-  c.drawImage(img,W/2-dw/2+s.ox,H/2-dh/2+s.oy,dw,dh);
+  const x=W/2-dw/2+s.ox,y=H/2-dh/2+s.oy;
+  c.drawImage(img,x,y,dw,dh);
+  return {x,y,sc};
 }
 function drawSlide(c,s,preview){
   c.save();
   c.globalAlpha=1;
-  drawPhoto(c,s,preview);
+  const pl=drawPhoto(c,s,preview);
+  if(pl&&s.moon.on)drawMoon(c,s,pl,preview);
   const L=layout(c,s);
   if(L.blocks.length||$('wmOn').checked){
     const gh=Math.max(720,L.bottom+180);
@@ -421,10 +542,26 @@ function refreshReuse(){
   });
   sel.value=s.reuse!=null?String(s.reuse):'';
 }
+function refreshMoon(){
+  const m=slides[cur].moon;
+  $('moonOn').checked=m.on;$('moonBox').style.display=m.on?'block':'none';
+  $('moonInt').value=m.int;$('moonIntV').textContent=m.int;
+  $('moonExt').value=m.ext;$('moonExtV').textContent=m.ext;
+  $('moonK').value=m.k;$('moonKV').textContent=m.k;
+  $('moonDx').value=m.dx;$('moonDxV').textContent=m.dx;
+  $('moonDy').value=m.dy;$('moonDyV').textContent=m.dy;
+  $('moonMsg').textContent='';
+  if(m.on){
+    const img=getImg(slides[cur]);
+    if(!img)$('moonMsg').textContent='Importe d’abord la photo de la Lune.';
+    else if(!detectMoon(img))$('moonMsg').textContent='Disque non détecté : ajuste-le à la main.';
+  }
+}
 function refreshFields(){
   const s=slides[cur];
   $('top').value=s.top;$('kw').value=s.kw;$('bottom').value=s.bottom;
   $('zoom').value=s.zoom;
+  refreshMoon();
   document.querySelectorAll('.sw').forEach(b=>b.classList.toggle('on',b.dataset.c===s.color));
   $('prev').disabled=cur===0;
   $('next').textContent=cur===slides.length-1?'Nouvelle diapo ▶':'Diapo suivante ▶';
@@ -438,6 +575,16 @@ $('kw').oninput=e=>{slides[cur].kw=e.target.value;render()};
 $('bottom').oninput=e=>{slides[cur].bottom=e.target.value;render()};
 $('zoom').oninput=e=>{slides[cur].zoom=+e.target.value;render()};
 document.querySelectorAll('.sw').forEach(b=>b.onclick=()=>{slides[cur].color=b.dataset.c;refreshFields();render()});
+$('moonOn').onchange=e=>{slides[cur].moon.on=e.target.checked;refreshMoon();render()};
+[['moonInt','int','moonIntV'],['moonExt','ext','moonExtV'],['moonK','k','moonKV'],['moonDx','dx','moonDxV'],['moonDy','dy','moonDyV']].forEach(([id,key,lab])=>{
+  $(id).oninput=e=>{slides[cur].moon[key]=+e.target.value;$(lab).textContent=e.target.value;render()};
+});
+$('moonAdj').addEventListener('toggle',render);
+$('moonRe').onclick=()=>{
+  const s=slides[cur],img=getImg(s);
+  if(img)img._disc=undefined;
+  Object.assign(s.moon,{k:100,dx:0,dy:0});refreshMoon();render();
+};
 $('wmOn').onchange=render;
 $('wmOp').oninput=e=>{$('wmOpV').textContent=e.target.value;render()};
 $('prev').onclick=()=>{if(cur>0){cur--;refreshAll()}};
