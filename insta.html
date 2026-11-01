@@ -17,7 +17,10 @@ h1{font-size:20px;margin:6px 0 2px}
 .sub{color:var(--mut);font-size:13px;margin:0 0 12px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin:12px 0}
 .card h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);margin:0 0 10px;font-weight:600}
-canvas#cv{display:block;margin:0 auto;width:min(100%,calc(56vh*9/16));height:auto;aspect-ratio:9/16;border-radius:12px;background:#000;touch-action:none;cursor:grab}
+canvas#cv{display:block;margin:0 auto;width:min(100%,calc(56vh*9/16));height:auto;aspect-ratio:9/16;border-radius:12px;background:#000;touch-action:none;cursor:grab;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+canvas#cv.h{width:100%;aspect-ratio:16/9}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.seg button.on{background:#16233d;border-color:var(--acc);color:var(--acc)}
 .hint{font-size:12px;color:var(--mut);text-align:center;margin:6px 0 0}
 .strip{display:flex;gap:8px;overflow-x:auto;padding:2px 0 8px;align-items:center}
 .chip{flex:0 0 auto;min-width:42px;height:42px;border-radius:10px;border:1px solid var(--line);background:#0f1424;color:var(--txt);font-size:15px;font-weight:600;position:relative}
@@ -60,11 +63,22 @@ details.sync summary{font-size:13px;color:var(--mut);cursor:pointer;margin-botto
 </head>
 <body>
 <h1>Atelier Réel</h1>
-<p class="sub">Une photo + un texte par diapo → images 1080×1920 et vidéo pour Instagram.</p>
+<p class="sub">Une photo + un texte par diapo → images et vidéo pour Instagram, en vertical (9:16) ou horizontal (16:9).</p>
 
 <div class="card">
+  <div class="seg">
+    <button id="fV" class="on">▮ Vertical 9:16</button>
+    <button id="fH">▬ Horizontal 16:9</button>
+  </div>
   <canvas id="cv" width="1080" height="1920"></canvas>
-  <p class="hint" id="hint">Glisse sur l’aperçu pour recadrer la photo</p>
+  <p class="hint" id="hint">1 doigt : déplacer · 2 doigts : zoomer / dézoomer la photo</p>
+  <div class="tools" style="justify-content:center;margin-top:10px">
+    <button id="zFill">Remplir</button>
+    <button id="zFit">Photo entière</button>
+    <button id="zCenter">Recentrer</button>
+  </div>
+  <label class="chk" style="margin-top:10px"><input type="checkbox" id="wmSlide" checked> Filigrane T sur cette diapo</label>
+  <p class="hint" id="saveState"></p>
 </div>
 
 <div class="card">
@@ -84,8 +98,8 @@ details.sync summary{font-size:13px;color:var(--mut);cursor:pointer;margin-botto
   <p class="msg" id="photoMsg"></p>
   <label class="f" for="reuse">…ou réutiliser la photo d’une autre diapo</label>
   <select id="reuse"></select>
-  <label class="f" for="zoom">Zoom</label>
-  <input type="range" id="zoom" min="1" max="3" step="0.01" value="1">
+  <label class="f" for="zoom">Zoom : <span id="zoomV">×1.00</span></label>
+  <input type="range" id="zoom" min="-5" max="5" step="0.01" value="0">
   <label class="chk" style="margin-top:14px"><input type="checkbox" id="moonOn"> Photo de la Lune : ombre sur les bords</label>
   <div id="moonBox" style="display:none">
     <label class="f" for="moonInt">Intensité de l’ombre : <span id="moonIntV">60</span> %</label>
@@ -148,14 +162,17 @@ details.sync summary{font-size:13px;color:var(--mut);cursor:pointer;margin-botto
 
 <div class="card">
   <h2>Filigrane Le Télégramme</h2>
-  <label class="chk"><input type="checkbox" id="wmOn" checked> Afficher en haut à gauche</label>
+  <p class="hint" style="text-align:left;margin:0 0 8px">Une case sous l’aperçu l’affiche ou le masque diapo par diapo.</p>
+  <div class="row"><button id="wmAll">Afficher sur toutes</button><button id="wmNone">Masquer sur toutes</button></div>
   <label class="f" for="wmOp">Opacité : <span id="wmOpV">40</span> %</label>
   <input type="range" id="wmOp" min="20" max="60" step="5" value="40">
 </div>
 
 <div class="card">
   <h2>Export</h2>
-  <label class="chk"><input type="checkbox" id="oPng" checked> Images PNG (1080×1920)</label>
+  <label class="chk"><input type="checkbox" id="oV" checked> Format vertical 1080×1920</label>
+  <label class="chk"><input type="checkbox" id="oH"> Format horizontal 1920×1080</label>
+  <label class="chk"><input type="checkbox" id="oPng" checked> Images PNG</label>
   <label class="chk"><input type="checkbox" id="oVid" checked> Vidéo</label>
   <div class="cols" style="margin-top:8px">
     <div><label class="f" for="dur">Par image (s)</label><input type="number" id="dur" value="3" min="1" max="10" step="0.5" inputmode="decimal"></div>
@@ -169,16 +186,29 @@ details.sync summary{font-size:13px;color:var(--mut);cursor:pointer;margin-botto
   <p class="hint"><small>Vidéo : MP4 sur iPhone et Chrome récent, sinon WebM. Garde l’écran allumé pendant l’enregistrement.</small></p>
 </div>
 
+<div class="card">
+  <h2>Projet</h2>
+  <p class="hint" style="text-align:left;margin:0 0 8px">Tout est enregistré automatiquement sur cet appareil (photos, textes, cadrages, réglages) et revient tel quel si l’appli se ferme.</p>
+  <button id="newProj" class="danger" style="width:100%">Nouveau projet (efface le brouillon)</button>
+</div>
+
 <script>
 (()=>{
-const W=1080,H=1920,MAXW=W-170,TEXT_Y=270;
+const FORMATS={
+  v:{W:1080,H:1920,maxw:910,ty:270,wm:{x:64,y:140,w:96},grad:720,gpad:180},
+  h:{W:1920,H:1080,maxw:1500,ty:120,wm:{x:56,y:48,w:84},grad:420,gpad:140}
+};
+let fmtKey='v',FM=FORMATS.v,W=FM.W,H=FM.H,MAXW=FM.maxw,TEXT_Y=FM.ty;
+function setFmt(k){fmtKey=k;FM=FORMATS[k];W=FM.W;H=FM.H;MAXW=FM.maxw;TEXT_Y=FM.ty}
 const COLORS={blue:'#8cc3ff',gold:'#ffd678',white:'#ffffff'};
 const FONT='Poppins, "Helvetica Neue", Arial, sans-serif';
 const $=id=>document.getElementById(id);
 const cv=$('cv'),ctx=cv.getContext('2d');
 let slides=[],cur=0,uid=1;
 
-function newSlide(){return {id:uid++,img:null,reuse:null,ox:0,oy:0,zoom:1,top:'',kw:'',bottom:'',color:'blue',moon:{on:false,int:60,ext:40,k:100,dx:0,dy:0}}}
+const newFr=()=>({v:{ox:0,oy:0,z:1},h:{ox:0,oy:0,z:1}});
+function newSlide(){return {id:uid++,img:null,blob:null,saved:false,reuse:null,fr:newFr(),wm:true,top:'',kw:'',bottom:'',color:'blue',moon:{on:false,int:60,ext:40,k:100,dx:0,dy:0}}}
+const resetFr=s=>{s.fr=newFr()};
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const byId=id=>slides.find(s=>s.id===id);
 const getImg=s=>s.reuse!=null?(byId(s.reuse)||{}).img||null:s.img;
@@ -225,7 +255,7 @@ function layout(c,s){
 /* ---------- Filigrane (4 traits du T, dessinés en vectoriel) ---------- */
 function drawWatermark(c,opacity){
   // proportions relevées sur l’icône : boîte 86×98
-  const w=96,sc=w/86,x0=64,y0=140;
+  const w=FM.wm.w,sc=w/86,x0=FM.wm.x,y0=FM.wm.y;
   c.save();
   c.globalAlpha=opacity;
   c.fillStyle='#ffffff';
@@ -352,12 +382,10 @@ function drawPhoto(c,s,preview){
     }
     return null;
   }
-  const iw=img.naturalWidth,ih=img.naturalHeight;
-  const sc=Math.max(W/iw,H/ih)*s.zoom,dw=iw*sc,dh=ih*sc;
-  const mx=(dw-W)/2,my=(dh-H)/2;
-  s.ox=clamp(s.ox,-mx,mx);s.oy=clamp(s.oy,-my,my);
+  const iw=img.naturalWidth,ih=img.naturalHeight,f=s.fr[fmtKey];
+  const sc=Math.max(W/iw,H/ih)*f.z,dw=iw*sc,dh=ih*sc;
   c.imageSmoothingQuality='high';
-  const x=W/2-dw/2+s.ox,y=H/2-dh/2+s.oy;
+  const x=W/2-dw/2+f.ox,y=H/2-dh/2+f.oy;
   c.drawImage(img,x,y,dw,dh);
   return {x,y,sc};
 }
@@ -367,8 +395,8 @@ function drawSlide(c,s,preview){
   const pl=drawPhoto(c,s,preview);
   if(pl&&s.moon.on)drawMoon(c,s,pl,preview);
   const L=layout(c,s);
-  if(L.blocks.length||$('wmOn').checked){
-    const gh=Math.max(720,L.bottom+180);
+  if(L.blocks.length||s.wm){
+    const gh=Math.max(FM.grad,L.bottom+FM.gpad);
     const g=c.createLinearGradient(0,0,0,gh);
     g.addColorStop(0,'rgba(0,0,0,.78)');g.addColorStop(.5,'rgba(0,0,0,.30)');g.addColorStop(1,'rgba(0,0,0,0)');
     c.fillStyle=g;c.fillRect(0,0,W,gh);
@@ -384,12 +412,13 @@ function drawSlide(c,s,preview){
       c.fillStyle=b.color;c.fillText(line,W/2,y);
     });
   }
-  if($('wmOn').checked)drawWatermark(c,(+$('wmOp').value)/100);
+  if(s.wm)drawWatermark(c,(+$('wmOp').value)/100);
   c.restore();
 }
 
 let raf=0;
 function render(){
+  scheduleSave();
   if(raf)return;
   raf=requestAnimationFrame(()=>{raf=0;drawSlide(ctx,slides[cur],true)});
 }
@@ -560,7 +589,8 @@ function refreshMoon(){
 function refreshFields(){
   const s=slides[cur];
   $('top').value=s.top;$('kw').value=s.kw;$('bottom').value=s.bottom;
-  $('zoom').value=s.zoom;
+  syncZoomUI();
+  $('wmSlide').checked=s.wm;
   refreshMoon();
   document.querySelectorAll('.sw').forEach(b=>b.classList.toggle('on',b.dataset.c===s.color));
   $('prev').disabled=cur===0;
@@ -573,7 +603,27 @@ function addSlide(){slides.push(newSlide());cur=slides.length-1;refreshAll()}
 $('top').oninput=e=>{slides[cur].top=e.target.value;render()};
 $('kw').oninput=e=>{slides[cur].kw=e.target.value;render()};
 $('bottom').oninput=e=>{slides[cur].bottom=e.target.value;render()};
-$('zoom').oninput=e=>{slides[cur].zoom=+e.target.value;render()};
+$('zoom').oninput=e=>{
+  const f=slides[cur].fr[fmtKey],z2=clamp(Math.pow(2,+e.target.value),ZMIN,ZMAX);
+  zoomAbout(f,{x:W/2,y:H/2},z2/f.z);syncZoomUI();render();
+};
+$('wmSlide').onchange=e=>{slides[cur].wm=e.target.checked;render()};
+$('wmAll').onclick=()=>{slides.forEach(s=>s.wm=true);refreshFields();render()};
+$('wmNone').onclick=()=>{slides.forEach(s=>s.wm=false);refreshFields();render()};
+$('fV').onclick=()=>useFormat('v');
+$('fH').onclick=()=>useFormat('h');
+function useFormat(k){
+  setFmt(k);cv.width=W;cv.height=H;cv.classList.toggle('h',k==='h');
+  $('fV').classList.toggle('on',k==='v');$('fH').classList.toggle('on',k==='h');
+  refreshFields();render();
+}
+function coverRatio(s){ // zoom qui montre la photo entière (bandes noires)
+  const img=getImg(s);if(!img)return 1;
+  const a=W/img.naturalWidth,b=H/img.naturalHeight;return Math.min(a,b)/Math.max(a,b);
+}
+$('zFill').onclick=()=>{const f=slides[cur].fr[fmtKey];f.z=1;f.ox=0;f.oy=0;syncZoomUI();render()};
+$('zFit').onclick=()=>{const s=slides[cur],f=s.fr[fmtKey];f.z=coverRatio(s);f.ox=0;f.oy=0;syncZoomUI();render()};
+$('zCenter').onclick=()=>{const f=slides[cur].fr[fmtKey];f.ox=0;f.oy=0;render()};
 document.querySelectorAll('.sw').forEach(b=>b.onclick=()=>{slides[cur].color=b.dataset.c;refreshFields();render()});
 $('moonOn').onchange=e=>{slides[cur].moon.on=e.target.checked;refreshMoon();render()};
 [['moonInt','int','moonIntV'],['moonExt','ext','moonExtV'],['moonK','k','moonKV'],['moonDx','dx','moonDxV'],['moonDy','dy','moonDyV']].forEach(([id,key,lab])=>{
@@ -585,7 +635,6 @@ $('moonRe').onclick=()=>{
   if(img)img._disc=undefined;
   Object.assign(s.moon,{k:100,dx:0,dy:0});refreshMoon();render();
 };
-$('wmOn').onchange=render;
 $('wmOp').oninput=e=>{$('wmOpV').textContent=e.target.value;render()};
 $('prev').onclick=()=>{if(cur>0){cur--;refreshAll()}};
 $('next').onclick=()=>{if(cur<slides.length-1){cur++;refreshAll()}else addSlide()};
@@ -594,7 +643,7 @@ $('mvR').onclick=()=>{if(cur<slides.length-1){[slides[cur+1],slides[cur]]=[slide
 $('del').onclick=()=>{
   const s=slides[cur];
   if(slides.length===1){slides[0]=newSlide();refreshAll();return}
-  slides.forEach(d=>{if(d.reuse===s.id){d.img=s.img;d.reuse=null}});
+  slides.forEach(d=>{if(d.reuse===s.id){d.img=s.img;d.blob=s.blob;d.saved=false;d.reuse=null}});
   slides.splice(cur,1);cur=Math.min(cur,slides.length-1);refreshAll();
 };
 const ascii=(u,a,b)=>String.fromCharCode(...u.slice(a,b));
@@ -608,7 +657,11 @@ async function fileToImage(f){
   else if(ascii(u,0,4)==='RIFF'&&ascii(u,8,12)==='WEBP')type='image/webp';
   else if(ascii(u,0,3)==='GIF')type='image/gif';
   else if(ascii(u,4,8)==='ftyp')type=type||'image/heic';
-  const url=URL.createObjectURL(new Blob([buf],{type:type||'image/jpeg'}));
+  const blob=new Blob([buf],{type:type||'image/jpeg'});
+  return {img:await blobToImage(blob),blob};
+}
+function blobToImage(blob){
+  const url=URL.createObjectURL(blob);
   return new Promise((res,rej)=>{
     const img=new Image();
     img.onload=()=>res(img);
@@ -621,8 +674,9 @@ $('file').onchange=async e=>{
   const s=slides[cur];
   $('photoMsg').textContent='Chargement…';
   try{
-    const img=await fileToImage(f);
-    s.img=img;s.reuse=null;s.ox=0;s.oy=0;s.zoom=1;
+    const {img,blob}=await fileToImage(f);
+    s.img=img;s.blob=blob;s.saved=false;s.reuse=null;resetFr(s);
+    DB.set('photo:'+s.id,blob).then(ok=>{s.saved=ok});
     $('photoMsg').textContent='';
     refreshAll();
   }catch(err){
@@ -633,7 +687,7 @@ $('file').onchange=async e=>{
 $('reuse').onchange=e=>{
   const s=slides[cur];
   s.reuse=e.target.value?+e.target.value:null;
-  s.ox=0;s.oy=0;s.zoom=1;
+  resetFr(s);
   refreshAll();
 };
 $('tpl').onclick=()=>{
@@ -647,23 +701,59 @@ $('tpl').onclick=()=>{
   const old=slides;
   slides=T.map(t=>{const s=newSlide();[s.top,s.kw,s.bottom,s.color]=t;return s});
   // conserve les photos déjà importées sur les 5 premières diapos
-  old.forEach((o,i)=>{if(slides[i]&&o.img&&o.reuse==null){slides[i].img=o.img}});
+  old.forEach((o,i)=>{if(slides[i]&&o.img&&o.reuse==null){slides[i].img=o.img;slides[i].blob=o.blob;slides[i].saved=false}});
   // les diapos 4 et 5 réutilisent la photo de la diapo 1
   slides[3].reuse=slides[0].id;slides[4].reuse=slides[0].id;
   cur=0;refreshAll();
 };
 
-/* Recadrage au doigt / à la souris */
-let drag=null;
-cv.addEventListener('pointerdown',e=>{if(!getImg(slides[cur]))return;drag={x:e.clientX,y:e.clientY};cv.setPointerCapture(e.pointerId);cv.style.cursor='grabbing'});
-cv.addEventListener('pointermove',e=>{
-  if(!drag)return;
-  const k=W/cv.clientWidth,s=slides[cur];
-  s.ox+=(e.clientX-drag.x)*k;s.oy+=(e.clientY-drag.y)*k;
-  drag={x:e.clientX,y:e.clientY};render();
+/* Recadrage : 1 doigt = déplacer, 2 doigts = zoomer / dézoomer, molette sur ordinateur.
+   Aucune limite de cadrage ; le fond reste noir. */
+const ZMIN=1/128,ZMAX=128;
+const ptrs=new Map();
+function canvasPt(e){const r=cv.getBoundingClientRect();return {x:(e.clientX-r.left)*W/r.width,y:(e.clientY-r.top)*H/r.height}}
+function zoomAbout(f,A,ratio){
+  const z2=clamp(f.z*ratio,ZMIN,ZMAX),r=z2/f.z;
+  f.ox=A.x-(A.x-(W/2+f.ox))*r-W/2;
+  f.oy=A.y-(A.y-(H/2+f.oy))*r-H/2;
+  f.z=z2;
+}
+function syncZoomUI(){
+  const f=slides[cur].fr[fmtKey];
+  $('zoom').value=Math.log2(f.z);
+  $('zoomV').textContent='×'+(f.z>=10?f.z.toFixed(1):f.z.toFixed(2));
+}
+cv.addEventListener('pointerdown',e=>{
+  if(!getImg(slides[cur]))return;
+  e.preventDefault();
+  try{cv.setPointerCapture(e.pointerId)}catch(_){}
+  ptrs.set(e.pointerId,canvasPt(e));cv.style.cursor='grabbing';
 });
-const endDrag=()=>{drag=null;cv.style.cursor='grab'};
-cv.addEventListener('pointerup',endDrag);cv.addEventListener('pointercancel',endDrag);
+cv.addEventListener('pointermove',e=>{
+  if(!ptrs.has(e.pointerId))return;
+  const prev=[...ptrs.values()].map(p=>({x:p.x,y:p.y}));
+  ptrs.set(e.pointerId,canvasPt(e));
+  const now=[...ptrs.values()],f=slides[cur].fr[fmtKey];
+  if(now.length===1){
+    f.ox+=now[0].x-prev[0].x;f.oy+=now[0].y-prev[0].y;
+  }else{
+    const a0=prev[0],b0=prev[1],a1=now[0],b1=now[1];
+    const d0=Math.hypot(b0.x-a0.x,b0.y-a0.y)||1,d1=Math.hypot(b1.x-a1.x,b1.y-a1.y)||1;
+    const m0={x:(a0.x+b0.x)/2,y:(a0.y+b0.y)/2},m1={x:(a1.x+b1.x)/2,y:(a1.y+b1.y)/2};
+    zoomAbout(f,m0,d1/d0);
+    f.ox+=m1.x-m0.x;f.oy+=m1.y-m0.y;
+  }
+  syncZoomUI();render();
+});
+const endPtr=e=>{ptrs.delete(e.pointerId);if(!ptrs.size)cv.style.cursor='grab'};
+cv.addEventListener('pointerup',endPtr);cv.addEventListener('pointercancel',endPtr);
+cv.addEventListener('wheel',e=>{
+  if(!getImg(slides[cur]))return;
+  e.preventDefault();
+  zoomAbout(slides[cur].fr[fmtKey],canvasPt(e),Math.exp(-e.deltaY*(e.ctrlKey?0.01:0.0015)));
+  syncZoomUI();render();
+},{passive:false});
+['gesturestart','gesturechange','gestureend'].forEach(n=>cv.addEventListener(n,e=>e.preventDefault()));
 
 /* ---------- Export ---------- */
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
@@ -694,13 +784,13 @@ async function loadFonts(){
   try{await Promise.all(['500','600','700'].map(w=>document.fonts.load(`${w} 60px Poppins`)))}catch(e){}
 }
 
-async function recordVideo(cvs){
+async function recordVideo(cvs,name){
   if(!window.MediaRecorder||!HTMLCanvasElement.prototype.captureStream){
     msg('Ce navigateur ne sait pas enregistrer de vidéo. Utilise les PNG ou un autre navigateur.');return;
   }
   const mime=['video/mp4;codecs=avc1.42E01E','video/mp4','video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm']
     .find(m=>MediaRecorder.isTypeSupported(m))||'';
-  const rc=document.createElement('canvas');rc.width=W;rc.height=H;
+  const rc=document.createElement('canvas');rc.width=cvs[0].width;rc.height=cvs[0].height;
   const rx=rc.getContext('2d');
   const n=cvs.length;
   const per=Math.max(1,+$('dur').value||3),last=Math.max(1,+$('durL').value||per);
@@ -742,11 +832,13 @@ async function recordVideo(cvs){
   try{lock&&lock.release()}catch(e){}
   const type=rec.mimeType||mime||'video/webm';
   const blob=new Blob(chunks,{type});
-  addResult(blob,'reel.'+(type.includes('mp4')?'mp4':'webm'));
+  addResult(blob,name+'.'+(type.includes('mp4')?'mp4':'webm'));
 }
 
 $('go').onclick=async()=>{
   const doPng=$('oPng').checked,doVid=$('oVid').checked;
+  const fmts=['v','h'].filter(k=>$(k==='v'?'oV':'oH').checked);
+  if(!fmts.length){msg('Coche au moins un format.');return}
   if(!doPng&&!doVid){msg('Coche au moins une sortie.');return}
   const miss=slides.findIndex(s=>!getImg(s));
   if(miss>=0){msg(`La diapo ${miss+1} n’a pas de photo.`);cur=miss;refreshAll();return}
@@ -754,15 +846,25 @@ $('go').onclick=async()=>{
   try{
     msg('Préparation…');progress(0);
     await loadFonts();
-    const cvs=slides.map(s=>{
-      const c=document.createElement('canvas');c.width=W;c.height=H;
-      drawSlide(c.getContext('2d'),s,false);return c;
+    // tout est dessiné d’un coup (synchrone) pour ne pas gêner l’aperçu
+    const orig=fmtKey;
+    const sets=fmts.map(k=>{
+      setFmt(k);
+      const cvs=slides.map(s=>{
+        const c=document.createElement('canvas');c.width=W;c.height=H;
+        drawSlide(c.getContext('2d'),s,false);return c;
+      });
+      return {name:k==='v'?'vertical':'horizontal',cvs};
     });
+    setFmt(orig);
     if(doPng){
-      for(let i=0;i<cvs.length;i++){
-        const blob=await new Promise(r=>cvs[i].toBlob(r,'image/png'));
-        sharedPng.push(addResult(blob,`reel_${String(i+1).padStart(2,'0')}.png`));
-        progress((i+1)/cvs.length);
+      const total=sets.reduce((n,x)=>n+x.cvs.length,0);let done=0;
+      for(const set of sets){
+        for(let i=0;i<set.cvs.length;i++){
+          const blob=await new Promise(r=>set.cvs[i].toBlob(r,'image/png'));
+          sharedPng.push(addResult(blob,`reel_${set.name}_${String(i+1).padStart(2,'0')}.png`));
+          progress(++done/total);
+        }
       }
       if(sharedPng.length>1&&navigator.canShare&&navigator.canShare({files:sharedPng})){
         const b=document.createElement('button');b.className='big';b.textContent='Partager toutes les images';
@@ -770,7 +872,7 @@ $('go').onclick=async()=>{
         $('results').prepend(b);
       }
     }
-    if(doVid)await recordVideo(cvs);
+    if(doVid)for(const set of sets)await recordVideo(set.cvs,'reel_'+set.name);
     msg('Terminé ✔');
   }catch(err){
     console.error(err);msg('Erreur : '+(err&&err.message?err.message:err));
@@ -779,11 +881,126 @@ $('go').onclick=async()=>{
   }
 };
 
+/* ---------- Sauvegarde automatique (IndexedDB + copie localStorage) ---------- */
+const DB={
+  db:null,
+  open(){return new Promise(res=>{
+    try{
+      if(!window.indexedDB)return res(false);
+      const r=indexedDB.open('atelier-reel',1);
+      r.onupgradeneeded=()=>r.result.createObjectStore('kv');
+      r.onsuccess=()=>{DB.db=r.result;res(true)};
+      r.onerror=()=>res(false);r.onblocked=()=>res(false);
+    }catch(e){res(false)}
+  })},
+  get(k){return new Promise(res=>{
+    try{
+      if(!DB.db)return res(undefined);
+      const t=DB.db.transaction('kv','readonly'),r=t.objectStore('kv').get(k);
+      t.oncomplete=()=>res(r.result);t.onerror=t.onabort=()=>res(undefined);
+    }catch(e){res(undefined)}
+  })},
+  set(k,v){return new Promise(res=>{
+    try{
+      if(!DB.db)return res(false);
+      const t=DB.db.transaction('kv','readwrite');t.objectStore('kv').put(v,k);
+      t.oncomplete=()=>res(true);t.onerror=t.onabort=()=>res(false);
+    }catch(e){res(false)}
+  })},
+  del(k){return new Promise(res=>{
+    try{
+      if(!DB.db)return res(false);
+      const t=DB.db.transaction('kv','readwrite');t.objectStore('kv').delete(k);
+      t.oncomplete=()=>res(true);t.onerror=t.onabort=()=>res(false);
+    }catch(e){res(false)}
+  })},
+  keys(){return new Promise(res=>{
+    try{
+      if(!DB.db)return res([]);
+      const t=DB.db.transaction('kv','readonly'),r=t.objectStore('kv').getAllKeys();
+      t.oncomplete=()=>res(r.result||[]);t.onerror=t.onabort=()=>res([]);
+    }catch(e){res([])}
+  })}
+};
+let ready=false,saveTimer=0;
+function serialize(){
+  return {
+    v:1,uid,cur,fmt:fmtKey,wmOp:+$('wmOp').value,
+    exp:{v:$('oV').checked,h:$('oH').checked,png:$('oPng').checked,vid:$('oVid').checked,dur:$('dur').value,durL:$('durL').value,fade:$('fade').value},
+    slides:slides.map(s=>({id:s.id,reuse:s.reuse,fr:s.fr,wm:s.wm,top:s.top,kw:s.kw,bottom:s.bottom,color:s.color,moon:s.moon}))
+  };
+}
+function scheduleSave(){
+  if(!ready)return;
+  clearTimeout(saveTimer);saveTimer=setTimeout(saveNow,300);
+}
+async function saveNow(){
+  if(!ready)return;
+  clearTimeout(saveTimer);
+  const st=serialize();
+  store.set('reel.state',st); // copie synchrone : survit même à une fermeture brutale
+  if(!DB.db){$('saveState').textContent='Sauvegarde limitée : textes et cadrages gardés, mais pas les photos.';return}
+  let ok=await DB.set('state',st);
+  for(const s of slides){
+    if(s.blob&&!s.saved){s.saved=await DB.set('photo:'+s.id,s.blob)}
+    if(s.blob&&!s.saved)ok=false;
+  }
+  try{
+    const keep=new Set(slides.map(s=>'photo:'+s.id));
+    for(const k of await DB.keys())if(typeof k==='string'&&k.startsWith('photo:')&&!keep.has(k))DB.del(k);
+  }catch(e){}
+  $('saveState').textContent=ok?'Brouillon enregistré automatiquement sur cet appareil ✔':'Photos non enregistrées (espace insuffisant ou navigation privée ?)';
+}
+async function restore(){
+  await DB.open();
+  let st=await DB.get('state');
+  if(!st||!Array.isArray(st.slides)||!st.slides.length)st=store.get('reel.state',null);
+  if(!st||!Array.isArray(st.slides)||!st.slides.length)return false;
+  const mergeFr=f=>({v:Object.assign({ox:0,oy:0,z:1},(f||{}).v),h:Object.assign({ox:0,oy:0,z:1},(f||{}).h)});
+  slides=st.slides.map(o=>{
+    const s=Object.assign(newSlide(),o);
+    s.fr=mergeFr(o.fr);s.moon=Object.assign({on:false,int:60,ext:40,k:100,dx:0,dy:0},o.moon||{});
+    s.img=null;s.blob=null;s.saved=false;s.wm=o.wm!==false;
+    return s;
+  });
+  uid=Math.max(st.uid||1,...slides.map(s=>s.id+1));
+  await Promise.all(slides.map(async s=>{
+    const b=await DB.get('photo:'+s.id);
+    if(b instanceof Blob){try{s.img=await blobToImage(b);s.blob=b;s.saved=true}catch(e){}}
+  }));
+  cur=clamp(st.cur|0,0,slides.length-1);
+  if(st.wmOp){$('wmOp').value=st.wmOp;$('wmOpV').textContent=st.wmOp}
+  const e=st.exp||{};
+  if('v' in e)$('oV').checked=!!e.v;if('h' in e)$('oH').checked=!!e.h;
+  if('png' in e)$('oPng').checked=!!e.png;if('vid' in e)$('oVid').checked=!!e.vid;
+  ['dur','durL','fade'].forEach(k=>{if(e[k]!=null&&e[k]!=='')$(k).value=e[k]});
+  setFmt(st.fmt==='h'?'h':'v');
+  return true;
+}
+['oV','oH','oPng','oVid'].forEach(id=>$(id).addEventListener('change',scheduleSave));
+['dur','durL','fade','wmOp'].forEach(id=>$(id).addEventListener('input',scheduleSave));
+window.addEventListener('pagehide',saveNow);
+document.addEventListener('visibilitychange',()=>{if(document.hidden)saveNow()});
+$('newProj').onclick=async()=>{
+  if(!confirm('Effacer tout le brouillon (photos, textes, cadrages) et repartir de zéro ?'))return;
+  ready=false;
+  for(const k of await DB.keys())DB.del(k);
+  store.del('reel.state');
+  slides=[newSlide()];cur=0;
+  ready=true;useFormat('v');saveNow();
+};
+
 /* ---------- Démarrage ---------- */
 slides=[newSlide()];
 renderModels();
 refreshAll();
 loadRemote(false);
+restore().then(ok=>{
+  ready=true;
+  useFormat(fmtKey);          // redessine l’aperçu au bon format
+  if(ok)refreshAll();
+  saveNow();
+});
 loadFonts().then(render);
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(render);
 })();
