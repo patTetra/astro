@@ -1,1 +1,98 @@
-
+{
+  "region": "Bretagne",
+  "fenetre": {
+    "debut": 21,
+    "fin": 27
+  },
+  "seuilAlerte": 75,
+  "toujoursNotifier": false,
+  "lienArticle": "https://www.letelegramme.fr/culture-loisirs/nature/que-voir-dans-le-ciel-ce-soir-7150803.php",
+  "atelierUrl": "https://pattetra.github.io/astro/insta.html",
+  "departements": [
+    {
+      "nom": "Finistère",
+      "villes": [
+        {
+          "nom": "Brest",
+          "lat": 48.39,
+          "lon": -4.486
+        },
+        {
+          "nom": "Quimper",
+          "lat": 47.996,
+          "lon": -4.102
+        },
+        {
+          "nom": "Morlaix",
+          "lat": 48.578,
+          "lon": -3.828
+        }
+      ]
+    },
+    {
+      "nom": "Morbihan",
+      "villes": [
+        {
+          "nom": "Lorient",
+          "lat": 47.748,
+          "lon": -3.366
+        },
+        {
+          "nom": "Vannes",
+          "lat": 47.658,
+          "lon": -2.76
+        },
+        {
+          "nom": "Pontivy",
+          "lat": 48.066,
+          "lon": -2.963
+        }
+      ]
+    },
+    {
+      "nom": "Côtes-d'Armor",
+      "villes": [
+        {
+          "nom": "Lannion",
+          "lat": 48.732,
+          "lon": -3.459
+        },
+        {
+          "nom": "Saint-Brieuc",
+          "lat": 48.514,
+          "lon": -2.76
+        },
+        {
+          "nom": "Dinan",
+          "lat": 48.455,
+          "lon": -2.05
+        },
+        {
+          "nom": "Loudéac",
+          "lat": 48.178,
+          "lon": -2.755
+        }
+      ]
+    },
+    {
+      "nom": "Ille-et-Vilaine",
+      "villes": [
+        {
+          "nom": "Saint-Malo",
+          "lat": 48.649,
+          "lon": -2.026
+        },
+        {
+          "nom": "Rennes",
+          "lat": 48.117,
+          "lon": -1.678
+        },
+        {
+          "nom": "Redon",
+          "lat": 47.652,
+          "lon": -2.084
+        }
+      ]
+    }
+  ]
+}
