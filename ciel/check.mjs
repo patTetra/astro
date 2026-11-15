@@ -106,11 +106,11 @@ function titre(region, deps) {
   if (region.score >= 80) return { t: 'Conditions excellentes pour observer le ciel ce soir en Bretagne', sub: '' };
   if (best.score >= 75 && worst.score < 45) {
     const hauts = deps.filter(d => d.score >= 65).map(d => d.nom), bas = deps.filter(d => d.score < 40).map(d => d.nom);
-    return { t: 'Ciel partagé en Bretagne ce soir', sub: `Dégagé : ${hauts.join(', ')}${bas.length ? ' · couvert : ' + bas.join(', ') : ''}` };
+    return { t: 'Observer les étoiles ce soir : ciel partagé en Bretagne', sub: `Dégagé : ${hauts.join(', ')}${bas.length ? ' · couvert : ' + bas.join(', ') : ''}` };
   }
-  if (region.score >= 65) return { t: 'Belle soirée d’observation en vue en Bretagne', sub: '' };
-  if (region.score >= 40) return { t: 'Ciel mitigé en Bretagne ce soir', sub: '' };
-  return { t: 'Ciel couvert en Bretagne ce soir', sub: '' };
+  if (region.score >= 65) return { t: 'Belle soirée pour observer les étoiles en Bretagne', sub: '' };
+  if (region.score >= 40) return { t: 'Observer les étoiles ce soir : ciel mitigé en Bretagne', sub: '' };
+  return { t: 'Observer les étoiles ce soir : ciel couvert en Bretagne', sub: '' };
 }
 function texte(region, deps, lun) {
   const L = [`🔭 ${region.titre}`];
@@ -158,7 +158,7 @@ async function main() {
         if (!hs.length) throw new Error('pas de données pour la fenêtre');
         const score = Math.round(pondere(hs));
         villes.push({
-          nom: v.nom, score, etat: etat(score), meilleureFenetre: meilleureFenetre(hs),
+          nom: v.nom, lat: v.lat, lon: v.lon, label: v.label, score, etat: etat(score), meilleureFenetre: meilleureFenetre(hs),
           nuages: Math.round(mean(hs.map(x => x.cloud_cover ?? 0))),
           rafales: Math.round(Math.max(...hs.map(x => x.wind_gusts_10m ?? 0))),
           temperature: Math.round(mean(hs.map(x => x.temperature_2m ?? 0))),
@@ -193,4 +193,3 @@ async function main() {
   }
 }
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) main().catch(e => { console.error(e); process.exit(1); });
-
