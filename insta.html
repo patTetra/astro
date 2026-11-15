@@ -56,6 +56,12 @@ input[type=file]{display:none}
 .res{margin:12px 0;display:flex;flex-direction:column;gap:8px}
 .res img,.res video{width:100%;max-width:260px;margin:0 auto;border-radius:10px;border:1px solid var(--line);background:#000}
 small{color:var(--mut)}
+input[type=datetime-local]{width:100%;font:inherit;font-size:16px;color:var(--txt);background:#0f1424;border:1px solid var(--line);border-radius:10px;padding:10px;min-height:46px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.g2 label.f{margin-top:6px}
+textarea#dText{width:100%;min-height:380px;font:inherit;font-size:15px;line-height:1.45;color:var(--txt);background:#0f1424;border:1px solid var(--line);border-radius:10px;padding:12px;resize:vertical}
+.cnt{font-size:12px;color:var(--mut);text-align:right;margin:4px 0 0}
+.cnt.bad{color:#ff8a8a;font-weight:700}
 details.sync{margin-top:10px;border-top:1px solid var(--line);padding-top:10px}
 details.sync summary{font-size:13px;color:var(--mut);cursor:pointer;margin-bottom:8px}
 .models{display:flex;flex-direction:column;gap:8px}
@@ -208,6 +214,58 @@ details.sync summary{font-size:13px;color:var(--mut);cursor:pointer;margin-botto
   <p class="msg" id="msg"></p>
   <div id="results"></div>
   <p class="hint"><small>Vidéo : MP4 sur iPhone et Chrome récent, sinon WebM. Garde l’écran allumé pendant l’enregistrement.</small></p>
+</div>
+
+<div class="card">
+  <h2>Description Instagram</h2>
+  <label class="btn" for="dFile" style="display:block;cursor:pointer">📂 Remplir depuis un fichier Seestar</label>
+  <input type="file" id="dFile">
+  <p class="hint" style="text-align:left">Seul le nom du fichier est lu (poses, durée, filtre, date, objet).</p>
+  <label class="f" for="dObj">Objet photographié</label>
+  <select id="dObj"></select>
+  <div id="dCustom" style="display:none">
+    <label class="f" for="dcName">Nom de l’objet</label>
+    <input type="text" id="dcName" autocomplete="off" placeholder="ex. NGC 2174 – Tête de singe">
+    <div class="g2">
+      <div><label class="f" for="dcType">Type</label>
+        <select id="dcType"><option value="gal">Galaxie</option><option value="neb">Nébuleuse</option><option value="amas">Amas d’étoiles</option><option value="pla">Nébuleuse planétaire</option><option value="snr">Rémanent de supernova</option></select></div>
+      <div><label class="f" for="dcDist">Distance (années-lumière)</label><input type="text" id="dcDist" inputmode="numeric" autocomplete="off" placeholder="ex. 6 400"></div>
+    </div>
+    <label class="f" for="dcCon">Constellation</label>
+    <input type="text" id="dcCon" autocomplete="off" placeholder="ex. du Cygne">
+  </div>
+  <div id="dMoon" style="display:none">
+    <label class="f" for="dPhase">Phase de la Lune</label>
+    <select id="dPhase"><option value="auto">Automatique (d’après la date de la photo)</option><option value="new">Nouvelle Lune</option><option value="wc">Premier croissant</option><option value="fq">Premier quartier</option><option value="wg">Gibbeuse croissante</option><option value="full">Pleine Lune</option><option value="dg">Gibbeuse décroissante</option><option value="lq">Dernier quartier</option><option value="dc">Dernier croissant</option></select>
+    <p class="hint" id="dPhaseInfo" style="text-align:left"></p>
+  </div>
+  <div class="g2">
+    <div><label class="f" for="dN">Nombre de poses</label><input type="number" id="dN" inputmode="numeric" min="0" step="1" placeholder="ex. 1251"></div>
+    <div><label class="f" for="dExp">Durée d’une pose (s)</label><input type="text" id="dExp" inputmode="decimal" autocomplete="off" placeholder="ex. 10"></div>
+  </div>
+  <p class="hint" id="dInteg" style="text-align:left"></p>
+  <label class="f" for="dFilter">Filtre</label>
+  <select id="dFilter"><option value="">Non précisé</option><option value="IRCUT">UV/IR-cut intégré (large bande)</option><option value="LP">Anti-pollution lumineuse (LP)</option></select>
+  <label class="f" for="dDate">Date et heure de la prise de vue</label>
+  <input type="datetime-local" id="dDate">
+  <div class="g2">
+    <div><label class="f" for="dBortle">Ciel (Bortle)</label>
+      <select id="dBortle"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option></select></div>
+    <div id="dDeepA"><label class="f" for="dDriz">Drizzle</label>
+      <select id="dDriz"><option value="">Aucun</option><option value="1">×1</option><option value="2">×2</option><option value="3">×3</option></select></div>
+  </div>
+  <div id="dDeepB"><label class="f" for="dPal">Couleurs</label>
+    <select id="dPal"><option>RGB naturel</option><option>Bicolore Hα / OIII</option><option>Couleurs retouchées</option><option>Monochrome</option></select></div>
+  <label class="f" for="dMent">Mentions (en plus du fabricant)</label>
+  <input type="text" id="dMent" autocomplete="off" value="@patrick_leal_le_telegramme @letelegramme">
+  <label class="f" for="dText" style="margin-top:14px">Texte de la description (modifiable)</label>
+  <textarea id="dText" spellcheck="false"></textarea>
+  <p class="cnt" id="dCount"></p>
+  <p class="msg" id="dMsg"></p>
+  <div class="row" style="margin-top:6px">
+    <button id="dCopy" class="pri" style="flex:2">Copier la description</button>
+    <button id="dRegen" style="flex:1">Régénérer</button>
+  </div>
 </div>
 
 <div class="card">
@@ -561,6 +619,7 @@ function applyModel(){
   slides[0].bottom='avec le '+model;
   if(cur===0)$('bottom').value=slides[0].bottom;
   render();
+  descChanged();
 }
 function renderModels(){
   const box=$('models');box.innerHTML='';
@@ -798,6 +857,7 @@ $('file').onchange=async e=>{
     DB.set('photo:'+s.id,blob).then(ok=>{s.saved=ok});
     $('photoMsg').textContent='';
     refreshAll();
+    autofillFromName(f.name);
   }catch(err){
     $('photoMsg').textContent='Impossible de lire cette image ('+err.message+'). Essaie une exportation en JPG ou PNG.';
   }
@@ -1063,7 +1123,7 @@ const DB={
 let ready=false,saveTimer=0;
 function serialize(){
   return {
-    v:1,uid,cur,fmt:fmtKey,wmOp:+$('wmOp').value,stk:{on:$('stkOn').checked,text:$('stkText').value},
+    v:1,uid,cur,fmt:fmtKey,wmOp:+$('wmOp').value,stk:{on:$('stkOn').checked,text:$('stkText').value},desc:Object.assign(readDesc(),{text:$('dText').value,dirty:descDirty}),
     exp:{v:$('oV').checked,h:$('oH').checked,png:$('oPng').checked,vid:$('oVid').checked,dur:$('dur').value,durL:$('durL').value,fade:$('fade').value},
     slides:slides.map(s=>({id:s.id,reuse:s.reuse,fr:s.fr,tp:s.tp,wm:s.wm,top:s.top,kw:s.kw,bottom:s.bottom,color:s.color,moon:s.moon}))
   };
@@ -1110,6 +1170,7 @@ async function restore(){
   cur=clamp(st.cur|0,0,slides.length-1);
   if(st.wmOp){$('wmOp').value=st.wmOp;$('wmOpV').textContent=st.wmOp}
   if(st.stk){$('stkOn').checked=st.stk.on!==false;if(typeof st.stk.text==='string')$('stkText').value=st.stk.text}
+  if(st.desc){setDesc(st.desc);descDirty=!!st.desc.dirty;if(descDirty)$('dText').value=st.desc.text||''}
   const e=st.exp||{};
   if('v' in e)$('oV').checked=!!e.v;if('h' in e)$('oH').checked=!!e.h;
   if('png' in e)$('oPng').checked=!!e.png;if('vid' in e)$('oVid').checked=!!e.vid;
@@ -1127,8 +1188,197 @@ $('newProj').onclick=async()=>{
   for(const k of await DB.keys())DB.del(k);
   store.del('reel.state');
   slides=[newSlide()];cur=0;
+  ['dN','dExp','dDate'].forEach(i=>{$(i).value=''});$('dObj').value='M45';descDirty=false;regenDesc();
   ready=true;useFormat('v');saveNow();
 };
+
+/* ---------- Description Instagram ---------- */
+const DESC_OBJS=[{"key": "M31", "ids": ["M31", "NGC224", "ANDROMEDE"], "label": "M31 – Galaxie d’Andromède", "title": "M31 – La galaxie d’Andromède", "cat": "gal", "dist": "environ 2,5 millions d’années-lumière", "p": ["M31, la galaxie d’Andromède, est la grande galaxie spirale la plus proche de la nôtre, à environ 2,5 millions d’années-lumière, dans la constellation d’Andromède. Elle s’étend sur plus de 200 000 années-lumière et compte environ mille milliards d’étoiles.", "C’est l’un des objets les plus lointains visibles à l’œil nu, sous un ciel sombre. Dans le ciel, elle couvre environ six fois la largeur de la pleine Lune, mais seul son cœur est facile à voir.", "Ses deux petites galaxies satellites, M32 et M110, apparaissent de part et d’autre."], "fun": "Andromède se rapproche de la Voie lactée à environ 110 km/s : les deux galaxies fusionneront dans quelques milliards d’années.", "tags": ["#M31", "#andromeda", "#andromedagalaxy"]}, {"key": "M33", "ids": ["M33", "NGC598", "TRIANGLE"], "label": "M33 – Galaxie du Triangle", "title": "M33 – La galaxie du Triangle", "cat": "gal", "dist": "environ 2,7 millions d’années-lumière", "p": ["M33, la galaxie du Triangle, est une galaxie spirale située à environ 2,7 millions d’années-lumière, dans la constellation du Triangle. Avec ses 60 000 années-lumière de diamètre, c’est la troisième plus grande galaxie du Groupe local, après Andromède et la Voie lactée.", "Vue presque de face, elle montre ses bras spiraux parsemés de régions de formation d’étoiles, les taches roses de gaz d’hydrogène. La plus vaste, NGC 604, s’étend sur environ 1 500 années-lumière."], "fun": "Sous un ciel parfaitement noir, elle est visible à l’œil nu : c’est un test classique pour juger de la qualité d’un ciel.", "tags": ["#M33", "#trianglegalaxy"]}, {"key": "M51", "ids": ["M51", "NGC5194", "TOURBILLON"], "label": "M51 – Galaxie du Tourbillon", "title": "M51 – La galaxie du Tourbillon", "cat": "gal", "dist": "environ 23 millions d’années-lumière", "p": ["M51, la galaxie du Tourbillon, est une galaxie spirale située à environ 23 millions d’années-lumière, dans la constellation des Chiens de chasse. Elle est en interaction avec une plus petite galaxie, NGC 5195, visible au bout de l’un de ses bras.", "Le passage de sa voisine a renforcé ses bras spiraux et déclenché de nombreuses naissances d’étoiles, visibles en rose le long des bras."], "fun": "En 1845, l’astronome irlandais Lord Rosse a dessiné sa spirale : c’est la première galaxie dont la structure en spirale a été reconnue.", "tags": ["#M51", "#whirlpoolgalaxy"]}, {"key": "M81", "ids": ["M81", "NGC3031", "BODE"], "label": "M81 – Galaxie de Bode", "title": "M81 – La galaxie de Bode", "cat": "gal", "dist": "environ 12 millions d’années-lumière", "p": ["M81, la galaxie de Bode, est une grande galaxie spirale située à environ 12 millions d’années-lumière, dans la constellation de la Grande Ourse. Ses bras, très bien dessinés, en font un exemple classique de spirale.", "Elle forme un duo avec M82, sa voisine, avec laquelle elle interagit par gravitation depuis des centaines de millions d’années."], "fun": "Elle a été découverte en 1774 par l’astronome allemand Johann Elert Bode.", "tags": ["#M81", "#bodesgalaxy", "#grandeourse"]}, {"key": "M82", "ids": ["M82", "NGC3034", "CIGARE"], "label": "M82 – Galaxie du Cigare", "title": "M82 – La galaxie du Cigare", "cat": "gal", "dist": "environ 12 millions d’années-lumière", "p": ["M82, la galaxie du Cigare, est une galaxie à flambée d’étoiles située à environ 12 millions d’années-lumière, dans la constellation de la Grande Ourse. Vue par la tranche, elle ressemble à un cigare.", "Elle fabrique des étoiles environ dix fois plus vite que la Voie lactée, et ce rythme effréné souffle de longs filaments rouges d’hydrogène perpendiculairement à son disque."], "fun": "En janvier 2014, une supernova y a explosé : découverte par des étudiants de l’University College de Londres, c’est l’une des plus proches observées depuis des décennies.", "tags": ["#M82", "#cigargalaxy", "#grandeourse"]}, {"key": "M101", "ids": ["M101", "NGC5457", "MOULINET"], "label": "M101 – Galaxie du Moulinet", "title": "M101 – La galaxie du Moulinet", "cat": "gal", "dist": "environ 21 millions d’années-lumière", "p": ["M101, la galaxie du Moulinet, est une grande galaxie spirale vue de face, située à environ 21 millions d’années-lumière, dans la constellation de la Grande Ourse. Avec environ 170 000 années-lumière de diamètre, elle est plus grande que la Voie lactée.", "Son disque légèrement déformé par ses voisines et ses immenses régions de formation d’étoiles la rendent très photogénique."], "fun": "Deux supernovas y ont explosé récemment : SN 2011fe en 2011 et SN 2023ixf en 2023, toutes deux observables avec de petits instruments.", "tags": ["#M101", "#pinwheelgalaxy", "#grandeourse"]}, {"key": "M104", "ids": ["M104", "NGC4594", "SOMBRERO"], "label": "M104 – Galaxie du Sombrero", "title": "M104 – La galaxie du Sombrero", "cat": "gal", "dist": "environ 29 millions d’années-lumière", "p": ["M104, la galaxie du Sombrero, est une galaxie située à environ 29 millions d’années-lumière, dans la constellation de la Vierge. Vue presque par la tranche, elle ressemble à un chapeau mexicain, avec son gros bulbe central et sa fine bande de poussière sombre.", "Son bulbe abrite un trou noir supermassif d’environ un milliard de masses solaires, et elle est entourée d’environ 2 000 amas globulaires, bien plus que la Voie lactée."], "fun": "Sa découverte est attribuée à Pierre Méchain, en 1781.", "tags": ["#M104", "#sombrerogalaxy", "#vierge"]}, {"key": "M64", "ids": ["M64", "NGC4826", "OEILNOIR"], "label": "M64 – Galaxie de l’Œil noir", "title": "M64 – La galaxie de l’Œil noir", "cat": "gal", "dist": "environ 17 millions d’années-lumière", "p": ["M64, la galaxie de l’Œil noir, est une galaxie spirale située à environ 17 millions d’années-lumière, dans la constellation de la Chevelure de Bérénice. Une bande de poussière sombre, en forme de paupière, barre sa région centrale.", "Particularité rare : le gaz de ses régions externes tourne en sens inverse de celui de l’intérieur, sans doute à cause d’une ancienne fusion avec une autre galaxie."], "fun": "On l’appelle aussi la galaxie du « Mauvais Œil », à cause de cette tache sombre autour de son cœur.", "tags": ["#M64", "#blackeyegalaxy"]}, {"key": "LEO3", "ids": ["M65", "M66", "NGC3628", "TRIPLETDULION"], "label": "Triplet du Lion (M65, M66, NGC 3628)", "title": "Le Triplet du Lion (M65, M66, NGC 3628)", "cat": "gal", "dist": "environ 35 millions d’années-lumière", "p": ["Le Triplet du Lion rassemble trois galaxies, M65, M66 et NGC 3628, situées à environ 35 millions d’années-lumière, dans la constellation du Lion. Elles forment un petit groupe lié par la gravitation.", "NGC 3628, vue par la tranche, est traversée d’une bande de poussière sombre. Ses interactions avec ses voisines ont étiré une longue queue de marée d’environ 300 000 années-lumière."], "fun": "M65 et M66 ont été découvertes en 1780 par Pierre Méchain, et NGC 3628 par William Herschel en 1784.", "tags": ["#leotriplet", "#M65", "#M66", "#NGC3628"]}, {"key": "M87", "ids": ["M87", "NGC4486", "VIRGO"], "label": "M87 – Galaxie elliptique de la Vierge", "title": "M87 – La galaxie elliptique de la Vierge", "cat": "gal", "dist": "environ 53 millions d’années-lumière", "p": ["M87 est une galaxie elliptique géante située à environ 53 millions d’années-lumière, au cœur de l’amas de la Vierge. Elle abrite plusieurs milliers d’amas globulaires.", "Son trou noir supermassif, d’environ 6,5 milliards de masses solaires, projette un jet de matière long d’environ 5 000 années-lumière."], "fun": "En 2019, le réseau Event Horizon Telescope a publié la toute première image d’un trou noir : celui de M87.", "tags": ["#M87", "#blackhole", "#vierge"]}, {"key": "M42", "ids": ["M42", "M43", "NGC1976", "ORION"], "label": "M42 – Nébuleuse d’Orion", "title": "M42 – La nébuleuse d’Orion", "cat": "neb", "dist": "environ 1 340 années-lumière", "p": ["M42, la grande nébuleuse d’Orion, est une nébuleuse d’émission située à environ 1 340 années-lumière, dans la constellation d’Orion. Elle s’étend sur une vingtaine d’années-lumière et se repère à l’œil nu, comme une tache floue au milieu de l’épée du chasseur.", "C’est une pouponnière d’étoiles : des milliers d’étoiles très jeunes s’y forment. Au cœur, l’amas du Trapèze éclaire le gaz de sa lumière ultraviolette et le fait briller."], "fun": "C’est la région de formation d’étoiles massives la plus proche de la Terre, observée au télescope dès 1610.", "tags": ["#M42", "#orionnebula", "#orion"], "close": "le gaz et la poussière de cette pouponnière d’étoiles"}, {"key": "M8", "ids": ["M8", "NGC6523", "LAGUNE"], "label": "M8 – Nébuleuse de la Lagune", "title": "M8 – La nébuleuse de la Lagune", "cat": "neb", "dist": "environ 4 100 années-lumière", "p": ["M8, la nébuleuse de la Lagune, est une vaste nébuleuse d’émission située à environ 4 100 années-lumière, dans la constellation du Sagittaire. Elle s’étend sur plus de 100 années-lumière et reste visible à l’œil nu sous un ciel sombre.", "Une bande de poussière sombre, la « lagune », la traverse, et un jeune amas d’étoiles, NGC 6530, s’y est formé il y a quelques millions d’années. Son cœur brillant est surnommé le Sablier."], "fun": "Elle est toute proche de la nébuleuse Trifide, M20 : les deux se photographient souvent ensemble.", "tags": ["#M8", "#lagoonnebula", "#sagittaire"]}, {"key": "M20", "ids": ["M20", "NGC6514", "TRIFIDE"], "label": "M20 – Nébuleuse Trifide", "title": "M20 – La nébuleuse Trifide", "cat": "neb", "dist": "environ 5 200 années-lumière", "p": ["M20, la nébuleuse Trifide, est une nébuleuse située à environ 5 200 années-lumière, dans la constellation du Sagittaire. Des bandes de poussière sombre la divisent en trois lobes, d’où son nom.", "Elle réunit trois types de nébuleuses à la fois : l’émission rouge, la réflexion bleue et la poussière sombre qui les sépare."], "fun": "Elle a été découverte par Charles Messier en 1764 et se trouve à côté de la nébuleuse de la Lagune.", "tags": ["#M20", "#trifidnebula", "#sagittaire"]}, {"key": "M16", "ids": ["M16", "NGC6611", "IC4703", "AIGLE"], "label": "M16 – Nébuleuse de l’Aigle", "title": "M16 – La nébuleuse de l’Aigle", "cat": "neb", "dist": "environ 7 000 années-lumière", "p": ["M16, la nébuleuse de l’Aigle, est une nébuleuse d’émission accompagnée d’un jeune amas d’étoiles, à environ 7 000 années-lumière, dans la constellation du Serpent. Elle s’étend sur environ 70 années-lumière.", "En son cœur se dressent les célèbres Piliers de la Création, des colonnes de gaz et de poussière de quelques années-lumière de haut, où naissent de nouvelles étoiles."], "fun": "Les Piliers de la Création ont été rendus célèbres par le télescope spatial Hubble en 1995, puis par le télescope James-Webb en 2022.", "tags": ["#M16", "#eaglenebula", "#pillarsofcreation"]}, {"key": "M17", "ids": ["M17", "NGC6618", "OMEGA", "CYGNE"], "label": "M17 – Nébuleuse Oméga", "title": "M17 – La nébuleuse Oméga", "cat": "neb", "dist": "environ 5 500 années-lumière", "p": ["M17, la nébuleuse Oméga ou du Cygne, est une nébuleuse d’émission située à environ 5 500 années-lumière, dans la constellation du Sagittaire. C’est l’une des régions de formation d’étoiles les plus brillantes et les plus massives de la Voie lactée.", "Sa forme rappelle la lettre grecque oméga, ou un cygne qui glisse sur l’eau, selon l’imagination."], "fun": "Elle a été découverte en 1745 par l’astronome suisse Philippe Loys de Chéseaux, puis ajoutée au catalogue de Messier en 1764.", "tags": ["#M17", "#omeganebula", "#swannebula"]}, {"key": "NGC7000", "ids": ["NGC7000", "NORDAMERIQUE", "CALDWELL20"], "label": "NGC 7000 – Nébuleuse d’Amérique du Nord", "title": "NGC 7000 – La nébuleuse d’Amérique du Nord", "cat": "neb", "dist": "environ 2 600 années-lumière", "p": ["NGC 7000, la nébuleuse d’Amérique du Nord, est une vaste nébuleuse d’émission située à environ 2 600 années-lumière, dans la constellation du Cygne. Elle s’étend sur près de 100 années-lumière.", "Son contour ressemble au continent nord-américain, avec le golfe du Mexique en sombre. Juste à côté, la nébuleuse du Pélican (IC 5070) en est séparée par une bande de poussière."], "fun": "C’est l’une des plus grandes nébuleuses du ciel, mais elle est faible : il faut une longue pose pour la révéler.", "tags": ["#NGC7000", "#northamericanebula", "#cygne"]}, {"key": "IC5070", "ids": ["IC5070", "PELICAN"], "label": "IC 5070 – Nébuleuse du Pélican", "title": "IC 5070 – La nébuleuse du Pélican", "cat": "neb", "dist": "environ 2 000 années-lumière", "p": ["IC 5070, la nébuleuse du Pélican, est une nébuleuse d’émission située à environ 2 000 années-lumière, dans la constellation du Cygne. Elle est voisine de la nébuleuse d’Amérique du Nord et fait partie du même complexe de gaz.", "Des colonnes de gaz et de poussière sombres, sculptées par le rayonnement des étoiles jeunes voisines, dessinent la tête et le bec de l’oiseau."], "fun": "C’est un grand classique des astrophotographes, souvent photographiée avec sa voisine d’Amérique du Nord.", "tags": ["#IC5070", "#pelicannebula", "#cygne"]}, {"key": "NGC6888", "ids": ["NGC6888", "CROISSANT", "CALDWELL27"], "label": "NGC 6888 – Nébuleuse du Croissant", "title": "NGC 6888 – La nébuleuse du Croissant", "cat": "neb", "dist": "environ 5 000 années-lumière", "p": ["NGC 6888, la nébuleuse du Croissant, est une nébuleuse d’émission située à environ 5 000 années-lumière, dans la constellation du Cygne. Elle s’étend sur près de 30 années-lumière.", "Elle est façonnée par le vent de l’étoile Wolf-Rayet WR 136, une étoile très massive, qui balaie le gaz qu’elle a expulsé plus tôt : en percutant ce gaz plus lent, il crée une coquille."], "fun": "WR 136 vit à toute vitesse : elle devrait finir en supernova dans quelques centaines de milliers d’années.", "tags": ["#NGC6888", "#crescentnebula", "#cygne"]}, {"key": "ROSETTE", "ids": ["NGC2237", "NGC2244", "ROSETTE", "CALDWELL49"], "label": "NGC 2237 – Nébuleuse de la Rosette", "title": "NGC 2237 – La nébuleuse de la Rosette", "cat": "neb", "dist": "environ 5 200 années-lumière", "p": ["NGC 2237, la nébuleuse de la Rosette, est une nébuleuse d’émission située à environ 5 200 années-lumière, dans la constellation de la Licorne. Elle forme un anneau de gaz d’environ 130 années-lumière de diamètre.", "Au centre, le jeune amas NGC 2244 a creusé une cavité : le vent et le rayonnement de ses étoiles les plus massives repoussent le gaz vers l’extérieur et font briller l’anneau."], "fun": "L’amas NGC 2244, au centre, n’a que quelques millions d’années.", "tags": ["#rosettenebula", "#NGC2237", "#licorne"]}, {"key": "B33", "ids": ["B33", "IC434", "TETEDECHEVAL", "HORSEHEAD"], "label": "B33 – Tête de Cheval", "title": "B33 – La nébuleuse de la Tête de Cheval", "cat": "neb", "dist": "environ 1 400 années-lumière", "p": ["B33, la nébuleuse de la Tête de Cheval, est une nébuleuse sombre située à environ 1 400 années-lumière, dans la constellation d’Orion. Elle se détache en silhouette sur la nébuleuse d’émission rouge IC 434 et mesure environ 3,5 années-lumière de haut.", "À côté, la nébuleuse de la Flamme (NGC 2024) est éclairée par Alnitak, l’étoile située à l’extrémité de la ceinture d’Orion."], "fun": "Elle a été repérée en 1888 sur une plaque photographique par Williamina Fleming, à l’observatoire de Harvard.", "tags": ["#horsehead", "#B33", "#IC434", "#orion"]}, {"key": "NGC1499", "ids": ["NGC1499", "CALIFORNIE"], "label": "NGC 1499 – Nébuleuse de la Californie", "title": "NGC 1499 – La nébuleuse de la Californie", "cat": "neb", "dist": "environ 1 000 années-lumière", "p": ["NGC 1499, la nébuleuse de la Californie, est une nébuleuse d’émission située à environ 1 000 années-lumière, dans la constellation de Persée. Elle mesure environ 100 années-lumière de long et s’étend sur plus de 2 degrés, soit environ cinq fois la largeur de la pleine Lune.", "Elle est éclairée par l’étoile Ménkib (ξ Persei), dont le rayonnement fait briller le gaz en rouge. Sa forme rappelle celle de l’État américain, d’où son nom."], "fun": "C’est une nébuleuse très faible, presque invisible à l’œil nu comme à l’oculaire : la photographie la révèle.", "tags": ["#NGC1499", "#californianebula", "#persee"]}, {"key": "IC1396", "ids": ["IC1396", "TROMPEELEPHANT"], "label": "IC 1396 – Trompe d’éléphant", "title": "IC 1396 – La nébuleuse de la Trompe d’éléphant", "cat": "neb", "dist": "environ 2 400 années-lumière", "p": ["IC 1396 est un vaste complexe de gaz situé à environ 2 400 années-lumière, dans la constellation de Céphée. Il s’étend sur plus de 100 années-lumière et renferme la célèbre « Trompe d’éléphant », un nuage sombre d’environ 20 années-lumière de long.", "Le gaz est éclairé par une étoile très chaude, HD 206267, tandis que le bord du nuage sombre, comprimé par son rayonnement, donne naissance à de nouvelles étoiles."], "fun": "La « Trompe d’éléphant » est un cocon où des étoiles très jeunes se forment encore aujourd’hui.", "tags": ["#IC1396", "#elephanttrunk", "#cephee"]}, {"key": "IC1805", "ids": ["IC1805", "COEUR"], "label": "IC 1805 – Nébuleuse du Cœur", "title": "IC 1805 – La nébuleuse du Cœur", "cat": "neb", "dist": "environ 7 500 années-lumière", "p": ["IC 1805, la nébuleuse du Cœur, est une nébuleuse d’émission située à environ 7 500 années-lumière, dans la constellation de Cassiopée. Elle doit son nom à sa forme et s’étend sur environ 200 années-lumière.", "En son centre, un jeune amas d’étoiles très massives, Melotte 15, creuse le gaz par son rayonnement et ses vents, ce qui dessine ce cœur."], "fun": "Sa voisine, IC 1848, est surnommée la nébuleuse de l’Âme : les deux forment le duo « Cœur et Âme ».", "tags": ["#IC1805", "#heartnebula", "#cassiopee"]}, {"key": "NGC281", "ids": ["NGC281", "PACMAN"], "label": "NGC 281 – Nébuleuse Pacman", "title": "NGC 281 – La nébuleuse Pacman", "cat": "neb", "dist": "environ 9 200 années-lumière", "p": ["NGC 281, la nébuleuse Pacman, est une nébuleuse d’émission située à environ 9 200 années-lumière, dans la constellation de Cassiopée. Sa forme rappelle le personnage du célèbre jeu vidéo.", "Son gaz est éclairé par un jeune amas d’étoiles, IC 1590, dont les étoiles les plus massives illuminent la nébuleuse. Des globules et colonnes de poussière sombres se dressent sur son bord."], "fun": "C’est un objet lointain de la Voie lactée, à plus de 9 000 années-lumière de chez nous.", "tags": ["#NGC281", "#pacmannebula", "#cassiopee"]}, {"key": "M45", "ids": ["M45", "PLEIADES", "SEPTSOEURS"], "label": "M45 – Pléiades", "title": "M45 – Les Pléiades (Sept Sœurs)", "cat": "amas", "dist": "environ 440 années-lumière", "p": ["M45, les Pléiades ou Sept Sœurs, est un amas d’étoiles ouvert situé à environ 440 années-lumière, dans la constellation du Taureau. Il rassemble plus d’un millier d’étoiles, dont une demi-douzaine sont visibles à l’œil nu, et s’étend sur une quarantaine d’années-lumière. Son âge est estimé à environ 100 millions d’années.", "Les volutes bleues autour des étoiles forment une nébuleuse par réflexion : la poussière interstellaire diffuse la lumière des étoiles voisines, et elle diffuse mieux les courtes longueurs d’onde, donc le bleu. Contrairement à une nébuleuse d’émission, elle ne produit pas sa propre lumière.", "Cette poussière n’est pas le reste de la naissance de l’amas : les Pléiades traversent simplement un nuage de poussière sans rapport avec elles et l’éclairent à leur passage. Les fines structures visibles sur la photo en font partie."], "fun": "Les Pléiades s’appellent « Subaru » en japonais, et les six étoiles du logo de la marque en viennent.", "tags": ["#M45", "#pleiades", "#sevensisters", "#amasouvert"], "close": "la poussière bleue qui entoure les étoiles"}, {"key": "M44", "ids": ["M44", "NGC2632", "PRAESEPE", "CRECHE"], "label": "M44 – Amas de la Crèche", "title": "M44 – L’amas de la Crèche (Praesepe)", "cat": "amas", "dist": "environ 600 années-lumière", "p": ["M44, l’amas de la Crèche ou Praesepe, est un amas ouvert situé à environ 600 années-lumière, dans la constellation du Cancer. Il compte environ un millier d’étoiles et s’étend sur plus de 1 degré dans le ciel.", "Avec environ 600 millions d’années, il est plus âgé que les Pléiades, et il est visible à l’œil nu sous un ciel sombre, comme une tache floue."], "fun": "Galilée l’a observé en 1609 et a compris que cette tache était faite d’étoiles.", "tags": ["#M44", "#beehivecluster", "#praesepe", "#cancer"]}, {"key": "M35", "ids": ["M35", "NGC2168", "NGC2158"], "label": "M35 – Amas des Gémeaux", "title": "M35 – L’amas ouvert des Gémeaux", "cat": "amas", "dist": "environ 2 800 années-lumière", "p": ["M35 est un grand amas ouvert situé à environ 2 800 années-lumière, dans la constellation des Gémeaux. Il rassemble plusieurs centaines d’étoiles bleues et blanches sur environ 25 années-lumière.", "Juste à côté se trouve un autre amas, NGC 2158, beaucoup plus ancien (environ 2 milliards d’années) et bien plus lointain (environ 13 000 années-lumière), qui apparaît comme une petite tache dense."], "fun": "M35 est visible à l’œil nu sous un ciel sombre, au pied des Gémeaux.", "tags": ["#M35", "#NGC2158", "#gemeaux"]}, {"key": "DOUBLE", "ids": ["NGC869", "NGC884", "DOUBLEAMAS"], "label": "NGC 869 et 884 – Double Amas de Persée", "title": "NGC 869 et NGC 884 – Le Double Amas de Persée", "cat": "amas", "dist": "environ 7 500 années-lumière", "p": ["Le Double Amas de Persée, NGC 869 et NGC 884, est formé de deux amas ouverts voisins situés à environ 7 500 années-lumière, dans la constellation de Persée. Chacun rassemble plusieurs centaines d’étoiles sur environ 70 années-lumière.", "Les deux amas sont jeunes, avec environ 13 millions d’années. Leurs étoiles brillent d’un blanc bleuté, avec quelques supergéantes rouges."], "fun": "Visibles à l’œil nu comme une tache floue, ils sont connus depuis l’Antiquité : Hipparque les a catalogués vers 130 av. J.-C.", "tags": ["#doublecluster", "#NGC869", "#NGC884", "#persee"]}, {"key": "M13", "ids": ["M13", "NGC6205", "HERCULE"], "label": "M13 – Amas globulaire d’Hercule", "title": "M13 – L’amas globulaire d’Hercule", "cat": "amas", "dist": "environ 22 000 années-lumière", "p": ["M13, le grand amas globulaire d’Hercule, rassemble quelques centaines de milliers d’étoiles à environ 22 000 années-lumière, dans la constellation d’Hercule. Il mesure environ 145 années-lumière de diamètre.", "Ses étoiles sont parmi les plus anciennes de la galaxie, avec plus de 11 milliards d’années, et c’est l’un des rares amas globulaires visibles à l’œil nu sous un ciel sombre."], "fun": "En 1974, le radiotélescope d’Arecibo a envoyé un court message vers M13 : il mettra environ 25 000 ans à y arriver.", "tags": ["#M13", "#herculesglobularcluster", "#amasglobulaire"]}, {"key": "M3", "ids": ["M3", "NGC5272"], "label": "M3 – Amas globulaire des Chiens de chasse", "title": "M3 – L’amas globulaire des Chiens de chasse", "cat": "amas", "dist": "environ 34 000 années-lumière", "p": ["M3 est un amas globulaire situé à environ 34 000 années-lumière, dans la constellation des Chiens de chasse. Il rassemble environ 500 000 étoiles dans une sphère d’environ 180 années-lumière de diamètre.", "Il contient plus de 270 étoiles variables, ce qui en fait l’un des amas globulaires les plus riches en étoiles de ce type."], "fun": "Charles Messier l’a découvert en 1764 et l’a pris pour une nébuleuse sans étoiles ; c’est William Herschel qui l’a résolu en étoiles.", "tags": ["#M3", "#globularcluster", "#amasglobulaire"]}, {"key": "M27", "ids": ["M27", "NGC6853", "HALTERE"], "label": "M27 – Nébuleuse de l’Haltère", "title": "M27 – La nébuleuse de l’Haltère", "cat": "pla", "dist": "environ 1 300 années-lumière", "p": ["M27, la nébuleuse de l’Haltère, est une nébuleuse planétaire située à environ 1 300 années-lumière, dans la constellation du Petit Renard. Elle s’étend sur environ 3 années-lumière.", "Malgré son nom, une nébuleuse planétaire n’a rien à voir avec les planètes : c’est la coquille de gaz expulsée par une étoile comme le Soleil à la fin de sa vie, éclairée par le cœur chaud de l’étoile, devenu naine blanche."], "fun": "C’est la toute première nébuleuse planétaire découverte : Charles Messier l’a repérée en 1764.", "tags": ["#M27", "#dumbbellnebula"]}, {"key": "M57", "ids": ["M57", "NGC6720", "ANNEAU"], "label": "M57 – Nébuleuse de l’Anneau", "title": "M57 – La nébuleuse de l’Anneau", "cat": "pla", "dist": "environ 2 300 années-lumière", "p": ["M57, la nébuleuse de l’Anneau, est une nébuleuse planétaire située à environ 2 300 années-lumière, dans la constellation de la Lyre. Son anneau mesure environ 1 année-lumière de diamètre.", "Ce n’est pas un vrai anneau mais plutôt un tonneau de gaz vu par le bout, expulsé par une étoile mourante il y a environ 4 000 ans. Au centre, la naine blanche qui l’a produite est si faible qu’il faut une longue pose pour l’apercevoir."], "fun": "Elle a été découverte en 1779 par l’astronome français Antoine Darquier de Pellepoix, à Toulouse.", "tags": ["#M57", "#ringnebula", "#lyre"]}, {"key": "M97", "ids": ["M97", "NGC3587", "HIBOU"], "label": "M97 – Nébuleuse du Hibou", "title": "M97 – La nébuleuse du Hibou", "cat": "pla", "dist": "environ 2 600 années-lumière", "p": ["M97, la nébuleuse du Hibou, est une nébuleuse planétaire située à environ 2 600 années-lumière, dans la constellation de la Grande Ourse. Elle mesure environ 2 années-lumière.", "Ses deux zones sombres rappellent les yeux d’un hibou, d’où son nom, donné au XIXe siècle par Lord Rosse après un dessin."], "fun": "Elle a été découverte par Pierre Méchain en 1781 et c’est l’une des nébuleuses planétaires les plus faibles du catalogue de Messier.", "tags": ["#M97", "#owlnebula", "#grandeourse"]}, {"key": "NGC7293", "ids": ["NGC7293", "HELICE", "CALDWELL63"], "label": "NGC 7293 – Nébuleuse de l’Hélice", "title": "NGC 7293 – La nébuleuse de l’Hélice", "cat": "pla", "dist": "environ 650 années-lumière", "p": ["NGC 7293, la nébuleuse de l’Hélice, est une nébuleuse planétaire située à environ 650 années-lumière, dans la constellation du Verseau. Elle compte parmi les nébuleuses planétaires les plus proches de la Terre.", "Sa forme rappelle un œil géant, d’où son surnom d’« Œil de Dieu ». Le gaz, expulsé par une étoile devenue naine blanche, apparaît rouge à l’extérieur et bleu-vert vers l’intérieur."], "fun": "Elle mesure environ 2,5 années-lumière de diamètre.", "tags": ["#NGC7293", "#helixnebula", "#verseau"]}, {"key": "M1", "ids": ["M1", "NGC1952", "CRABE"], "label": "M1 – Nébuleuse du Crabe", "title": "M1 – La nébuleuse du Crabe", "cat": "snr", "dist": "environ 6 500 années-lumière", "p": ["M1, la nébuleuse du Crabe, est le rémanent d’une supernova, l’explosion d’une étoile massive, situé à environ 6 500 années-lumière, dans la constellation du Taureau. Elle s’étend sur une dizaine d’années-lumière et continue de grossir.", "Cette explosion a été observée par des astronomes chinois en 1054 : l’étoile est restée visible en plein jour pendant 23 jours, et la nuit pendant environ deux ans.", "Il reste au centre un pulsar, une étoile à neutrons de la taille d’une ville, qui tourne une trentaine de fois par seconde."], "fun": "En 1758, Charles Messier l’a prise pour une comète : c’est pour éviter cette confusion qu’il a commencé son célèbre catalogue, dont elle est le n° 1.", "tags": ["#M1", "#crabnebula", "#supernova", "#taureau"]}, {"key": "VEIL", "ids": ["NGC6992", "NGC6960", "VOILE", "DENTELLES"], "label": "NGC 6992 / 6960 – Dentelles du Cygne", "title": "Les Dentelles du Cygne (NGC 6992 / NGC 6960)", "cat": "snr", "dist": "environ 2 400 années-lumière", "p": ["Les Dentelles du Cygne, ou nébuleuse du Voile, sont les filaments d’un rémanent de supernova situé à environ 2 400 années-lumière, dans la constellation du Cygne. NGC 6992 et NGC 6960 en sont les arcs les plus brillants.", "L’étoile à l’origine de cette nébuleuse a explosé il y a environ 10 000 à 20 000 ans. L’onde de choc comprime et illumine le gaz interstellaire en formant ces filaments très fins. La boucle entière couvre environ 3 degrés, soit six fois la largeur de la Lune."], "fun": "Les filaments brillent surtout dans l’hydrogène et l’oxygène ionisé : un filtre pour nébuleuses aide à les faire ressortir.", "tags": ["#veilnebula", "#NGC6992", "#NGC6960", "#cygne"]}];
+const MOON_PHASES=[{"key": "new", "name": "Nouvelle Lune", "nameLc": "nouvelle Lune", "pct": 0, "p": ["À la nouvelle Lune, notre satellite se trouve entre la Terre et le Soleil : sa face éclairée est tournée à l’opposé de nous, et il est quasiment invisible, car il se lève et se couche avec le Soleil.", "C’est la période idéale pour photographier galaxies et nébuleuses, puisque le ciel est alors le plus sombre. La Lune est à environ 384 400 km de nous, soit 1,3 seconde-lumière."], "fun": "Les éclipses de Soleil ne peuvent avoir lieu qu’à la nouvelle Lune.", "tags": ["#nouvellelune", "#newmoon"]}, {"key": "wc", "name": "Premier croissant", "nameLc": "premier croissant", "pct": 20, "p": ["Le premier croissant est une fine tranche de Lune éclairée à environ {pct} %, visible en début de soirée vers l’ouest, avec le côté droit éclairé dans l’hémisphère nord. La Lune est à environ 384 400 km de nous, soit 1,3 seconde-lumière.", "Sur la partie sombre, on devine la lumière cendrée : la Terre, qui joue le rôle d’une énorme « pleine Terre » vue de la Lune, renvoie vers elle la lumière du Soleil, et la Lune la renvoie à son tour vers nous. Léonard de Vinci a été l’un des premiers à expliquer ce phénomène, il y a plus de 500 ans."], "fun": "La Lune s’éloigne de la Terre d’environ 3,8 cm par an.", "tags": ["#croissantdelune", "#waxingcrescent", "#lumierecendree"]}, {"key": "fq", "name": "Premier quartier", "nameLc": "premier quartier", "pct": 50, "p": ["Au premier quartier, la moitié du disque est éclairée (côté droit dans l’hémisphère nord). On parle de « quartier » car la Lune a parcouru un quart de son orbite autour de la Terre, et non parce qu’on en voit un quart. La Lune est à environ 384 400 km de nous, soit 1,3 seconde-lumière.", "C’est un excellent moment pour observer le relief : le long du terminateur, la ligne qui sépare le jour de la nuit lunaires, la lumière rasante étire les ombres et fait ressortir cratères et montagnes, comme le trio Ptolémée, Alphonse et Arzachel."], "fun": "À ce stade, la Lune se couche vers minuit.", "tags": ["#premierquartier", "#firstquarter"]}, {"key": "wg", "name": "Gibbeuse croissante", "nameLc": "gibbeuse croissante", "pct": 75, "p": ["La Lune gibbeuse croissante est éclairée à environ {pct} % : plus de la moitié de son disque est visible, et la partie éclairée continue de grandir. Elle est visible dès la fin d’après-midi et une bonne partie de la nuit. La Lune est à environ 384 400 km de nous, soit 1,3 seconde-lumière.", "Le terminateur traverse maintenant les grandes plaines sombres, les mers lunaires, d’anciennes coulées de lave basaltique, et révèle de grands cratères comme Copernic, avec son système de rayons."], "fun": "Les « mers » lunaires ne contiennent pas d’eau : ce sont des plaines de lave refroidie, ainsi nommées par les premiers observateurs.", "tags": ["#gibbeuse", "#waxinggibbous"]}, {"key": "full", "name": "Pleine Lune", "nameLc": "pleine Lune", "pct": 100, "p": ["À la pleine Lune, le disque est entièrement éclairé : le Soleil, la Terre et la Lune sont alignés, et la Lune se lève au moment où le Soleil se couche. La Lune est à environ 384 400 km de nous, soit 1,3 seconde-lumière.", "La lumière frontale écrase le relief, sans ombres, mais fait ressortir les contrastes : les mers sombres et les rayons clairs qui partent de cratères comme Tycho ou Copernic. C’est aussi la période où le ciel est le plus lumineux, et la moins favorable aux nébuleuses et aux galaxies."], "fun": "La pleine Lune est environ 400 000 fois moins lumineuse que le Soleil.", "tags": ["#pleinelune", "#fullmoon"]}, {"key": "dg", "name": "Gibbeuse décroissante", "nameLc": "gibbeuse décroissante", "pct": 75, "p": ["La Lune gibbeuse décroissante est éclairée à environ {pct} % et commence à diminuer : c’est le côté gauche qui reste éclairé dans l’hémisphère nord, et elle se lève de plus en plus tard après le coucher du Soleil, visible surtout en seconde partie de nuit. La Lune est à environ 384 400 km de nous, soit 1,3 seconde-lumière.", "Le terminateur, désormais à droite, plonge dans la nuit les mers de l’est, comme la mer des Crises, tandis que les terres de l’ouest, comme l’océan des Tempêtes, restent éclairées."], "fun": "La Lune présente toujours la même face à la Terre : elle tourne sur elle-même en 27,3 jours, exactement le temps qu’elle met à faire le tour de la Terre.", "tags": ["#gibbeuse", "#waninggibbous"]}, {"key": "lq", "name": "Dernier quartier", "nameLc": "dernier quartier", "pct": 50, "p": ["Au dernier quartier, la moitié du disque est de nouveau éclairée, mais cette fois côté gauche dans l’hémisphère nord. La Lune a parcouru les trois quarts de son orbite : elle se lève vers minuit et reste visible jusqu’au matin. La Lune est à environ 384 400 km de nous, soit 1,3 seconde-lumière.", "Le terminateur, côté droit, révèle un relief spectaculaire en lumière rasante, tandis que le côté éclairé montre l’océan des Tempêtes et le cratère Aristarque, l’un des plus brillants de la surface lunaire."], "fun": "La face cachée de la Lune n’est pas une face sombre : elle reçoit autant de lumière du Soleil que la face visible.", "tags": ["#dernierquartier", "#lastquarter"]}, {"key": "dc", "name": "Dernier croissant", "nameLc": "dernier croissant", "pct": 20, "p": ["Le dernier croissant est une fine tranche de Lune éclairée à environ {pct} %, côté gauche dans l’hémisphère nord, visible juste avant l’aube vers l’est. La Lune est à environ 384 400 km de nous, soit 1,3 seconde-lumière.", "Comme au premier croissant, la partie sombre est faiblement éclairée par la lumière cendrée : c’est la lumière de la Terre, renvoyée vers la Lune puis vers nous."], "fun": "Dans quelques jours, la Lune sera de nouveau nouvelle : le cycle complet des phases dure environ 29,5 jours.", "tags": ["#croissantdelune", "#waningcrescent", "#lumierecendree"]}];
+const CAT_CLOSE={gal:'les bras et la poussière de cette galaxie',neb:'les gaz et la poussière de cette nébuleuse',amas:'les étoiles de cet amas',pla:'la coquille de gaz de cette nébuleuse planétaire',snr:'les filaments de ce rémanent de supernova'};
+const CAT_TAGS={gal:['#galaxie','#galaxy'],neb:['#nebuleuse','#nebula'],amas:['#amasdetoiles','#starcluster'],pla:['#nebuleuseplanetaire','#planetarynebula'],snr:['#supernovaremnant','#nebuleuse']};
+const COMMON_TAGS=['#astrophotographie','#astronomie','#deepsky','#ciel','#espace','#smarttelescope','#astrophotography'];
+const TYPE_INFO={gal:{art:'une galaxie',fem:true},neb:{art:'une nébuleuse',fem:true},amas:{art:'un amas d’étoiles',fem:false},pla:{art:'une nébuleuse planétaire',fem:true},snr:{art:'un rémanent de supernova',fem:false}};
+const normId=s=>String(s||'').replace(/[\s_\-]/g,'').toUpperCase();
+const dObj=key=>DESC_OBJS.find(o=>o.key===key);
+const DIDS={obj:'dObj',phase:'dPhase',cname:'dcName',ctype:'dcType',cdist:'dcDist',ccon:'dcCon',filter:'dFilter',n:'dN',exp:'dExp',date:'dDate',bortle:'dBortle',driz:'dDriz',pal:'dPal',ment:'dMent'};
+let descDirty=false;
+
+function fillDescSelect(){
+  const sel=$('dObj');sel.innerHTML='';
+  const add=(parent,val,txt)=>{const o=document.createElement('option');o.value=val;o.textContent=txt;parent.append(o)};
+  const groups=[['gal','Galaxies'],['neb','Nébuleuses'],['amas','Amas d’étoiles'],['pla','Nébuleuses planétaires et rémanents']];
+  groups.forEach(([gk,name])=>{
+    const og=document.createElement('optgroup');og.label=name;
+    DESC_OBJS.filter(o=>gk==='pla'?(o.cat==='pla'||o.cat==='snr'):o.cat===gk).forEach(o=>add(og,o.key,o.label));
+    sel.append(og);
+  });
+  const og=document.createElement('optgroup');og.label='Autres';
+  add(og,'lune','🌙 La Lune (avec phases)');add(og,'autre','Autre objet (saisie libre)');
+  sel.insertBefore(og,sel.firstChild);
+  sel.value='M45';
+}
+const readDesc=()=>{const o={};for(const k in DIDS)o[k]=$(DIDS[k]).value;return o};
+const setDesc=o=>{if(!o)return;for(const k in DIDS)if(o[k]!=null)$(DIDS[k]).value=o[k]};
+
+/* mise en forme */
+const fmtInt=n=>Math.round(n).toLocaleString('fr-FR').replace(/[  ]/g,' ');
+const fmtNum=x=>String(+x).replace('.',',');
+function durText(sec,long){
+  let h=Math.floor(sec/3600),m=Math.round((sec%3600)/60);if(m===60){h++;m=0}
+  if(!h)return `${m} min`;
+  return `${h} h ${String(m).padStart(2,'0')}${long?' min':''}`;
+}
+const dateLong=s=>{const d=new Date(s);return isNaN(d)?'':d.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})};
+
+/* phase de la Lune d’après la date (âge de la Lune depuis la nouvelle Lune de référence du 6 janv. 2000) */
+function moonInfo(v){
+  const d=v.date?new Date(v.date):new Date();
+  const syn=29.530588853,jd=d.getTime()/86400000+2440587.5;
+  const age=(((jd-2451550.1)%syn)+syn)%syn;
+  const pct=Math.round((1-Math.cos(2*Math.PI*age/syn))/2*100);
+  if(v.phase&&v.phase!=='auto'){
+    const p=MOON_PHASES.find(x=>x.key===v.phase);
+    return {key:p.key,pct:p.pct,age,auto:false};
+  }
+  let key='dc';
+  if(age<1||age>=28.5)key='new';else if(age<6.4)key='wc';else if(age<8.4)key='fq';else if(age<13.8)key='wg';
+  else if(age<15.8)key='full';else if(age<21.1)key='dg';else if(age<23.1)key='lq';
+  return {key,pct,age,auto:true,now:!v.date};
+}
+
+/* matériel */
+const isSeestar=()=>/^seestar/i.test(model);
+function cameraLine(filter){
+  let name=model;
+  if(isSeestar())name='ZWO '+model;else if(/^dwarf/i.test(model))name='DwarfLab '+model;
+  const f={IRCUT:'filtre large bande UV/IR-cut intégré',LP:'filtre anti-pollution lumineuse (LP) intégré'}[filter];
+  return name+(f?' – '+f:'');
+}
+function modelTags(){
+  if(/seestar s50/i.test(model))return['#seestar','#seestars50pro'];
+  if(/seestar s30/i.test(model))return['#seestar','#seestars30pro'];
+  if(/^seestar/i.test(model))return['#seestar'];
+  if(/^dwarf/i.test(model))return['#dwarfmini','#dwarflab'];
+  return[];
+}
+
+function buildDesc(){
+  const v=readDesc(),N=Math.round(+v.n)||0,E=+String(v.exp).replace(',','.')||0,sec=N*E;
+  const moon=v.obj==='lune',custom=v.obj==='autre';
+  let o=null,mi=null,ph=null,cat=null,name='';
+  if(moon){mi=moonInfo(v);ph=MOON_PHASES.find(p=>p.key===mi.key)}
+  else if(custom){cat=v.ctype;name=v.cname.trim()||'Objet du ciel profond'}
+  else{o=dObj(v.obj)||DESC_OBJS[0];cat=o.cat}
+  const out=[],withModel=`avec un ${model}`;
+  /* accroche (les 125 premiers caractères restent visibles avant « plus ») */
+  if(moon)out.push(`🌙 La Lune, ${ph.nameLc} (${mi.pct} % éclairée) ${withModel}`);
+  else out.push(`✨ ${custom?name:o.title}${sec>0?` : ${durText(sec,false)} de pose ${withModel}`:` ${withModel}`}`);
+  /* fiche technique */
+  const sheet=[`📷 ${cameraLine(v.filter)}`,`🌃 Bortle ${v.bortle}`];
+  if(N&&E)sheet.push(`📸 ${fmtInt(N)} poses × ${fmtNum(E)} s`);
+  if(sec>0&&!moon)sheet.push(`⏱ ${durText(sec,true)} d’intégration`);
+  if(!moon&&v.driz)sheet.push(`🛠 Drizzle ×${v.driz}`);
+  if(!moon&&v.pal)sheet.push(`🎨 ${v.pal}`);
+  if(moon)sheet.push(`🌙 ${ph.name} · ${mi.pct} % éclairée`);
+  const dl=v.date?dateLong(v.date):'';if(dl)sheet.push(`📅 ${dl}`);
+  out.push(sheet.join('\n'));
+  /* corps */
+  let tags=[];
+  if(moon){
+    ph.p.forEach(t=>out.push(t.replace('{pct}',mi.pct)));
+    out.push('Fait amusant : '+ph.fun);
+    if(N)out.push(`Image issue de l’empilement de ${fmtInt(N)} poses, sous un ciel Bortle ${v.bortle}.`);
+    tags=ph.tags.concat(['#lune','#moon','#moonphotography']);
+  }else{
+    let distTxt='';
+    if(custom){
+      const ti=TYPE_INFO[cat],con=v.ccon.trim(),dist=v.cdist.trim();
+      distTxt=dist?`environ ${dist} années-lumière`:'';
+      out.push(`${name} est ${ti.art}${con?` située dans la constellation ${con}`.replace('située',ti.fem?'située':'situé'):''}${distTxt?`, à ${distTxt} de nous`:''}.`);
+      const slug='#'+name.replace(/[^A-Za-z0-9]/g,'').toLowerCase();
+      tags=(slug.length>3?[slug]:[]);
+    }else{
+      distTxt=o.dist;
+      o.p.forEach(t=>out.push(t));
+      out.push('Fait amusant : '+o.fun);
+      tags=o.tags.slice();
+    }
+    const core=(o&&o.close)||CAT_CLOSE[cat];
+    out.push((sec>0?`Au total, ${durText(sec,true)} de collecte de lumière sous un ciel Bortle ${v.bortle}`:`Photographié sous un ciel Bortle ${v.bortle}`)+`, pour faire ressortir ${core}`+(distTxt?`, à ${distTxt}.`:'.'));
+    tags=tags.concat(CAT_TAGS[cat]||[]);
+  }
+  tags=tags.concat(modelTags(),COMMON_TAGS);
+  const seen=new Set(),uniq=tags.filter(t=>{const k=t.toLowerCase();if(seen.has(k))return false;seen.add(k);return true}).slice(0,18);
+  out.push(uniq.join(' '));
+  const ment=[isSeestar()?'@seestar.official @zwoastro':'',v.ment.trim()].filter(Boolean).join(' ');
+  if(ment)out.push(ment);
+  return out.join('\n\n');
+}
+
+/* interface */
+function refreshDescUI(){
+  const v=readDesc(),moon=v.obj==='lune';
+  $('dCustom').style.display=v.obj==='autre'?'block':'none';
+  $('dMoon').style.display=moon?'block':'none';
+  $('dDeepA').style.display=moon?'none':'block';
+  $('dDeepB').style.display=moon?'none':'block';
+  const N=Math.round(+v.n)||0,E=+String(v.exp).replace(',','.')||0;
+  $('dInteg').textContent=(N&&E)?`Temps d’intégration : ${durText(N*E,true)}`:'';
+  if(moon){
+    const mi=moonInfo(v),ph=MOON_PHASES.find(p=>p.key===mi.key);
+    $('dPhaseInfo').textContent=(mi.auto?'Calculée : ':'Choisie : ')+`${ph.name}, environ ${mi.pct} % éclairée (âge de la Lune : ${mi.age.toFixed(1).replace('.',',')} j)`+(mi.now?' · d’après la date du jour':'')+'. Corrige-la ci-dessus si besoin.';
+  }
+  const len=[...$('dText').value].length;
+  $('dCount').textContent=`${fmtInt(len)} / 2 200 caractères`;
+  $('dCount').classList.toggle('bad',len>2200);
+}
+function regenDesc(){descDirty=false;$('dText').value=buildDesc();$('dMsg').textContent='';refreshDescUI()}
+function descChanged(){
+  refreshDescUI();
+  if(!descDirty)regenDesc();
+  else $('dMsg').textContent='Texte modifié à la main : clique sur « Régénérer » pour tenir compte des changements de la fiche.';
+  scheduleSave();
+}
+Object.values(DIDS).forEach(id=>{$(id).addEventListener('input',descChanged);$(id).addEventListener('change',descChanged)});
+$('dText').addEventListener('input',()=>{descDirty=true;refreshDescUI();scheduleSave()});
+$('dRegen').onclick=()=>{regenDesc();scheduleSave()};
+$('dCopy').onclick=async()=>{
+  const ta=$('dText');let ok=false;
+  try{await navigator.clipboard.writeText(ta.value);ok=true}catch(e){}
+  if(!ok){try{ta.focus();ta.select();ta.setSelectionRange(0,ta.value.length);ok=document.execCommand('copy')}catch(e){}}
+  const b=$('dCopy'),old='Copier la description';
+  b.textContent=ok?'Copié ✔':'Copie impossible : sélectionne le texte à la main';
+  setTimeout(()=>{b.textContent=old},2200);
+};
+
+/* remplissage depuis le nom d’un fichier Seestar : Stacked_<poses>_<objet>_<pose>s_<filtre>_<AAAAMMJJ-HHMMSS> */
+function parseSeestarName(name){
+  const base=String(name).replace(/\.[a-z0-9]{2,4}$/i,'');
+  const m=base.match(/Stacked_(\d+)_(.+?)_(\d+(?:\.\d+)?)s(?:_([A-Za-z]+))?_(\d{4})(\d{2})(\d{2})-(\d{2})(\d{2})(\d{2})/i);
+  if(!m)return null;
+  return {n:+m[1],obj:m[2],exp:+m[3],filter:(m[4]||'').toUpperCase(),dt:`${m[5]}-${m[6]}-${m[7]}T${m[8]}:${m[9]}`};
+}
+function autofillFromName(name){
+  const m=parseSeestarName(name);if(!m)return false;
+  $('dN').value=m.n;$('dExp').value=String(+m.exp);
+  $('dFilter').value=(m.filter==='IRCUT'||m.filter==='LP')?m.filter:'';
+  $('dDate').value=m.dt;
+  const nid=normId(m.obj);let key=null;
+  if(nid==='MOON'||nid==='LUNE')key='lune';
+  else{const f=DESC_OBJS.find(x=>x.ids.includes(nid));if(f)key=f.key}
+  if(key)$('dObj').value=key;
+  else{$('dObj').value='autre';$('dcName').value=m.obj.replace(/_/g,' ')}
+  descChanged();
+  $('dMsg').textContent=`Fiche remplie depuis le nom du fichier : ${m.obj.replace(/_/g,' ')} · ${fmtInt(m.n)} × ${fmtNum(m.exp)} s${m.filter?' · '+m.filter:''}${descDirty?' · clique sur « Régénérer » pour réécrire le texte':''}`;
+  return true;
+}
+$('dFile').onchange=e=>{
+  const f=e.target.files[0];if(!f)return;
+  if(!autofillFromName(f.name))$('dMsg').textContent='Nom de fichier non reconnu (attendu : Stacked_…_10.0s_IRCUT_AAAAMMJJ-HHMMSS). Remplis la fiche à la main.';
+  e.target.value='';
+};
+fillDescSelect();
 
 /* ---------- Démarrage ---------- */
 slides=[newSlide()];
@@ -1137,6 +1387,7 @@ refreshAll();
 loadRemote(false);
 restore().then(ok=>{
   ready=true;
+  if(!descDirty)regenDesc();else refreshDescUI();
   useFormat(fmtKey);          // redessine l’aperçu au bon format
   if(ok)refreshAll();
   saveNow();
