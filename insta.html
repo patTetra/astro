@@ -185,6 +185,14 @@ details.sync summary{font-size:13px;color:var(--mut);cursor:pointer;margin-botto
 </div>
 
 <div class="card">
+  <h2>Sticker « swipe »</h2>
+  <label class="chk"><input type="checkbox" id="stkOn" checked> Afficher le sticker en bas de l’image</label>
+  <label class="f" for="stkText">Texte de la pastille</label>
+  <input type="text" id="stkText" value="Swipe" maxlength="24" autocomplete="off" placeholder="ex. Swipe">
+  <p class="hint" style="text-align:left">Pastille avec flèches + points de progression (la diapo en cours est allongée). Visible dans l’aperçu, mais ajouté seulement aux images PNG : jamais à la vidéo ni à la dernière diapo.</p>
+</div>
+
+<div class="card">
   <h2>Export</h2>
   <label class="chk"><input type="checkbox" id="oV" checked> Format vertical 1080×1920</label>
   <label class="chk"><input type="checkbox" id="oH"> Format horizontal 1920×1080</label>
@@ -211,8 +219,8 @@ details.sync summary{font-size:13px;color:var(--mut);cursor:pointer;margin-botto
 <script>
 (()=>{
 const FORMATS={
-  v:{W:1080,H:1920,maxw:910,ty:270,wm:{x:64,y:140,w:96},grad:720,gpad:180},
-  h:{W:1920,H:1080,maxw:1500,ty:120,wm:{x:56,y:48,w:84},grad:420,gpad:140}
+  v:{W:1080,H:1920,maxw:910,ty:270,wm:{x:64,y:140,w:96},grad:720,gpad:180,stk:210},
+  h:{W:1920,H:1080,maxw:1500,ty:120,wm:{x:56,y:48,w:84},grad:420,gpad:140,stk:56}
 };
 let fmtKey='v',FM=FORMATS.v,W=FM.W,H=FM.H,MAXW=FM.maxw,TEXT_Y=FM.ty;
 function setFmt(k){fmtKey=k;FM=FORMATS[k];W=FM.W;H=FM.H;MAXW=FM.maxw;TEXT_Y=FM.ty}
@@ -386,6 +394,53 @@ function drawMoon(c,s,pl,preview){
   }
 }
 
+/* ---------- Sticker « swipe » : pastille + flèches + points de progression ---------- */
+function pillPath(c,x,y,w,h){
+  const r=h/2;c.beginPath();
+  c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.arc(x+w-r,y+r,r,-Math.PI/2,Math.PI/2);
+  c.lineTo(x+r,y+h);c.arc(x+r,y+r,r,Math.PI/2,Math.PI*1.5);c.closePath();
+}
+function drawSticker(c,s,idx,n,text){
+  const k=fmtKey==='h'?1:1.25,acc=COLORS[s.color]||COLORS.blue;
+  const fs=46*k,h=92*k,pad=44*k,gapT=22*k,ch=15*k,cd=11*k,cs=17*k;
+  const dotR=9*k,dotGap=12*k,dotsH=dotR*2;
+  c.save();
+  c.font=`700 ${fs}px ${FONT}`;c.textAlign='left';c.textBaseline='middle';
+  const tw=text?c.measureText(text).width:0;
+  const CW=2*cs+cd+8*k;
+  const pw=pad+tw+(text?gapT:0)+CW+pad;
+  const bottomY=H-FM.stk,pillX=(W-pw)/2,pillY=bottomY-dotsH-24*k-h,cy=pillY+h/2;
+  // pastille
+  pillPath(c,pillX,pillY,pw,h);
+  c.shadowColor='rgba(0,0,0,.45)';c.shadowBlur=24*k;c.shadowOffsetY=6*k;
+  c.fillStyle='rgba(8,12,28,.64)';c.fill();
+  c.shadowColor='transparent';c.shadowBlur=0;c.shadowOffsetY=0;
+  c.lineWidth=2.5*k;c.strokeStyle='rgba(255,255,255,.30)';c.stroke();
+  // texte
+  if(text){c.fillStyle='#ffffff';c.fillText(text,pillX+pad,cy+1*k)}
+  // flèches (de plus en plus marquées)
+  const x0=pillX+pad+tw+(text?gapT:0);
+  c.lineWidth=6.5*k;c.lineCap='round';c.lineJoin='round';c.strokeStyle=acc;
+  [.35,.65,1].forEach((a,j)=>{
+    c.globalAlpha=a;c.beginPath();
+    c.moveTo(x0+j*cs,cy-ch);c.lineTo(x0+j*cs+cd,cy);c.lineTo(x0+j*cs,cy+ch);c.stroke();
+  });
+  c.globalAlpha=1;
+  // points de progression
+  const wCur=dotR*5,wDot=dotR*2;
+  const total=wCur+(n-1)*wDot+(n-1)*dotGap;
+  let x=(W-total)/2;const dy=bottomY-dotsH;
+  for(let i=0;i<n;i++){
+    const w=i===idx?wCur:wDot;
+    pillPath(c,x,dy,w,dotsH);
+    c.shadowColor='rgba(0,0,0,.5)';c.shadowBlur=8*k;
+    c.fillStyle=i===idx?acc:'rgba(255,255,255,.55)';c.fill();
+    c.shadowColor='transparent';c.shadowBlur=0;
+    x+=w+dotGap;
+  }
+  c.restore();
+}
+
 /* ---------- Boîte du texte (pour le déplacer au doigt) ---------- */
 let showTB=false;
 function textBoxFrom(c,s,L){
@@ -425,7 +480,7 @@ function drawPhoto(c,s,preview){
   c.drawImage(img,x,y,dw,dh);
   return {x,y,sc};
 }
-function drawSlide(c,s,preview){
+function drawSlide(c,s,preview,stk){
   c.save();
   c.globalAlpha=1;
   const pl=drawPhoto(c,s,preview);
@@ -461,6 +516,7 @@ function drawSlide(c,s,preview){
     if(bx){c.save();c.strokeStyle='rgba(255,255,255,.85)';c.lineWidth=3;c.setLineDash([16,10]);
       c.strokeRect(bx.x0,bx.y0,bx.x1-bx.x0,bx.y1-bx.y0);c.restore()}
   }
+  if(stk){const i=slides.indexOf(s);if(i>=0&&i<slides.length-1)drawSticker(c,s,i,slides.length,($('stkText').value||'').trim())}
   if(s.wm)drawWatermark(c,(+$('wmOp').value)/100);
   c.restore();
 }
@@ -469,7 +525,7 @@ let raf=0;
 function render(){
   scheduleSave();
   if(raf)return;
-  raf=requestAnimationFrame(()=>{raf=0;drawSlide(ctx,slides[cur],true)});
+  raf=requestAnimationFrame(()=>{raf=0;drawSlide(ctx,slides[cur],true,$('stkOn').checked)});
 }
 
 /* ---------- Modèles de télescopes (liste partagée via GitHub) ---------- */
@@ -659,6 +715,8 @@ $('zoom').oninput=e=>{
 $('wmSlide').onchange=e=>{slides[cur].wm=e.target.checked;render()};
 $('wmAll').onclick=()=>{slides.forEach(s=>s.wm=true);refreshFields();render()};
 $('wmNone').onclick=()=>{slides.forEach(s=>s.wm=false);refreshFields();render()};
+$('stkOn').onchange=render;
+$('stkText').oninput=render;
 $('fV').onclick=()=>useFormat('v');
 $('fH').onclick=()=>useFormat('h');
 function useFormat(k){
@@ -925,20 +983,23 @@ $('go').onclick=async()=>{
     await loadFonts();
     // tout est dessiné d’un coup (synchrone) pour ne pas gêner l’aperçu
     const orig=fmtKey;
+    const wantStk=$('stkOn').checked;
     const sets=fmts.map(k=>{
       setFmt(k);
-      const cvs=slides.map(s=>{
+      const mk=stk=>slides.map(s=>{
         const c=document.createElement('canvas');c.width=W;c.height=H;
-        drawSlide(c.getContext('2d'),s,false);return c;
+        drawSlide(c.getContext('2d'),s,false,stk);return c;
       });
-      return {name:k==='v'?'vertical':'horizontal',cvs};
+      const png=doPng?mk(wantStk):null;                       // PNG : avec sticker
+      const vid=doVid?((doPng&&!wantStk)?png:mk(false)):null; // vidéo : jamais de sticker
+      return {name:k==='v'?'vertical':'horizontal',png,vid};
     });
     setFmt(orig);
     if(doPng){
-      const total=sets.reduce((n,x)=>n+x.cvs.length,0);let done=0;
+      const total=sets.reduce((n,x)=>n+x.png.length,0);let done=0;
       for(const set of sets){
-        for(let i=0;i<set.cvs.length;i++){
-          const blob=await new Promise(r=>set.cvs[i].toBlob(r,'image/png'));
+        for(let i=0;i<set.png.length;i++){
+          const blob=await new Promise(r=>set.png[i].toBlob(r,'image/png'));
           sharedPng.push(addResult(blob,`reel_${set.name}_${String(i+1).padStart(2,'0')}.png`));
           progress(++done/total);
         }
@@ -949,7 +1010,7 @@ $('go').onclick=async()=>{
         $('results').prepend(b);
       }
     }
-    if(doVid)for(const set of sets)await recordVideo(set.cvs,'reel_'+set.name);
+    if(doVid)for(const set of sets)await recordVideo(set.vid,'reel_'+set.name);
     msg('Terminé ✔');
   }catch(err){
     console.error(err);msg('Erreur : '+(err&&err.message?err.message:err));
@@ -1002,7 +1063,7 @@ const DB={
 let ready=false,saveTimer=0;
 function serialize(){
   return {
-    v:1,uid,cur,fmt:fmtKey,wmOp:+$('wmOp').value,
+    v:1,uid,cur,fmt:fmtKey,wmOp:+$('wmOp').value,stk:{on:$('stkOn').checked,text:$('stkText').value},
     exp:{v:$('oV').checked,h:$('oH').checked,png:$('oPng').checked,vid:$('oVid').checked,dur:$('dur').value,durL:$('durL').value,fade:$('fade').value},
     slides:slides.map(s=>({id:s.id,reuse:s.reuse,fr:s.fr,tp:s.tp,wm:s.wm,top:s.top,kw:s.kw,bottom:s.bottom,color:s.color,moon:s.moon}))
   };
@@ -1048,6 +1109,7 @@ async function restore(){
   }));
   cur=clamp(st.cur|0,0,slides.length-1);
   if(st.wmOp){$('wmOp').value=st.wmOp;$('wmOpV').textContent=st.wmOp}
+  if(st.stk){$('stkOn').checked=st.stk.on!==false;if(typeof st.stk.text==='string')$('stkText').value=st.stk.text}
   const e=st.exp||{};
   if('v' in e)$('oV').checked=!!e.v;if('h' in e)$('oH').checked=!!e.h;
   if('png' in e)$('oPng').checked=!!e.png;if('vid' in e)$('oVid').checked=!!e.vid;
