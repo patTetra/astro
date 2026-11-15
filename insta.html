@@ -19,11 +19,14 @@ h1{font-size:20px;margin:6px 0 2px}
 .card h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);margin:0 0 10px;font-weight:600}
 canvas#cv{display:block;margin:0 auto;width:min(100%,calc(var(--ph)*9/16));height:auto;aspect-ratio:9/16;border-radius:12px;background:#000;touch-action:none;cursor:grab;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 canvas#cv.h{width:min(100%,calc(var(--ph)*16/9));aspect-ratio:16/9}
+canvas#cv.l{width:min(100%,calc(var(--ph)*4/5));aspect-ratio:4/5}
 .stick{--ph:36vh;position:sticky;top:0;z-index:30;margin:0 -14px;padding:max(6px,env(safe-area-inset-top)) 14px 8px;background:var(--bg);box-shadow:0 10px 16px -10px rgba(0,0,0,.9)}
 .stick.off{--ph:56vh;position:static;box-shadow:none}
 @supports (height:1dvh){.stick{--ph:36dvh}.stick.off{--ph:56dvh}}
 .stick .card{margin:0;padding:10px}
-.seg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.seg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px}
+.seg button{padding:10px 4px;font-size:13px}
+.sub2{margin:2px 0 12px 12px;padding-left:12px;border-left:2px solid var(--line)}
 .seg button.on{background:#16233d;border-color:var(--acc);color:var(--acc)}
 .hint{font-size:12px;color:var(--mut);text-align:center;margin:6px 0 0}
 .strip{display:flex;gap:8px;overflow-x:auto;padding:2px 0 8px;align-items:center}
@@ -73,13 +76,14 @@ details.sync summary{font-size:13px;color:var(--mut);cursor:pointer;margin-botto
 </head>
 <body>
 <h1>Atelier Réel</h1>
-<p class="sub">Une photo + un texte par diapo → images et vidéo pour Instagram, en vertical (9:16) ou horizontal (16:9).</p>
+<p class="sub">Une photo + un texte par diapo → un seul bouton exporte tout : Instagram, Facebook et LinkedIn, avec le texte du post de chaque réseau.</p>
 
 <div class="stick" id="stick">
   <div class="card">
     <div class="seg">
-      <button id="fV" class="on">▮ Vertical 9:16</button>
-      <button id="fH">▬ Horizontal 16:9</button>
+      <button id="fV" class="on">▮ Insta 9:16</button>
+      <button id="fH">▬ Insta 16:9</button>
+      <button id="fL">▯ 4:5 (FB / LinkedIn)</button>
     </div>
     <canvas id="cv" width="1080" height="1920"></canvas>
   </div>
@@ -199,17 +203,33 @@ details.sync summary{font-size:13px;color:var(--mut);cursor:pointer;margin-botto
 </div>
 
 <div class="card">
+  <h2>Format 4:5 (Facebook et LinkedIn)</h2>
+  <label class="chk"><input type="checkbox" id="guideOn" checked> Afficher les repères de sécurité sur l’aperçu</label>
+  <label class="chk"><input type="checkbox" id="numOn" checked> Numéroter les diapos (1/5) en bas à gauche (export LinkedIn)</label>
+  <p class="hint" style="text-align:left">Les repères (pointillés) marquent les marges à garder libres : LinkedIn recouvre les bords avec les flèches et le compteur du carrousel, et recadre selon l’appareil. Ils ne sont jamais dessinés dans les exports. Pas de sticker « swipe » en 4:5 : les carrousels Facebook et LinkedIn ont déjà leurs flèches.</p>
+</div>
+
+<div class="card">
   <h2>Export</h2>
-  <label class="chk"><input type="checkbox" id="oV" checked> Format vertical 1080×1920</label>
-  <label class="chk"><input type="checkbox" id="oH"> Format horizontal 1920×1080</label>
-  <label class="chk"><input type="checkbox" id="oPng" checked> Images PNG</label>
+  <label class="chk"><input type="checkbox" id="nI" checked> <b>Instagram</b></label>
+  <div class="sub2" id="optI">
+  <label class="chk"><input type="checkbox" id="oV" checked> Vertical 1080×1920</label>
+  <label class="chk"><input type="checkbox" id="oH"> Horizontal 1920×1080</label>
+  <label class="chk"><input type="checkbox" id="oPng" checked> Images PNG (avec sticker « swipe »)</label>
   <label class="chk"><input type="checkbox" id="oVid" checked> Vidéo</label>
   <div class="cols" style="margin-top:8px">
     <div><label class="f" for="dur">Par image (s)</label><input type="number" id="dur" value="3" min="1" max="10" step="0.5" inputmode="decimal"></div>
     <div><label class="f" for="durL">Dernière (s)</label><input type="number" id="durL" value="4" min="1" max="12" step="0.5" inputmode="decimal"></div>
     <div><label class="f" for="fade">Fondu (s)</label><input type="number" id="fade" value="0.4" min="0" max="1.5" step="0.1" inputmode="decimal"></div>
   </div>
-  <div style="margin-top:12px"><button id="go" class="pri big">Générer</button></div>
+  </div>
+  <label class="chk"><input type="checkbox" id="nF" checked> <b>Facebook</b> : images PNG 1080×1350 (4:5)</label>
+  <label class="chk"><input type="checkbox" id="nL" checked> <b>LinkedIn</b></label>
+  <div class="sub2">
+    <label class="chk"><input type="checkbox" id="oPdf" checked> PDF carrousel (1 page par diapo)</label>
+    <label class="chk"><input type="checkbox" id="oLPng"> Images PNG 1080×1350</label>
+  </div>
+  <div style="margin-top:12px"><button id="go" class="pri big">Tout exporter (images, vidéo, PDF et textes)</button></div>
   <div class="bar" id="bar"><div></div></div>
   <p class="msg" id="msg"></p>
   <div id="results"></div>
@@ -217,8 +237,10 @@ details.sync summary{font-size:13px;color:var(--mut);cursor:pointer;margin-botto
 </div>
 
 <div class="card">
-  <h2>Description Instagram</h2>
-  <label class="btn" for="dFile" style="display:block;cursor:pointer">📂 Remplir depuis un fichier Seestar</label>
+  <h2>Description du post</h2>
+  <label class="f" for="dPlat" style="margin-top:0">Réseau</label>
+  <select id="dPlat"><option value="insta">Instagram (long, fiche à emojis)</option><option value="fb">Facebook (comme Instagram, sans mentions)</option><option value="linkedin">LinkedIn (éditorial)</option></select>
+  <label class="btn" for="dFile" style="display:block;cursor:pointer;margin-top:12px">📂 Remplir depuis un fichier Seestar</label>
   <input type="file" id="dFile">
   <p class="hint" style="text-align:left">Seul le nom du fichier est lu (poses, durée, filtre, date, objet).</p>
   <label class="f" for="dObj">Objet photographié</label>
@@ -256,8 +278,14 @@ details.sync summary{font-size:13px;color:var(--mut);cursor:pointer;margin-botto
   </div>
   <div id="dDeepB"><label class="f" for="dPal">Couleurs</label>
     <select id="dPal"><option>RGB naturel</option><option>Bicolore Hα / OIII</option><option>Couleurs retouchées</option><option>Monochrome</option></select></div>
-  <label class="f" for="dMent">Mentions (en plus du fabricant)</label>
-  <input type="text" id="dMent" autocomplete="off" value="@patrick_leal_le_telegramme @letelegramme">
+  <div id="dMentBox">
+    <label class="f" for="dMent">Mentions (en plus du fabricant)</label>
+    <input type="text" id="dMent" autocomplete="off" value="@patrick_leal_le_telegramme @letelegramme">
+  </div>
+  <div id="dPlaceBox" style="display:none">
+    <label class="f" for="dPlace">Lieu de prise de vue (LinkedIn)</label>
+    <input type="text" id="dPlace" autocomplete="off" value="en Bretagne">
+  </div>
   <label class="f" for="dText" style="margin-top:14px">Texte de la description (modifiable)</label>
   <textarea id="dText" spellcheck="false"></textarea>
   <p class="cnt" id="dCount"></p>
@@ -266,6 +294,7 @@ details.sync summary{font-size:13px;color:var(--mut);cursor:pointer;margin-botto
     <button id="dCopy" class="pri" style="flex:2">Copier la description</button>
     <button id="dRegen" style="flex:1">Régénérer</button>
   </div>
+  <p class="hint" id="dLiHint" style="text-align:left;display:none">Dans le post, « @Le Télégramme » n’est qu’un texte une fois collé : dans l’appli LinkedIn, efface-le et retape « @Le Télégramme » pour choisir la page dans la liste, sinon la mention ne sera pas cliquable. Seuls les ~210 premiers caractères s’affichent avant « …voir plus » : l’accroche doit tout porter.</p>
 </div>
 
 <div class="card">
@@ -278,8 +307,10 @@ details.sync summary{font-size:13px;color:var(--mut);cursor:pointer;margin-botto
 (()=>{
 const FORMATS={
   v:{W:1080,H:1920,maxw:910,ty:270,wm:{x:64,y:140,w:96},grad:720,gpad:180,stk:210},
-  h:{W:1920,H:1080,maxw:1500,ty:120,wm:{x:56,y:48,w:84},grad:420,gpad:140,stk:56}
+  h:{W:1920,H:1080,maxw:1500,ty:120,wm:{x:56,y:48,w:84},grad:420,gpad:140,stk:56},
+  l:{W:1080,H:1350,maxw:880,ty:210,wm:{x:80,y:80,w:72},grad:560,gpad:160,stk:0,safe:80,safeB:120}
 };
+let numOverride=null;
 let fmtKey='v',FM=FORMATS.v,W=FM.W,H=FM.H,MAXW=FM.maxw,TEXT_Y=FM.ty;
 function setFmt(k){fmtKey=k;FM=FORMATS[k];W=FM.W;H=FM.H;MAXW=FM.maxw;TEXT_Y=FM.ty}
 const COLORS={blue:'#8cc3ff',gold:'#ffd678',white:'#ffffff'};
@@ -288,8 +319,8 @@ const $=id=>document.getElementById(id);
 const cv=$('cv'),ctx=cv.getContext('2d');
 let slides=[],cur=0,uid=1;
 
-const newFr=()=>({v:{ox:0,oy:0,z:1},h:{ox:0,oy:0,z:1}});
-const newTp=()=>({v:{x:0,y:0},h:{x:0,y:0}});
+const newFr=()=>({v:{ox:0,oy:0,z:1},h:{ox:0,oy:0,z:1},l:{ox:0,oy:0,z:1}});
+const newTp=()=>({v:{x:0,y:0},h:{x:0,y:0},l:{x:0,y:0}});
 function newSlide(){return {id:uid++,img:null,blob:null,saved:false,reuse:null,fr:newFr(),tp:newTp(),wm:true,top:'',kw:'',bottom:'',color:'blue',moon:{on:false,int:60,ext:40,k:100,dx:0,dy:0}}}
 const resetFr=s=>{s.fr=newFr()};
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -499,6 +530,30 @@ function drawSticker(c,s,idx,n,text){
   c.restore();
 }
 
+/* ---------- LinkedIn : numérotation et repères de sécurité ---------- */
+function drawNumber(c,i,n){
+  c.save();
+  c.font=`600 34px ${FONT}`;c.textAlign='left';c.textBaseline='alphabetic';
+  const t=i+'/'+n,x=FM.safe,y=H-FM.safeB-30;
+  c.shadowColor='rgba(0,0,0,.7)';c.shadowBlur=10;
+  c.fillStyle='rgba(255,255,255,.88)';c.fillText(t,x,y);
+  c.restore();
+}
+function drawGuides(c){
+  const m=FM.safe,mb=FM.safeB;
+  c.save();
+  c.lineWidth=3;c.setLineDash([18,12]);
+  c.strokeStyle='rgba(255,214,120,.9)';
+  c.strokeRect(m,m,W-2*m,H-m-mb);               // zone sûre
+  c.fillStyle='rgba(255,214,120,.14)';
+  c.fillRect(0,H/2-110,m,220);c.fillRect(W-m,H/2-110,m,220);   // flèches du carrousel
+  c.fillRect(0,H-mb,W,mb);                       // compteur de pages
+  c.setLineDash([]);
+  c.fillStyle='rgba(255,214,120,.95)';c.font=`600 24px ${FONT}`;c.textAlign='center';c.textBaseline='middle';
+  c.fillText('zone libre : flèches / compteur LinkedIn',W/2,H-mb/2);
+  c.restore();
+}
+
 /* ---------- Boîte du texte (pour le déplacer au doigt) ---------- */
 let showTB=false;
 function textBoxFrom(c,s,L){
@@ -574,8 +629,10 @@ function drawSlide(c,s,preview,stk){
     if(bx){c.save();c.strokeStyle='rgba(255,255,255,.85)';c.lineWidth=3;c.setLineDash([16,10]);
       c.strokeRect(bx.x0,bx.y0,bx.x1-bx.x0,bx.y1-bx.y0);c.restore()}
   }
-  if(stk){const i=slides.indexOf(s);if(i>=0&&i<slides.length-1)drawSticker(c,s,i,slides.length,($('stkText').value||'').trim())}
+  if(stk&&fmtKey!=='l'){const i=slides.indexOf(s);if(i>=0&&i<slides.length-1)drawSticker(c,s,i,slides.length,($('stkText').value||'').trim())}
+  if(fmtKey==='l'&&(numOverride===null?$('numOn').checked:numOverride)&&slides.length>1){const i=slides.indexOf(s);if(i>=0)drawNumber(c,i+1,slides.length)}
   if(s.wm)drawWatermark(c,(+$('wmOp').value)/100);
+  if(preview&&fmtKey==='l'&&$('guideOn').checked)drawGuides(c);
   c.restore();
 }
 
@@ -776,11 +833,12 @@ $('wmAll').onclick=()=>{slides.forEach(s=>s.wm=true);refreshFields();render()};
 $('wmNone').onclick=()=>{slides.forEach(s=>s.wm=false);refreshFields();render()};
 $('stkOn').onchange=render;
 $('stkText').oninput=render;
-$('fV').onclick=()=>useFormat('v');
-$('fH').onclick=()=>useFormat('h');
+$('fV').onclick=()=>{useFormat('v');setPlat('insta')};
+$('fH').onclick=()=>{useFormat('h');setPlat('insta')};
+$('fL').onclick=()=>{useFormat('l');setPlat('linkedin')};
 function useFormat(k){
-  setFmt(k);cv.width=W;cv.height=H;cv.classList.toggle('h',k==='h');
-  $('fV').classList.toggle('on',k==='v');$('fH').classList.toggle('on',k==='h');
+  setFmt(k);cv.width=W;cv.height=H;cv.classList.toggle('h',k==='h');cv.classList.toggle('l',k==='l');
+  $('fV').classList.toggle('on',k==='v');$('fH').classList.toggle('on',k==='h');$('fL').classList.toggle('on',k==='l');
   refreshFields();render();
 }
 function coverRatio(s){ // zoom qui montre la photo entière (bandes noires)
@@ -958,10 +1016,11 @@ const sharedPng=[];
 
 function addResult(blob,name){
   const url=URL.createObjectURL(blob);
-  const isVid=blob.type.startsWith('video');
+  const isVid=blob.type.startsWith('video'),isPdf=blob.type==='application/pdf';
   const div=document.createElement('div');div.className='res';
-  const m=document.createElement(isVid?'video':'img');
-  m.src=url;
+  const m=document.createElement(isPdf?'div':isVid?'video':'img');
+  if(isPdf){m.textContent='📄 PDF carrousel prêt à déposer sur LinkedIn (« Ajouter un document »)';m.style.cssText='font-size:14px;color:#8f9ab8;text-align:center;padding:6px'}
+  else m.src=url;
   if(isVid){m.controls=true;m.playsInline=true;m.muted=true}
   const a=document.createElement('a');a.href=url;a.download=name;a.className='btn';a.textContent='⬇ '+name;
   div.append(m,a);
@@ -1030,52 +1089,110 @@ async function recordVideo(cvs,name){
   addResult(blob,name+'.'+(type.includes('mp4')?'mp4':'webm'));
 }
 
+/* PDF multi-pages écrit à la main : une image JPEG par page, sans bibliothèque */
+async function makePdf(cvs,q){
+  const enc=new TextEncoder(),jpgs=[];
+  for(const c of cvs){const b=await new Promise(r=>c.toBlob(r,'image/jpeg',q||0.93));jpgs.push(new Uint8Array(await b.arrayBuffer()))}
+  const parts=[],offs=[];let len=0;
+  const push=x=>{const u=typeof x==='string'?enc.encode(x):x;parts.push(u);len+=u.length};
+  const obj=(n,fn)=>{offs[n]=len;push(n+' 0 obj\n');fn();push('\nendobj\n')};
+  const n=cvs.length,total=3+3*n;
+  push('%PDF-1.4\n');
+  obj(1,()=>push('<</Type/Catalog/Pages 2 0 R>>'));
+  obj(2,()=>push('<</Type/Pages/Count '+n+'/Kids ['+cvs.map((_,i)=>(3+3*i)+' 0 R').join(' ')+']>>'));
+  cvs.forEach((c,i)=>{
+    const p=3+3*i,w=c.width,h=c.height,ct='q '+w+' 0 0 '+h+' 0 0 cm /Im0 Do Q';
+    obj(p,()=>push('<</Type/Page/Parent 2 0 R/MediaBox [0 0 '+w+' '+h+']/Resources<</XObject<</Im0 '+(p+1)+' 0 R>>>>/Contents '+(p+2)+' 0 R>>'));
+    obj(p+1,()=>{push('<</Type/XObject/Subtype/Image/Width '+w+'/Height '+h+'/ColorSpace/DeviceRGB/BitsPerComponent 8/Filter/DCTDecode/Length '+jpgs[i].length+'>>\nstream\n');push(jpgs[i]);push('\nendstream')});
+    obj(p+2,()=>push('<</Length '+ct.length+'>>\nstream\n'+ct+'\nendstream'));
+  });
+  const xs=len;
+  push('xref\n0 '+total+'\n0000000000 65535 f \n');
+  for(let k=1;k<total;k++)push(String(offs[k]).padStart(10,'0')+' 00000 n \n');
+  push('trailer\n<</Size '+total+'/Root 1 0 R>>\nstartxref\n'+xs+'\n%%EOF');
+  return new Blob(parts,{type:'application/pdf'});
+}
+
+async function copyText(text,btn,label){
+  let ok=false;
+  try{await navigator.clipboard.writeText(text);ok=true}catch(e){}
+  if(!ok){try{const ta=document.createElement('textarea');ta.value=text;ta.style.cssText='position:fixed;opacity:0';document.body.append(ta);ta.select();ok=document.execCommand('copy');ta.remove()}catch(e){}}
+  btn.textContent=ok?'Copié ✔':'Copie impossible : sélectionne le texte à la main';
+  setTimeout(()=>{btn.textContent=label},2200);
+}
+function resHeading(t){const h=document.createElement('h2');h.textContent=t;h.style.cssText='margin:18px 0 4px;color:var(--acc)';$('results').append(h)}
+function shareBtn(files,label){
+  if(files.length>1&&navigator.canShare&&navigator.canShare({files})){
+    const b=document.createElement('button');b.className='big';b.textContent=label;
+    b.onclick=()=>navigator.share({files}).catch(()=>{});$('results').append(b);
+  }
+}
+function textBlock(p,label){
+  const d=document.createElement('div');d.className='res';
+  const ta=document.createElement('textarea');ta.value=getText(p);ta.spellcheck=false;
+  ta.style.cssText='width:100%;min-height:160px;font:inherit;font-size:14px;line-height:1.45;color:var(--txt);background:#0f1424;border:1px solid var(--line);border-radius:10px;padding:10px';
+  const lab='Copier le texte '+label,b=document.createElement('button');b.className='pri';b.textContent=lab;
+  b.onclick=()=>copyText(ta.value,b,lab);
+  d.append(ta,b);$('results').append(d);
+}
+
 $('go').onclick=async()=>{
-  const doPng=$('oPng').checked,doVid=$('oVid').checked;
-  const fmts=['v','h'].filter(k=>$(k==='v'?'oV':'oH').checked);
-  if(!fmts.length){msg('Coche au moins un format.');return}
-  if(!doPng&&!doVid){msg('Coche au moins une sortie.');return}
+  const nI=$('nI').checked,nF=$('nF').checked,nL=$('nL').checked;
+  const doPng=$('oPng').checked,doVid=$('oVid').checked,doPdf=$('oPdf').checked,doLPng=$('oLPng').checked;
+  const iFm=nI?['v','h'].filter(k=>$(k==='v'?'oV':'oH').checked):[];
+  if(!nI&&!nF&&!nL){msg('Coche au moins un réseau.');return}
+  if(nI&&!iFm.length){msg('Instagram : coche au moins un format.');return}
+  if(nI&&!doPng&&!doVid){msg('Instagram : coche les images et/ou la vidéo.');return}
+  if(nL&&!doPdf&&!doLPng){msg('LinkedIn : coche le PDF et/ou les images.');return}
   const miss=slides.findIndex(s=>!getImg(s));
   if(miss>=0){msg(`La diapo ${miss+1} n’a pas de photo.`);cur=miss;refreshAll();return}
-  $('go').disabled=true;$('results').innerHTML='';sharedPng.length=0;
+  $('go').disabled=true;$('results').innerHTML='';
+  const orig0=fmtKey;
   try{
     msg('Préparation…');progress(0);
     await loadFonts();
     // tout est dessiné d’un coup (synchrone) pour ne pas gêner l’aperçu
-    const orig=fmtKey;
-    const wantStk=$('stkOn').checked;
-    const sets=fmts.map(k=>{
-      setFmt(k);
-      const mk=stk=>slides.map(s=>{
-        const c=document.createElement('canvas');c.width=W;c.height=H;
-        drawSlide(c.getContext('2d'),s,false,stk);return c;
-      });
-      const png=doPng?mk(wantStk):null;                       // PNG : avec sticker
-      const vid=doVid?((doPng&&!wantStk)?png:mk(false)):null; // vidéo : jamais de sticker
+    const orig=fmtKey,wantStk=$('stkOn').checked;
+    const draw=(k,stk,num)=>{setFmt(k);numOverride=num;return slides.map(s=>{const c=document.createElement('canvas');c.width=W;c.height=H;drawSlide(c.getContext('2d'),s,false,stk);return c})};
+    const iSets=iFm.map(k=>{
+      const png=doPng?draw(k,wantStk,false):null;                      // PNG : avec sticker
+      const vid=doVid?((doPng&&!wantStk)?png:draw(k,false,false)):null; // vidéo : jamais de sticker
       return {name:k==='v'?'vertical':'horizontal',png,vid};
     });
-    setFmt(orig);
-    if(doPng){
-      const total=sets.reduce((n,x)=>n+x.png.length,0);let done=0;
-      for(const set of sets){
-        for(let i=0;i<set.png.length;i++){
-          const blob=await new Promise(r=>set.png[i].toBlob(r,'image/png'));
-          sharedPng.push(addResult(blob,`reel_${set.name}_${String(i+1).padStart(2,'0')}.png`));
-          progress(++done/total);
-        }
-      }
-      if(sharedPng.length>1&&navigator.canShare&&navigator.canShare({files:sharedPng})){
-        const b=document.createElement('button');b.className='big';b.textContent='Partager toutes les images';
-        b.onclick=()=>navigator.share({files:sharedPng}).catch(()=>{});
-        $('results').prepend(b);
-      }
+    const fbCv=nF?draw('l',false,false):null;
+    const liCv=nL?draw('l',false,$('numOn').checked):null;
+    setFmt(orig);numOverride=null;
+    const pad=n=>String(n).padStart(2,'0'),toBlob=c=>new Promise(r=>c.toBlob(r,'image/png'));
+    let total=0,done=0;
+    iSets.forEach(x=>{if(x.png)total+=x.png.length});
+    if(fbCv)total+=fbCv.length;if(liCv&&doLPng)total+=liCv.length;
+    const pngs=async(cvs,prefix,list)=>{
+      for(let i=0;i<cvs.length;i++){list.push(addResult(await toBlob(cvs[i]),`${prefix}_${pad(i+1)}.png`));progress(total?++done/total:1)}
+    };
+    if(nI){
+      resHeading('Instagram');const files=[];
+      for(const set of iSets)if(set.png)await pngs(set.png,'reel_'+set.name,files);
+      shareBtn(files,'Partager toutes les images Instagram');
+      for(const set of iSets)if(set.vid)await recordVideo(set.vid,'reel_'+set.name);
+      textBlock('insta','Instagram');
     }
-    if(doVid)for(const set of sets)await recordVideo(set.vid,'reel_'+set.name);
+    if(nF){
+      resHeading('Facebook');const files=[];
+      await pngs(fbCv,'facebook',files);
+      shareBtn(files,'Partager toutes les images Facebook');
+      textBlock('fb','Facebook');
+    }
+    if(nL){
+      resHeading('LinkedIn');const files=[];
+      if(doPdf){msg('Création du PDF…');addResult(await makePdf(liCv),'carrousel_linkedin.pdf')}
+      if(doLPng){await pngs(liCv,'linkedin',files);shareBtn(files,'Partager toutes les images LinkedIn')}
+      textBlock('linkedin','LinkedIn');
+    }
     msg('Terminé ✔');
   }catch(err){
     console.error(err);msg('Erreur : '+(err&&err.message?err.message:err));
   }finally{
-    progress(null);$('go').disabled=false;
+    setFmt(orig0);numOverride=null;progress(null);$('go').disabled=false;
   }
 };
 
@@ -1123,8 +1240,8 @@ const DB={
 let ready=false,saveTimer=0;
 function serialize(){
   return {
-    v:1,uid,cur,fmt:fmtKey,wmOp:+$('wmOp').value,stk:{on:$('stkOn').checked,text:$('stkText').value},desc:Object.assign(readDesc(),{text:$('dText').value,dirty:descDirty}),
-    exp:{v:$('oV').checked,h:$('oH').checked,png:$('oPng').checked,vid:$('oVid').checked,dur:$('dur').value,durL:$('durL').value,fade:$('fade').value},
+    v:1,uid,cur,fmt:fmtKey,li:{guide:$('guideOn').checked,num:$('numOn').checked},wmOp:+$('wmOp').value,stk:{on:$('stkOn').checked,text:$('stkText').value},desc:Object.assign(readDesc(),{text:$('dText').value,dirty:descDirty,saved:Object.assign({},saved,{[curPlat]:{t:$('dText').value,d:descDirty}})}),
+    exp:{v:$('oV').checked,h:$('oH').checked,nI:$('nI').checked,nF:$('nF').checked,nL:$('nL').checked,lpng:$('oLPng').checked,pdf:$('oPdf').checked,png:$('oPng').checked,vid:$('oVid').checked,dur:$('dur').value,durL:$('durL').value,fade:$('fade').value},
     slides:slides.map(s=>({id:s.id,reuse:s.reuse,fr:s.fr,tp:s.tp,wm:s.wm,top:s.top,kw:s.kw,bottom:s.bottom,color:s.color,moon:s.moon}))
   };
 }
@@ -1154,8 +1271,8 @@ async function restore(){
   let st=await DB.get('state');
   if(!st||!Array.isArray(st.slides)||!st.slides.length)st=store.get('reel.state',null);
   if(!st||!Array.isArray(st.slides)||!st.slides.length)return false;
-  const mergeFr=f=>({v:Object.assign({ox:0,oy:0,z:1},(f||{}).v),h:Object.assign({ox:0,oy:0,z:1},(f||{}).h)});
-  const mergeTp=f=>({v:Object.assign({x:0,y:0},(f||{}).v),h:Object.assign({x:0,y:0},(f||{}).h)});
+  const mergeFr=f=>({v:Object.assign({ox:0,oy:0,z:1},(f||{}).v),h:Object.assign({ox:0,oy:0,z:1},(f||{}).h),l:Object.assign({ox:0,oy:0,z:1},(f||{}).l)});
+  const mergeTp=f=>({v:Object.assign({x:0,y:0},(f||{}).v),h:Object.assign({x:0,y:0},(f||{}).h),l:Object.assign({x:0,y:0},(f||{}).l)});
   slides=st.slides.map(o=>{
     const s=Object.assign(newSlide(),o);
     s.fr=mergeFr(o.fr);s.tp=mergeTp(o.tp);s.moon=Object.assign({on:false,int:60,ext:40,k:100,dx:0,dy:0},o.moon||{});
@@ -1169,16 +1286,18 @@ async function restore(){
   }));
   cur=clamp(st.cur|0,0,slides.length-1);
   if(st.wmOp){$('wmOp').value=st.wmOp;$('wmOpV').textContent=st.wmOp}
+  if(st.li){$('guideOn').checked=st.li.guide!==false;$('numOn').checked=st.li.num!==false}
   if(st.stk){$('stkOn').checked=st.stk.on!==false;if(typeof st.stk.text==='string')$('stkText').value=st.stk.text}
-  if(st.desc){setDesc(st.desc);descDirty=!!st.desc.dirty;if(descDirty)$('dText').value=st.desc.text||''}
+  if(st.desc){setDesc(st.desc);curPlat=$('dPlat').value;saved=st.desc.saved&&typeof st.desc.saved==='object'?st.desc.saved:{};delete saved[curPlat];descDirty=!!st.desc.dirty;if(descDirty)$('dText').value=st.desc.text||''}
   const e=st.exp||{};
-  if('v' in e)$('oV').checked=!!e.v;if('h' in e)$('oH').checked=!!e.h;
+  if('v' in e)$('oV').checked=!!e.v;if('h' in e)$('oH').checked=!!e.h;if('nI' in e)$('nI').checked=!!e.nI;if('nF' in e)$('nF').checked=!!e.nF;if('nL' in e)$('nL').checked=!!e.nL;if('lpng' in e)$('oLPng').checked=!!e.lpng;if('pdf' in e)$('oPdf').checked=!!e.pdf;
   if('png' in e)$('oPng').checked=!!e.png;if('vid' in e)$('oVid').checked=!!e.vid;
   ['dur','durL','fade'].forEach(k=>{if(e[k]!=null&&e[k]!=='')$(k).value=e[k]});
-  setFmt(st.fmt==='h'?'h':'v');
+  setFmt(st.fmt==='h'||st.fmt==='l'?st.fmt:'v');
   return true;
 }
-['oV','oH','oPng','oVid'].forEach(id=>$(id).addEventListener('change',scheduleSave));
+['oV','oH','nI','nF','nL','oLPng','oPdf','oPng','oVid','guideOn','numOn'].forEach(id=>$(id).addEventListener('change',scheduleSave));
+['guideOn','numOn'].forEach(id=>$(id).addEventListener('change',render));
 ['dur','durL','fade','wmOp'].forEach(id=>$(id).addEventListener('input',scheduleSave));
 window.addEventListener('pagehide',saveNow);
 document.addEventListener('visibilitychange',()=>{if(document.hidden)saveNow()});
@@ -1188,7 +1307,7 @@ $('newProj').onclick=async()=>{
   for(const k of await DB.keys())DB.del(k);
   store.del('reel.state');
   slides=[newSlide()];cur=0;
-  ['dN','dExp','dDate'].forEach(i=>{$(i).value=''});$('dObj').value='M45';descDirty=false;regenDesc();
+  ['dN','dExp','dDate'].forEach(i=>{$(i).value=''});$('dObj').value='M45';saved={};descDirty=false;regenDesc();
   ready=true;useFormat('v');saveNow();
 };
 
@@ -1201,7 +1320,7 @@ const COMMON_TAGS=['#astrophotographie','#astronomie','#deepsky','#ciel','#espac
 const TYPE_INFO={gal:{art:'une galaxie',fem:true},neb:{art:'une nébuleuse',fem:true},amas:{art:'un amas d’étoiles',fem:false},pla:{art:'une nébuleuse planétaire',fem:true},snr:{art:'un rémanent de supernova',fem:false}};
 const normId=s=>String(s||'').replace(/[\s_\-]/g,'').toUpperCase();
 const dObj=key=>DESC_OBJS.find(o=>o.key===key);
-const DIDS={obj:'dObj',phase:'dPhase',cname:'dcName',ctype:'dcType',cdist:'dcDist',ccon:'dcCon',filter:'dFilter',n:'dN',exp:'dExp',date:'dDate',bortle:'dBortle',driz:'dDriz',pal:'dPal',ment:'dMent'};
+const DIDS={obj:'dObj',phase:'dPhase',cname:'dcName',ctype:'dcType',cdist:'dcDist',ccon:'dcCon',filter:'dFilter',n:'dN',exp:'dExp',date:'dDate',bortle:'dBortle',driz:'dDriz',pal:'dPal',ment:'dMent',plat:'dPlat',place:'dPlace'};
 let descDirty=false;
 
 function fillDescSelect(){
@@ -1263,7 +1382,9 @@ function modelTags(){
   return[];
 }
 
-function buildDesc(){
+function buildDesc(p){
+  const v0=readDesc();if(p)v0.plat=p;if(v0.plat==='linkedin')return buildLinkedIn(v0);
+  const fb=v0.plat==='fb';
   const v=readDesc(),N=Math.round(+v.n)||0,E=+String(v.exp).replace(',','.')||0,sec=N*E;
   const moon=v.obj==='lune',custom=v.obj==='autre';
   let o=null,mi=null,ph=null,cat=null,name='';
@@ -1296,7 +1417,7 @@ function buildDesc(){
       const ti=TYPE_INFO[cat],con=v.ccon.trim(),dist=v.cdist.trim();
       distTxt=dist?`environ ${dist} années-lumière`:'';
       out.push(`${name} est ${ti.art}${con?` située dans la constellation ${con}`.replace('située',ti.fem?'située':'situé'):''}${distTxt?`, à ${distTxt} de nous`:''}.`);
-      const slug='#'+name.replace(/[^A-Za-z0-9]/g,'').toLowerCase();
+      const slug='#'+name.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Za-z0-9]/g,'').toLowerCase();
       tags=(slug.length>3?[slug]:[]);
     }else{
       distTxt=o.dist;
@@ -1311,14 +1432,66 @@ function buildDesc(){
   tags=tags.concat(modelTags(),COMMON_TAGS);
   const seen=new Set(),uniq=tags.filter(t=>{const k=t.toLowerCase();if(seen.has(k))return false;seen.add(k);return true}).slice(0,18);
   out.push(uniq.join(' '));
-  const ment=[isSeestar()?'@seestar.official @zwoastro':'',v.ment.trim()].filter(Boolean).join(' ');
+  const ment=fb?'':[isSeestar()?'@seestar.official @zwoastro':'',v.ment.trim()].filter(Boolean).join(' ');
   if(ment)out.push(ment);
+  out.push(fb?PROMO_FB:PROMO_IG);
+  return out.join('\n\n');
+}
+
+/* ---------- Description LinkedIn : ton éditorial, promo « Que voir ce soir » ---------- */
+const ART_LINK='https://www.letelegramme.fr/culture-loisirs/nature/que-voir-dans-le-ciel-ce-soir-7150803.php';
+const PROMO_IG='🔭 Et ce soir, que voir dans le ciel près de chez vous ? La réponse dans notre article quotidien sur letelegramme.fr (lien dans la bio).';
+const PROMO_FB='🔭 Et ce soir, que voir dans le ciel près de chez vous ? La réponse dans notre article quotidien : '+ART_LINK;
+const PROMO_LI='🔭 Et ce soir, que peut-on voir dans le ciel près de chez vous ? La réponse dans notre article quotidien : '+ART_LINK;
+function buildLinkedIn(v){
+  const N=Math.round(+v.n)||0,E=+String(v.exp).replace(',','.')||0,sec=N*E;
+  const moon=v.obj==='lune',custom=v.obj==='autre';
+  let o=null,mi=null,ph=null,cat=null,name='';
+  if(moon){mi=moonInfo(v);ph=MOON_PHASES.find(p=>p.key===mi.key)}
+  else if(custom){cat=v.ctype;name=v.cname.trim()||'Objet du ciel profond'}
+  else{o=dObj(v.obj)||DESC_OBJS[0];cat=o.cat}
+  const out=[],place=(v.place||'').trim();
+  /* accroche : visible avant « voir plus » */
+  if(moon)out.push(`🌙 La Lune, ${ph.nameLc} (${mi.pct} % éclairée), photographiée avec un ${model}.`);
+  else out.push(`✨ ${custom?name:o.title} : ${sec>0?`${durText(sec,false)} de pose avec un ${model}`:`photo faite avec un ${model}`}.`);
+  /* conditions de prise de vue */
+  const cond=[`📷 Conditions de prise de vue : ${cameraLine(v.filter)}.`];
+  if(N&&E)cond.push(`${fmtInt(N)} poses de ${fmtNum(E)} s${sec>0?`, soit ${durText(sec,true)} d’intégration`:''}.`);
+  const dl=v.date?dateLong(v.date):'';
+  cond.push(`${dl?`Prise de vue le ${dl}, `:''}${dl?'s':'S'}ous un ciel Bortle ${v.bortle}${place?' '+place:''}.`);
+  if(!moon&&v.driz)cond.push(`Drizzle ×${v.driz}.`);
+  if(!moon&&v.pal)cond.push(`${v.pal}.`);
+  out.push(cond.join(' '));
+  /* texte sur l’objet */
+  let tags=[];
+  if(moon){
+    ph.p.forEach(t=>out.push(t.replace('{pct}',mi.pct)));
+    out.push('Le saviez-vous ? '+ph.fun);
+    tags=[ph.tags[0],'#Lune'];
+  }else if(custom){
+    const ti=TYPE_INFO[cat],con=v.ccon.trim(),dist=v.cdist.trim();
+    out.push(`${name} est ${ti.art}${con?` ${ti.fem?'située':'situé'} dans la constellation ${con}`:''}${dist?`, à environ ${dist} années-lumière de nous`:''}.`);
+    const slug='#'+name.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Za-z0-9]/g,'');
+    tags=slug.length>3?[slug]:[];
+  }else{
+    o.p.slice(0,2).forEach(t=>out.push(t));
+    out.push('Le saviez-vous ? '+o.fun);
+    tags=o.tags.slice(0,2);
+  }
+  out.push('Photo : Patrick Léal · @Le Télégramme');
+  tags=tags.concat(['#astronomie','#astrophotographie','#Bretagne']);
+  const seen=new Set(),uniq=tags.filter(t=>{const k=t.toLowerCase();if(seen.has(k))return false;seen.add(k);return true}).slice(0,5);
+  out.push(uniq.join(' '));
+  out.push(PROMO_LI);
   return out.join('\n\n');
 }
 
 /* interface */
 function refreshDescUI(){
-  const v=readDesc(),moon=v.obj==='lune';
+  const v=readDesc(),moon=v.obj==='lune',li=v.plat==='linkedin',ig=v.plat==='insta';
+  $('dMentBox').style.display=ig?'block':'none';
+  $('dPlaceBox').style.display=li?'block':'none';
+  $('dLiHint').style.display=li?'block':'none';
   $('dCustom').style.display=v.obj==='autre'?'block':'none';
   $('dMoon').style.display=moon?'block':'none';
   $('dDeepA').style.display=moon?'none':'block';
@@ -1330,19 +1503,32 @@ function refreshDescUI(){
     $('dPhaseInfo').textContent=(mi.auto?'Calculée : ':'Choisie : ')+`${ph.name}, environ ${mi.pct} % éclairée (âge de la Lune : ${mi.age.toFixed(1).replace('.',',')} j)`+(mi.now?' · d’après la date du jour':'')+'. Corrige-la ci-dessus si besoin.';
   }
   const len=[...$('dText').value].length;
-  $('dCount').textContent=`${fmtInt(len)} / 2 200 caractères`;
-  $('dCount').classList.toggle('bad',len>2200);
+  const lim=li?3000:ig?2200:0;
+  $('dCount').textContent=lim?`${fmtInt(len)} / ${fmtInt(lim)} caractères`:`${fmtInt(len)} caractères`;
+  $('dCount').classList.toggle('bad',!!lim&&len>lim);
 }
+let curPlat='insta',saved={};   // saved : texte retouché à la main, réseau par réseau
 function regenDesc(){descDirty=false;$('dText').value=buildDesc();$('dMsg').textContent='';refreshDescUI()}
+function getText(p){return p===curPlat?$('dText').value:(saved[p]&&saved[p].d?saved[p].t:buildDesc(p))}
+function switchPlat(){
+  const np=$('dPlat').value;if(np===curPlat)return;
+  saved[curPlat]={t:$('dText').value,d:descDirty};
+  curPlat=np;const n=saved[np];
+  descDirty=!!(n&&n.d);
+  $('dText').value=descDirty?n.t:buildDesc(np);
+  $('dMsg').textContent='';refreshDescUI();scheduleSave();
+}
 function descChanged(){
   refreshDescUI();
   if(!descDirty)regenDesc();
   else $('dMsg').textContent='Texte modifié à la main : clique sur « Régénérer » pour tenir compte des changements de la fiche.';
   scheduleSave();
 }
-Object.values(DIDS).forEach(id=>{$(id).addEventListener('input',descChanged);$(id).addEventListener('change',descChanged)});
+Object.keys(DIDS).filter(k=>k!=='plat').forEach(k=>{const id=DIDS[k];$(id).addEventListener('input',descChanged);$(id).addEventListener('change',descChanged)});
+$('dPlat').addEventListener('change',switchPlat);
 $('dText').addEventListener('input',()=>{descDirty=true;refreshDescUI();scheduleSave()});
 $('dRegen').onclick=()=>{regenDesc();scheduleSave()};
+function setPlat(p){if($('dPlat').value!==p){$('dPlat').value=p;switchPlat()}}
 $('dCopy').onclick=async()=>{
   const ta=$('dText');let ok=false;
   try{await navigator.clipboard.writeText(ta.value);ok=true}catch(e){}
