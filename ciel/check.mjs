@@ -112,17 +112,48 @@ function titre(region, deps) {
   if (region.score >= 40) return { t: 'Observer les étoiles ce soir : ciel mitigé en Bretagne', sub: '' };
   return { t: 'Observer les étoiles ce soir : ciel couvert en Bretagne', sub: '' };
 }
-function texte(region, deps, lun) {
-  const L = [`🔭 ${region.titre}`];
-  if (region.sousTitre) L.push(region.sousTitre);
-  L.push('');
-  for (const d of deps) {
-    L.push(`${d.etat.p} ${d.nom} : ${d.etat.mot.toLowerCase()}`);
-    L.push(d.villes.map(v => `${v.nom} ${v.etat.p}`).join(' · '));
-    L.push('');
+const ART = {
+  'Finistère': { le: 'Le Finistère', dans: 'dans le Finistère' },
+  'Morbihan': { le: 'Le Morbihan', dans: 'dans le Morbihan' },
+  "Côtes-d'Armor": { le: "Les Côtes-d'Armor", dans: "dans les Côtes-d'Armor", pl: true },
+  'Ille-et-Vilaine': { le: "L'Ille-et-Vilaine", dans: "en Ille-et-Vilaine" }
+};
+const liste = a => a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' et ' + a[a.length - 1];
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+function phraseDep(d, deja = 0) {
+  const A = ART[d.nom] || { le: d.nom, dans: 'en ' + d.nom };
+  const g = { '🟢': [], '🟠': [], '🔴': [] };
+  for (const v of d.villes) g[v.etat.p].push(v.nom);
+  const homogene = [g['🟢'], g['🟠'], g['🔴']].filter(x => x.length).length === 1;
+  const p = d.etat.p;
+  if (homogene) {
+    const vs = liste(d.villes.map(v => v.nom));
+    if (p === '🟢') return `${A.le} ${A.pl ? 'sont bien placées' : 'est bien placé'} ce soir : le ciel s’annonce dégagé à ${vs}.`;
+    if (p === '🟠') return `${cap(A.dans)}, le ciel sera partagé entre nuages et éclaircies à ${vs}.`;
+    return deja ? `Le ciel restera également couvert ${A.dans}, à ${vs}.` : `Malheureusement, le ciel restera couvert ${A.dans}, à ${vs}.`;
   }
-  if (region.meilleureFenetre) L.push(`⏰ Meilleur moment : ${region.meilleureFenetre}`);
-  L.push(`🌙 Lune à ${lun.pct} % (${lun.nom}) — ${lun.gene}.`);
+  const det = [];
+  if (g['🟢'].length) det.push(`dégagé à ${liste(g['🟢'])}`);
+  if (g['🟠'].length) det.push(`partagé à ${liste(g['🟠'])}`);
+  if (g['🔴'].length) det.push(`couvert à ${liste(g['🔴'])}`);
+  const tete = p === '🟢' ? `${A.le} ${A.pl ? 'sont plutôt bien placées' : 'est plutôt bien placé'} ce soir`
+    : p === '🟠' ? `${cap(A.dans)}, le ciel est contrasté ce soir`
+    : `${cap(A.dans)}, le ciel reste couvert dans l’ensemble`;
+  return `${tete} : ${det.join(', ')}.`;
+}
+function fenetreTexte(f) {
+  const m = /^(\d+) h.(\d+) h$/.exec(f || '');
+  if (!m) return null;
+  const fin = +m[2] % 24 === 0 ? 'minuit' : `${+m[2] % 24} h`;
+  return `entre ${m[1]} h et ${fin}`;
+}
+function texte(region, deps, lun) {
+  const L = [`🔭 ${region.titre}`, ''];
+  let nR = 0;
+  for (const d of deps) { L.push(phraseDep(d, nR)); L.push(''); if (d.etat.p === '🔴') nR++; }
+  const f = fenetreTexte(region.meilleureFenetre);
+  if (f) L.push(`Le meilleur moment pour observer : ${f}.`);
+  L.push(`La Lune sera à ${lun.pct} % (${lun.nom}) : ${lun.gene}.`);
   L.push('');
   L.push((region.score >= 65 || deps[0].score >= 75 ? 'Préparez-vous à observer le ciel ce soir ! ' : 'Le ciel s’annonce capricieux : guettez les éclaircies. ') +
     `Pour savoir quoi regarder, rendez-vous dans notre article quotidien : ${CFG.lienArticle}`);
