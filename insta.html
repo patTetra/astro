@@ -102,6 +102,7 @@ details.sync summary{font-size:13px;color:var(--mut);cursor:pointer;margin-botto
   <div class="tools">
     <button id="mvL">◀ Déplacer</button>
     <button id="mvR">Déplacer ▶</button>
+    <button id="dup">⧉ Dupliquer</button>
     <button id="del" class="danger">Supprimer</button>
   </div>
 </div>
@@ -693,6 +694,13 @@ $('prev').onclick=()=>{if(cur>0){cur--;refreshAll()}};
 $('next').onclick=()=>{if(cur<slides.length-1){cur++;refreshAll()}else addSlide()};
 $('mvL').onclick=()=>{if(cur>0){[slides[cur-1],slides[cur]]=[slides[cur],slides[cur-1]];cur--;refreshAll()}};
 $('mvR').onclick=()=>{if(cur<slides.length-1){[slides[cur+1],slides[cur]]=[slides[cur],slides[cur+1]];cur++;refreshAll()}};
+$('dup').onclick=()=>{
+  const s=slides[cur],n=newSlide(),cp=o=>JSON.parse(JSON.stringify(o));
+  Object.assign(n,{top:s.top,kw:s.kw,bottom:s.bottom,color:s.color,wm:s.wm,fr:cp(s.fr),tp:cp(s.tp),moon:cp(s.moon)});
+  // la photo n’est pas recopiée : la copie réutilise celle de l’original (cadrage indépendant)
+  if(s.reuse!=null)n.reuse=s.reuse;else if(s.img)n.reuse=s.id;
+  slides.splice(cur+1,0,n);cur++;refreshAll();
+};
 $('del').onclick=()=>{
   const s=slides[cur];
   if(slides.length===1){slides[0]=newSlide();refreshAll();return}
