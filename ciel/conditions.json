@@ -1,16 +1,16 @@
 {
- "genere": "2026-11-15T11:00:34.111Z",
+ "genere": "2026-11-15T12:13:03.390Z",
  "date": "2026-11-15",
  "fenetre": "21 h – 3 h",
  "seuilAlerte": 75,
  "alerte": false,
  "region": {
-  "score": 18,
+  "score": 17,
   "etat": {
    "mot": "Couvert",
    "p": "🔴"
   },
-  "titre": "Ciel couvert en Bretagne ce soir",
+  "titre": "Observer les étoiles ce soir : ciel couvert en Bretagne",
   "sousTitre": "",
   "meilleureFenetre": "21 h–0 h"
  },
@@ -22,7 +22,7 @@
  "departements": [
   {
    "nom": "Ille-et-Vilaine",
-   "score": 37,
+   "score": 31,
    "etat": {
     "mot": "Couvert",
     "p": "🔴"
@@ -30,27 +30,30 @@
    "villes": [
     {
      "nom": "Saint-Malo",
-     "score": 37,
+     "lat": 48.649,
+     "lon": -2.026,
+     "label": "t",
+     "score": 18,
      "etat": {
       "mot": "Couvert",
       "p": "🔴"
      },
      "meilleureFenetre": "21 h–0 h",
-     "nuages": 69,
-     "rafales": 46,
-     "temperature": 11,
+     "nuages": 88,
+     "rafales": 53,
+     "temperature": 12,
      "heures": [
       {
        "h": 21,
-       "score": 90
+       "score": 69
       },
       {
        "h": 22,
-       "score": 79
+       "score": 0
       },
       {
        "h": 23,
-       "score": 5
+       "score": 0
       },
       {
        "h": 24,
@@ -58,7 +61,7 @@
       },
       {
        "h": 25,
-       "score": 7
+       "score": 29
       },
       {
        "h": 26,
@@ -68,19 +71,22 @@
     },
     {
      "nom": "Rennes",
-     "score": 54,
+     "lat": 48.117,
+     "lon": -1.678,
+     "label": "r",
+     "score": 48,
      "etat": {
       "mot": "Mitigé",
       "p": "🟠"
      },
      "meilleureFenetre": "21 h–0 h",
-     "nuages": 58,
-     "rafales": 39,
+     "nuages": 66,
+     "rafales": 36,
      "temperature": 10,
      "heures": [
       {
        "h": 21,
-       "score": 99
+       "score": 90
       },
       {
        "h": 22,
@@ -88,15 +94,15 @@
       },
       {
        "h": 23,
-       "score": 59
+       "score": 21
       },
       {
        "h": 24,
-       "score": 0
+       "score": 17
       },
       {
        "h": 25,
-       "score": 15
+       "score": 30
       },
       {
        "h": 26,
@@ -106,27 +112,81 @@
     },
     {
      "nom": "Redon",
-     "score": 20,
+     "lat": 47.652,
+     "lon": -2.084,
+     "label": "r",
+     "score": 28,
      "etat": {
       "mot": "Couvert",
       "p": "🔴"
      },
      "meilleureFenetre": "21 h–0 h",
-     "nuages": 94,
-     "rafales": 47,
+     "nuages": 84,
+     "rafales": 42,
      "temperature": 12,
      "heures": [
       {
        "h": 21,
-       "score": 23
+       "score": 90
       },
       {
        "h": 22,
-       "score": 37
+       "score": 0
       },
       {
        "h": 23,
-       "score": 4
+       "score": 0
+      },
+      {
+       "h": 24,
+       "score": 30
+      },
+      {
+       "h": 25,
+       "score": 27
+      },
+      {
+       "h": 26,
+       "score": 15
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "nom": "Morbihan",
+   "score": 17,
+   "etat": {
+    "mot": "Couvert",
+    "p": "🔴"
+   },
+   "villes": [
+    {
+     "nom": "Lorient",
+     "lat": 47.748,
+     "lon": -3.366,
+     "label": "l",
+     "score": 5,
+     "etat": {
+      "mot": "Couvert",
+      "p": "🔴"
+     },
+     "meilleureFenetre": "0 h–3 h",
+     "nuages": 100,
+     "rafales": 50,
+     "temperature": 13,
+     "heures": [
+      {
+       "h": 21,
+       "score": 0
+      },
+      {
+       "h": 22,
+       "score": 0
+      },
+      {
+       "h": 23,
+       "score": 0
       },
       {
        "h": 24,
@@ -134,7 +194,89 @@
       },
       {
        "h": 25,
-       "score": 15
+       "score": 5
+      },
+      {
+       "h": 26,
+       "score": 14
+      }
+     ]
+    },
+    {
+     "nom": "Vannes",
+     "lat": 47.658,
+     "lon": -2.76,
+     "label": "b",
+     "score": 29,
+     "etat": {
+      "mot": "Couvert",
+      "p": "🔴"
+     },
+     "meilleureFenetre": "21 h–0 h",
+     "nuages": 79,
+     "rafales": 45,
+     "temperature": 12,
+     "heures": [
+      {
+       "h": 21,
+       "score": 90
+      },
+      {
+       "h": 22,
+       "score": 31
+      },
+      {
+       "h": 23,
+       "score": 0
+      },
+      {
+       "h": 24,
+       "score": 6
+      },
+      {
+       "h": 25,
+       "score": 13
+      },
+      {
+       "h": 26,
+       "score": 13
+      }
+     ]
+    },
+    {
+     "nom": "Pontivy",
+     "lat": 48.066,
+     "lon": -2.963,
+     "label": "l",
+     "score": 18,
+     "etat": {
+      "mot": "Couvert",
+      "p": "🔴"
+     },
+     "meilleureFenetre": "21 h–0 h",
+     "nuages": 85,
+     "rafales": 36,
+     "temperature": 11,
+     "heures": [
+      {
+       "h": 21,
+       "score": 74
+      },
+      {
+       "h": 22,
+       "score": 0
+      },
+      {
+       "h": 23,
+       "score": 0
+      },
+      {
+       "h": 24,
+       "score": 0
+      },
+      {
+       "h": 25,
+       "score": 2
       },
       {
        "h": 26,
@@ -146,7 +288,7 @@
   },
   {
    "nom": "Côtes-d'Armor",
-   "score": 17,
+   "score": 11,
    "etat": {
     "mot": "Couvert",
     "p": "🔴"
@@ -154,14 +296,17 @@
    "villes": [
     {
      "nom": "Lannion",
-     "score": 3,
+     "lat": 48.732,
+     "lon": -3.459,
+     "label": "t",
+     "score": 0,
      "etat": {
       "mot": "Couvert",
       "p": "🔴"
      },
-     "meilleureFenetre": "21 h–0 h",
+     "meilleureFenetre": "0 h–3 h",
      "nuages": 100,
-     "rafales": 56,
+     "rafales": 62,
      "temperature": 12,
      "heures": [
       {
@@ -171,120 +316,6 @@
       {
        "h": 22,
        "score": 0
-      },
-      {
-       "h": 23,
-       "score": 14
-      },
-      {
-       "h": 24,
-       "score": 0
-      },
-      {
-       "h": 25,
-       "score": 0
-      },
-      {
-       "h": 26,
-       "score": 0
-      }
-     ]
-    },
-    {
-     "nom": "Saint-Brieuc",
-     "score": 24,
-     "etat": {
-      "mot": "Couvert",
-      "p": "🔴"
-     },
-     "meilleureFenetre": "21 h–0 h",
-     "nuages": 82,
-     "rafales": 48,
-     "temperature": 11,
-     "heures": [
-      {
-       "h": 21,
-       "score": 85
-      },
-      {
-       "h": 22,
-       "score": 22
-      },
-      {
-       "h": 23,
-       "score": 0
-      },
-      {
-       "h": 24,
-       "score": 0
-      },
-      {
-       "h": 25,
-       "score": 15
-      },
-      {
-       "h": 26,
-       "score": 0
-      }
-     ]
-    },
-    {
-     "nom": "Dinan",
-     "score": 35,
-     "etat": {
-      "mot": "Couvert",
-      "p": "🔴"
-     },
-     "meilleureFenetre": "21 h–0 h",
-     "nuages": 69,
-     "rafales": 38,
-     "temperature": 10,
-     "heures": [
-      {
-       "h": 21,
-       "score": 74
-      },
-      {
-       "h": 22,
-       "score": 82
-      },
-      {
-       "h": 23,
-       "score": 1
-      },
-      {
-       "h": 24,
-       "score": 0
-      },
-      {
-       "h": 25,
-       "score": 6
-      },
-      {
-       "h": 26,
-       "score": 15
-      }
-     ]
-    },
-    {
-     "nom": "Loudéac",
-     "score": 5,
-     "etat": {
-      "mot": "Couvert",
-      "p": "🔴"
-     },
-     "meilleureFenetre": "21 h–0 h",
-     "nuages": 100,
-     "rafales": 44,
-     "temperature": 10,
-     "heures": [
-      {
-       "h": 21,
-       "score": 18
-      },
-      {
-       "h": 22,
-       "score": 7
       },
       {
        "h": 23,
@@ -303,12 +334,135 @@
        "score": 2
       }
      ]
+    },
+    {
+     "nom": "Saint-Brieuc",
+     "lat": 48.514,
+     "lon": -2.76,
+     "label": "t",
+     "score": 4,
+     "etat": {
+      "mot": "Couvert",
+      "p": "🔴"
+     },
+     "meilleureFenetre": "21 h–0 h",
+     "nuages": 96,
+     "rafales": 47,
+     "temperature": 11,
+     "heures": [
+      {
+       "h": 21,
+       "score": 21
+      },
+      {
+       "h": 22,
+       "score": 0
+      },
+      {
+       "h": 23,
+       "score": 0
+      },
+      {
+       "h": 24,
+       "score": 0
+      },
+      {
+       "h": 25,
+       "score": 0
+      },
+      {
+       "h": 26,
+       "score": 0
+      }
+     ]
+    },
+    {
+     "nom": "Dinan",
+     "lat": 48.455,
+     "lon": -2.05,
+     "label": "r",
+     "score": 20,
+     "etat": {
+      "mot": "Couvert",
+      "p": "🔴"
+     },
+     "meilleureFenetre": "21 h–0 h",
+     "nuages": 82,
+     "rafales": 45,
+     "temperature": 10,
+     "heures": [
+      {
+       "h": 21,
+       "score": 89
+      },
+      {
+       "h": 22,
+       "score": 0
+      },
+      {
+       "h": 23,
+       "score": 8
+      },
+      {
+       "h": 24,
+       "score": 0
+      },
+      {
+       "h": 25,
+       "score": 0
+      },
+      {
+       "h": 26,
+       "score": 0
+      }
+     ]
+    },
+    {
+     "nom": "Loudéac",
+     "lat": 48.178,
+     "lon": -2.755,
+     "label": "r",
+     "score": 18,
+     "etat": {
+      "mot": "Couvert",
+      "p": "🔴"
+     },
+     "meilleureFenetre": "21 h–0 h",
+     "nuages": 88,
+     "rafales": 44,
+     "temperature": 10,
+     "heures": [
+      {
+       "h": 21,
+       "score": 15
+      },
+      {
+       "h": 22,
+       "score": 63
+      },
+      {
+       "h": 23,
+       "score": 0
+      },
+      {
+       "h": 24,
+       "score": 11
+      },
+      {
+       "h": 25,
+       "score": 0
+      },
+      {
+       "h": 26,
+       "score": 2
+      }
+     ]
     }
    ]
   },
   {
    "nom": "Finistère",
-   "score": 10,
+   "score": 7,
    "etat": {
     "mot": "Couvert",
     "p": "🔴"
@@ -316,19 +470,22 @@
    "villes": [
     {
      "nom": "Brest",
-     "score": 5,
+     "lat": 48.39,
+     "lon": -4.486,
+     "label": "l",
+     "score": 3,
      "etat": {
       "mot": "Couvert",
       "p": "🔴"
      },
-     "meilleureFenetre": "0 h–3 h",
+     "meilleureFenetre": "21 h–0 h",
      "nuages": 100,
-     "rafales": 48,
+     "rafales": 50,
      "temperature": 12,
      "heures": [
       {
        "h": 21,
-       "score": 0
+       "score": 14
       },
       {
        "h": 22,
@@ -340,29 +497,32 @@
       },
       {
        "h": 24,
-       "score": 15
+       "score": 0
       },
       {
        "h": 25,
-       "score": 15
+       "score": 0
       },
       {
        "h": 26,
-       "score": 11
+       "score": 0
       }
      ]
     },
     {
      "nom": "Quimper",
-     "score": 8,
+     "lat": 47.996,
+     "lon": -4.102,
+     "label": "l",
+     "score": 10,
      "etat": {
       "mot": "Couvert",
       "p": "🔴"
      },
-     "meilleureFenetre": "21 h–0 h",
-     "nuages": 96,
-     "rafales": 50,
-     "temperature": 13,
+     "meilleureFenetre": "0 h–3 h",
+     "nuages": 87,
+     "rafales": 57,
+     "temperature": 12,
      "heures": [
       {
        "h": 21,
@@ -370,7 +530,7 @@
       },
       {
        "h": 22,
-       "score": 38
+       "score": 15
       },
       {
        "h": 23,
@@ -378,169 +538,48 @@
       },
       {
        "h": 24,
-       "score": 0
+       "score": 23
       },
       {
        "h": 25,
-       "score": 0
+       "score": 15
       },
       {
        "h": 26,
-       "score": 0
+       "score": 15
       }
      ]
     },
     {
      "nom": "Morlaix",
-     "score": 17,
-     "etat": {
-      "mot": "Couvert",
-      "p": "🔴"
-     },
-     "meilleureFenetre": "23 h–2 h",
-     "nuages": 97,
-     "rafales": 42,
-     "temperature": 12,
-     "heures": [
-      {
-       "h": 21,
-       "score": 16
-      },
-      {
-       "h": 22,
-       "score": 0
-      },
-      {
-       "h": 23,
-       "score": 40
-      },
-      {
-       "h": 24,
-       "score": 10
-      },
-      {
-       "h": 25,
-       "score": 17
-      },
-      {
-       "h": 26,
-       "score": 14
-      }
-     ]
-    }
-   ]
-  },
-  {
-   "nom": "Morbihan",
-   "score": 6,
-   "etat": {
-    "mot": "Couvert",
-    "p": "🔴"
-   },
-   "villes": [
-    {
-     "nom": "Lorient",
-     "score": 5,
-     "etat": {
-      "mot": "Couvert",
-      "p": "🔴"
-     },
-     "meilleureFenetre": "0 h–3 h",
-     "nuages": 100,
-     "rafales": 51,
-     "temperature": 13,
-     "heures": [
-      {
-       "h": 21,
-       "score": 0
-      },
-      {
-       "h": 22,
-       "score": 0
-      },
-      {
-       "h": 23,
-       "score": 0
-      },
-      {
-       "h": 24,
-       "score": 6
-      },
-      {
-       "h": 25,
-       "score": 5
-      },
-      {
-       "h": 26,
-       "score": 28
-      }
-     ]
-    },
-    {
-     "nom": "Vannes",
-     "score": 5,
-     "etat": {
-      "mot": "Couvert",
-      "p": "🔴"
-     },
-     "meilleureFenetre": "0 h–3 h",
-     "nuages": 91,
-     "rafales": 52,
-     "temperature": 12,
-     "heures": [
-      {
-       "h": 21,
-       "score": 0
-      },
-      {
-       "h": 22,
-       "score": 0
-      },
-      {
-       "h": 23,
-       "score": 0
-      },
-      {
-       "h": 24,
-       "score": 0
-      },
-      {
-       "h": 25,
-       "score": 11
-      },
-      {
-       "h": 26,
-       "score": 25
-      }
-     ]
-    },
-    {
-     "nom": "Pontivy",
+     "lat": 48.578,
+     "lon": -3.828,
+     "label": "l",
      "score": 7,
      "etat": {
       "mot": "Couvert",
       "p": "🔴"
      },
-     "meilleureFenetre": "21 h–0 h",
-     "nuages": 97,
-     "rafales": 43,
+     "meilleureFenetre": "22 h–1 h",
+     "nuages": 100,
+     "rafales": 42,
      "temperature": 11,
      "heures": [
       {
        "h": 21,
-       "score": 8
+       "score": 0
       },
       {
        "h": 22,
-       "score": 27
+       "score": 0
       },
       {
        "h": 23,
-       "score": 0
+       "score": 27
       },
       {
        "h": 24,
-       "score": 0
+       "score": 2
       },
       {
        "h": 25,
@@ -548,14 +587,14 @@
       },
       {
        "h": 26,
-       "score": 0
+       "score": 6
       }
      ]
     }
    ]
   }
  ],
- "post": "🔭 Ciel couvert en Bretagne ce soir\n\n🔴 Ille-et-Vilaine : couvert\nSaint-Malo 🔴 · Rennes 🟠 · Redon 🔴\n\n🔴 Côtes-d'Armor : couvert\nLannion 🔴 · Saint-Brieuc 🔴 · Dinan 🔴 · Loudéac 🔴\n\n🔴 Finistère : couvert\nBrest 🔴 · Quimper 🔴 · Morlaix 🔴\n\n🔴 Morbihan : couvert\nLorient 🔴 · Vannes 🔴 · Pontivy 🔴\n\n⏰ Meilleur moment : 21 h–0 h\n🌙 Lune à 37 % (premier croissant) — présente, les objets faibles seront moins contrastés.\n\nLe ciel s’annonce capricieux : guettez les éclaircies. Pour savoir quoi regarder, rendez-vous dans notre article quotidien : https://www.letelegramme.fr/culture-loisirs/nature/que-voir-dans-le-ciel-ce-soir-7150803.php\n\n#astronomie #Bretagne #ciel #LeTélégramme",
+ "post": "🔭 Observer les étoiles ce soir : ciel couvert en Bretagne\n\n🔴 Ille-et-Vilaine : couvert\nSaint-Malo 🔴 · Rennes 🟠 · Redon 🔴\n\n🔴 Morbihan : couvert\nLorient 🔴 · Vannes 🔴 · Pontivy 🔴\n\n🔴 Côtes-d'Armor : couvert\nLannion 🔴 · Saint-Brieuc 🔴 · Dinan 🔴 · Loudéac 🔴\n\n🔴 Finistère : couvert\nBrest 🔴 · Quimper 🔴 · Morlaix 🔴\n\n⏰ Meilleur moment : 21 h–0 h\n🌙 Lune à 37 % (premier croissant) — présente, les objets faibles seront moins contrastés.\n\nLe ciel s’annonce capricieux : guettez les éclaircies. Pour savoir quoi regarder, rendez-vous dans notre article quotidien : https://www.letelegramme.fr/culture-loisirs/nature/que-voir-dans-le-ciel-ce-soir-7150803.php\n\n#astronomie #Bretagne #ciel #LeTélégramme",
  "lienArticle": "https://www.letelegramme.fr/culture-loisirs/nature/que-voir-dans-le-ciel-ce-soir-7150803.php",
  "source": "Open-Meteo"
 }
