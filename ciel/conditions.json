@@ -1,5 +1,5 @@
 {
- "genere": "2026-11-15T12:27:47.039Z",
+ "genere": "2026-11-15T12:45:02.969Z",
  "date": "2026-11-15",
  "fenetre": "21 h – 3 h",
  "seuilAlerte": 75,
@@ -33,7 +33,7 @@
      "lat": 48.649,
      "lon": -2.026,
      "label": "t",
-     "score": 18,
+     "score": 16,
      "etat": {
       "mot": "Couvert",
       "p": "🔴"
@@ -61,7 +61,7 @@
       },
       {
        "h": 25,
-       "score": 29
+       "score": 17
       },
       {
        "h": 26,
@@ -594,7 +594,7 @@
    ]
   }
  ],
- "post": "🔭 Observer les étoiles ce soir : ciel couvert en Bretagne\n\nEn Ille-et-Vilaine, le ciel reste couvert dans l’ensemble : partagé à Rennes, couvert à Saint-Malo et Redon.\n\nLe ciel restera également couvert dans le Morbihan, à Lorient, Vannes et Pontivy.\n\nLe ciel restera également couvert dans les Côtes-d'Armor, à Lannion, Saint-Brieuc, Dinan et Loudéac.\n\nLe ciel restera également couvert dans le Finistère, à Brest, Quimper et Morlaix.\n\nLe meilleur moment pour observer : entre 21 h et minuit.\nLa Lune sera à 37 % (premier croissant) : présente, les objets faibles seront moins contrastés.\n\nLe ciel s’annonce capricieux : guettez les éclaircies. Pour savoir quoi regarder, rendez-vous dans notre article quotidien : https://www.letelegramme.fr/culture-loisirs/nature/que-voir-dans-le-ciel-ce-soir-7150803.php\n\n#astronomie #Bretagne #ciel #LeTélégramme",
+ "post": "🔭 Observer les étoiles ce soir : ciel couvert en Bretagne\n\nEn Ille-et-Vilaine, le ciel reste couvert dans l’ensemble : partagé à Rennes, couvert à Saint-Malo et Redon.\n\nLe ciel restera couvert dans le Morbihan, dans les Côtes-d'Armor et dans le Finistère.\n\nLe meilleur moment pour observer : entre 21 h et minuit.\nLa Lune sera à 37 % (premier croissant) : présente, les objets faibles seront moins contrastés.\n\nLe ciel s’annonce capricieux : guettez les éclaircies. Pour savoir quoi regarder, rendez-vous dans notre article quotidien : https://www.letelegramme.fr/culture-loisirs/nature/que-voir-dans-le-ciel-ce-soir-7150803.php\n\n#astronomie #Bretagne #ciel #LeTélégramme",
  "lienArticle": "https://www.letelegramme.fr/culture-loisirs/nature/que-voir-dans-le-ciel-ce-soir-7150803.php",
  "source": "Open-Meteo"
 }
