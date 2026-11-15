@@ -15,17 +15,20 @@
         {
           "nom": "Brest",
           "lat": 48.39,
-          "lon": -4.486
+          "lon": -4.486,
+          "label": "l"
         },
         {
           "nom": "Quimper",
           "lat": 47.996,
-          "lon": -4.102
+          "lon": -4.102,
+          "label": "l"
         },
         {
           "nom": "Morlaix",
           "lat": 48.578,
-          "lon": -3.828
+          "lon": -3.828,
+          "label": "l"
         }
       ]
     },
@@ -35,17 +38,20 @@
         {
           "nom": "Lorient",
           "lat": 47.748,
-          "lon": -3.366
+          "lon": -3.366,
+          "label": "l"
         },
         {
           "nom": "Vannes",
           "lat": 47.658,
-          "lon": -2.76
+          "lon": -2.76,
+          "label": "b"
         },
         {
           "nom": "Pontivy",
           "lat": 48.066,
-          "lon": -2.963
+          "lon": -2.963,
+          "label": "l"
         }
       ]
     },
@@ -55,22 +61,26 @@
         {
           "nom": "Lannion",
           "lat": 48.732,
-          "lon": -3.459
+          "lon": -3.459,
+          "label": "t"
         },
         {
           "nom": "Saint-Brieuc",
           "lat": 48.514,
-          "lon": -2.76
+          "lon": -2.76,
+          "label": "t"
         },
         {
           "nom": "Dinan",
           "lat": 48.455,
-          "lon": -2.05
+          "lon": -2.05,
+          "label": "r"
         },
         {
           "nom": "Loudéac",
           "lat": 48.178,
-          "lon": -2.755
+          "lon": -2.755,
+          "label": "r"
         }
       ]
     },
@@ -80,17 +90,20 @@
         {
           "nom": "Saint-Malo",
           "lat": 48.649,
-          "lon": -2.026
+          "lon": -2.026,
+          "label": "t"
         },
         {
           "nom": "Rennes",
           "lat": 48.117,
-          "lon": -1.678
+          "lon": -1.678,
+          "label": "r"
         },
         {
           "nom": "Redon",
           "lat": 47.652,
-          "lon": -2.084
+          "lon": -2.084,
+          "label": "r"
         }
       ]
     }
