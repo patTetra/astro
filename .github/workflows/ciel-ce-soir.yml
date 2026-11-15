@@ -1,1 +1,36 @@
+name: Ciel ce soir
+
+# 9 h à Paris = 8 h UTC l'hiver, 7 h UTC l'été : deux déclencheurs, le script ne garde que celui de 9 h.
+on:
+  schedule:
+    - cron: '7 7 * * *'
+    - cron: '7 8 * * *'
+  workflow_dispatch:      # lancement manuel : envoie toujours le message Telegram (pour tester)
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ciel-ce-soir
+  cancel-in-progress: false
+
+jobs:
+  ciel:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Prévisions, score et alerte Telegram
+        run: node ciel/check.mjs
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      - name: Enregistrer conditions.json
+        run: |
+          git config user.name "ciel-ce-soir"
+          git config user.email "actions@users.noreply.github.com"
+          git add ciel/conditions.json
+          git diff --cached --quiet || (git commit -m "Ciel ce soir $(date -u +%F)" && git push)
 
