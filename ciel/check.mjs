@@ -113,33 +113,60 @@ function titre(region, deps) {
   return { t: 'Observer les étoiles ce soir : ciel couvert en Bretagne', sub: '' };
 }
 const ART = {
-  'Finistère': { le: 'Le Finistère', dans: 'dans le Finistère' },
-  'Morbihan': { le: 'Le Morbihan', dans: 'dans le Morbihan' },
-  "Côtes-d'Armor": { le: "Les Côtes-d'Armor", dans: "dans les Côtes-d'Armor", pl: true },
-  'Ille-et-Vilaine': { le: "L'Ille-et-Vilaine", dans: "en Ille-et-Vilaine" }
+  'Finistère': { le: 'le Finistère', dans: 'dans le Finistère' },
+  'Morbihan': { le: 'le Morbihan', dans: 'dans le Morbihan' },
+  "Côtes-d'Armor": { le: "les Côtes-d'Armor", dans: "dans les Côtes-d'Armor", pl: true, fem: true },
+  'Ille-et-Vilaine': { le: "l'Ille-et-Vilaine", dans: "en Ille-et-Vilaine" }
 };
+const art = d => ART[d.nom] || { le: d.nom, dans: 'en ' + d.nom };
 const liste = a => a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' et ' + a[a.length - 1];
 const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
-function phraseDep(d, deja = 0) {
-  const A = ART[d.nom] || { le: d.nom, dans: 'en ' + d.nom };
+const groupesVilles = d => {
   const g = { '🟢': [], '🟠': [], '🔴': [] };
   for (const v of d.villes) g[v.etat.p].push(v.nom);
-  const homogene = [g['🟢'], g['🟠'], g['🔴']].filter(x => x.length).length === 1;
-  const p = d.etat.p;
-  if (homogene) {
-    const vs = liste(d.villes.map(v => v.nom));
-    if (p === '🟢') return `${A.le} ${A.pl ? 'sont bien placées' : 'est bien placé'} ce soir : le ciel s’annonce dégagé à ${vs}.`;
-    if (p === '🟠') return `${cap(A.dans)}, le ciel sera partagé entre nuages et éclaircies à ${vs}.`;
-    return deja ? `Le ciel restera également couvert ${A.dans}, à ${vs}.` : `Malheureusement, le ciel restera couvert ${A.dans}, à ${vs}.`;
-  }
-  const det = [];
+  return g;
+};
+const homogene = d => { const g = groupesVilles(d); return [g['🟢'], g['🟠'], g['🔴']].filter(x => x.length).length === 1; };
+function phraseMixte(d) {
+  const A = art(d), g = groupesVilles(d), p = d.etat.p, det = [];
   if (g['🟢'].length) det.push(`dégagé à ${liste(g['🟢'])}`);
   if (g['🟠'].length) det.push(`partagé à ${liste(g['🟠'])}`);
   if (g['🔴'].length) det.push(`couvert à ${liste(g['🔴'])}`);
-  const tete = p === '🟢' ? `${A.le} ${A.pl ? 'sont plutôt bien placées' : 'est plutôt bien placé'} ce soir`
+  const tete = p === '🟢' ? `${cap(A.le)} ${A.pl ? 'sont' : 'est'} plutôt bien placé${A.fem ? 'es' : A.pl ? 's' : ''} ce soir`
     : p === '🟠' ? `${cap(A.dans)}, le ciel est contrasté ce soir`
     : `${cap(A.dans)}, le ciel reste couvert dans l’ensemble`;
   return `${tete} : ${det.join(', ')}.`;
+}
+function phrasesGroupe(p, ds, tous) {
+  const A = ds.map(art), un = ds.length === 1;
+  const villes = un ? ` à ${liste(ds[0].villes.map(v => v.nom))}` : '';
+  if (p === '🟢') {
+    const plur = !un || A[0].pl, fem = A.every(x => x.fem);
+    return `${cap(liste(A.map(x => x.le)))} ${plur ? 'sont' : 'est'} bien placé${fem ? 'es' : plur ? 's' : ''} ce soir : le ciel s’annonce dégagé${villes}.`;
+  }
+  if (p === '🟠') return `${cap(liste(A.map(x => x.dans)))}, le ciel sera partagé entre nuages et éclaircies${villes}.`;
+  return `${tous ? 'Malheureusement, ' : ''}le ciel restera couvert ${liste(A.map(x => x.dans))}${villes ? ',' + villes : ''}.`.replace(/^le/, 'Le');
+}
+function corpsTexte(deps) {
+  const homo = deps.filter(homogene), ps = new Set(homo.map(d => d.etat.p));
+  // tout le monde dans le même état : une seule phrase pour la région
+  if (homo.length === deps.length && ps.size === 1) {
+    const p = deps[0].etat.p;
+    return [p === '🟢' ? 'Bonne nouvelle : le ciel s’annonce dégagé sur toute la Bretagne ce soir.'
+      : p === '🟠' ? 'Le ciel sera partagé entre nuages et éclaircies sur toute la Bretagne ce soir.'
+      : 'Malheureusement, le ciel restera couvert sur toute la Bretagne ce soir.'];
+  }
+  const out = [], vu = new Set();
+  const ordre = ['🟢', '🟠', '🔴'];
+  for (const d of deps) {
+    if (vu.has(d.nom)) continue;
+    if (!homogene(d)) { out.push(phraseMixte(d)); vu.add(d.nom); continue; }
+    const grp = homo.filter(x => x.etat.p === d.etat.p);
+    grp.forEach(x => vu.add(x.nom));
+    out.push({ p: d.etat.p, s: phrasesGroupe(d.etat.p, grp, false) });
+  }
+  // couvert : « Malheureusement » seulement s'il y a aussi de bonnes nouvelles avant
+  return out.map(o => typeof o === 'string' ? o : o.p === '🔴' && out.length > 1 && out.some(x => x.p === '🟢' || x.p === '🟠') ? o.s.replace(/^Le /, 'Malheureusement, le ') : o.s);
 }
 function fenetreTexte(f) {
   const m = /^(\d+) h.(\d+) h$/.exec(f || '');
@@ -149,8 +176,7 @@ function fenetreTexte(f) {
 }
 function texte(region, deps, lun) {
   const L = [`🔭 ${region.titre}`, ''];
-  let nR = 0;
-  for (const d of deps) { L.push(phraseDep(d, nR)); L.push(''); if (d.etat.p === '🔴') nR++; }
+  for (const s of corpsTexte(deps)) { L.push(s); L.push(''); }
   const f = fenetreTexte(region.meilleureFenetre);
   if (f) L.push(`Le meilleur moment pour observer : ${f}.`);
   L.push(`La Lune sera à ${lun.pct} % (${lun.nom}) : ${lun.gene}.`);
