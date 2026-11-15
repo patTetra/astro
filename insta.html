@@ -1085,24 +1085,30 @@ const msg=t=>{$('msg').textContent=t};
 function progress(p){const b=$('bar');b.style.display=p==null?'none':'block';if(p!=null)b.firstElementChild.style.width=Math.round(p*100)+'%'}
 const sharedPng=[];
 
-function addResult(blob,name){
-  const url=URL.createObjectURL(blob);
-  const isVid=blob.type.startsWith('video'),isPdf=blob.type==='application/pdf';
-  const div=document.createElement('div');div.className='res';
-  const m=document.createElement(isPdf?'div':isVid?'video':'img');
-  if(isPdf){m.textContent='📄 PDF carrousel prêt à déposer sur LinkedIn (« Ajouter un document »)';m.style.cssText='font-size:14px;color:#8f9ab8;text-align:center;padding:6px'}
-  else m.src=url;
-  if(isVid){m.controls=true;m.playsInline=true;m.muted=true}
-  const a=document.createElement('a');a.href=url;a.download=name;a.className='btn';a.textContent='⬇ '+name;
-  div.append(m,a);
-  const file=new File([blob],name,{type:blob.type});
-  if(navigator.canShare&&navigator.canShare({files:[file]})){
-    const b=document.createElement('button');b.textContent='Partager / enregistrer';
-    b.onclick=()=>navigator.share({files:[file]}).catch(()=>{});
-    div.append(b);
-  }
-  $('results').append(div);
-  return file;
+const outFiles=[];
+function addResult(blob,name){const f=new File([blob],name,{type:blob.type});outFiles.push(f);return f}
+function downloadAll(files){
+  files.forEach((f,i)=>setTimeout(()=>{
+    const u=URL.createObjectURL(f),a=document.createElement('a');
+    a.href=u;a.download=f.name;document.body.append(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(u),60000);
+  },i*400));
+}
+/* fin d'export : ouvre directement le partage (ou télécharge), sans aperçu */
+async function deliver(){
+  const files=outFiles.slice(),box=$('results');box.innerHTML='';
+  if(!files.length){msg('Rien à exporter.');return}
+  const plural=files.length>1?'s':'';
+  const canShare=!!(navigator.canShare&&navigator.canShare({files}));
+  const again=document.createElement('button');again.className='big';
+  again.textContent=canShare?`Partager / enregistrer ${files.length} fichier${plural}`:`Télécharger à nouveau ${files.length} fichier${plural}`;
+  again.onclick=()=>canShare?navigator.share({files}).catch(()=>{}):downloadAll(files);
+  const list=document.createElement('p');list.className='hint';list.textContent=files.map(f=>f.name).join(' · ');
+  box.append(again,list);
+  if(canShare){
+    try{await navigator.share({files});msg(`Terminé ✔ ${files.length} fichier${plural} envoyé${plural} au partage`)}
+    catch(e){msg(e&&e.name==='AbortError'?'Terminé ✔ Partage annulé : touche le bouton pour le relancer.':'Terminé ✔ Touche le bouton ci-dessous pour partager / enregistrer.')}
+  }else{downloadAll(files);msg(`Terminé ✔ ${files.length} fichier${plural} téléchargé${plural}`)}
 }
 
 async function loadFonts(){
@@ -1191,12 +1197,6 @@ async function copyText(text,btn,label){
   btn.textContent=ok?'Copié ✔':'Copie impossible : sélectionne le texte à la main';
   setTimeout(()=>{btn.textContent=label},2200);
 }
-function shareBtn(files,label){
-  if(files.length>1&&navigator.canShare&&navigator.canShare({files})){
-    const b=document.createElement('button');b.className='big';b.textContent=label;
-    b.onclick=()=>navigator.share({files}).catch(()=>{});$('results').append(b);
-  }
-}
 
 $('go').onclick=async()=>{
   const nI=curNet==='I',nF=curNet==='F',nL=curNet==='L';
@@ -1207,7 +1207,7 @@ $('go').onclick=async()=>{
   if(nL&&!doPdf&&!doLPng&&!doLVid){msg('LinkedIn : coche le PDF, les images et/ou la vidéo.');return}
   const miss=slides.findIndex(s=>!getImg(s));
   if(miss>=0){msg(`La diapo ${miss+1} n’a pas de photo.`);cur=miss;refreshAll();return}
-  $('go').disabled=true;$('results').innerHTML='';
+  $('go').disabled=true;$('results').innerHTML='';outFiles.length=0;
   const orig0=fmtKey;
   try{
     msg('Préparation…');progress(0);
@@ -1234,21 +1234,21 @@ $('go').onclick=async()=>{
     if(nI){
       const files=[];
       for(const set of iSets)if(set.png)await pngs(set.png,'reel_'+set.name,files);
-      shareBtn(files,'Partager toutes les images Instagram');
+      
       for(const set of iSets)if(set.vid)await recordVideo(set.vid,'reel_'+set.name);
     }
     if(nF){
       const files=[];
       await pngs(fbCv,'facebook',files);
-      shareBtn(files,'Partager toutes les images Facebook');
+      
     }
     if(nL){
       const files=[];
       if(doPdf){msg('Création du PDF…');addResult(await makePdf(liCv),'carrousel_linkedin.pdf')}
-      if(doLPng){await pngs(liCv,'linkedin',files);shareBtn(files,'Partager toutes les images LinkedIn')}
+      if(doLPng){await pngs(liCv,'linkedin',files);}
       if(liVid)await recordVideo(liVid,'linkedin_video');
     }
-    msg('Terminé ✔');
+    await deliver();
   }catch(err){
     console.error(err);msg('Erreur : '+(err&&err.message?err.message:err));
   }finally{
