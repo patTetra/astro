@@ -203,8 +203,15 @@ async function telegram(msg) {
 /* ---------- Programme ---------- */
 async function main() {
   const now = parisParts();
-  if (EVENT === 'schedule' && now.hour !== 9) { console.log(`Il est ${now.hour} h à Paris : ce n'est pas l'exécution de 9 h, on s'arrête.`); return; }
   const date = now.date;
+  if (EVENT === 'schedule') {
+    // GitHub peut retarder un déclenchement : on accepte de 9 h à 12 h (heure de Paris), une seule fois par jour.
+    if (now.hour < 9 || now.hour > 12) { console.log(`Il est ${now.hour} h à Paris : hors de la plage 9 h à 12 h, on s'arrête.`); return; }
+    try {
+      const prev = JSON.parse(readFileSync(join(DIR, 'conditions.json'), 'utf8'));
+      if (prev.date === date && prev.notifie) { console.log('Déjà traité aujourd’hui, on s’arrête.'); return; }
+    } catch { /* pas de fichier : on continue */ }
+  }
   const deps = [];
   let erreurs = 0;
   for (const d of CFG.departements) {
@@ -237,7 +244,7 @@ async function main() {
   const lun = lune(date);
   const post = texte(region, deps, lun);
   const alerte = deps[0].score >= CFG.seuilAlerte;
-  const out = { genere: new Date().toISOString(), date, fenetre: `${CFG.fenetre.debut} h – ${hh(CFG.fenetre.fin)}`, seuilAlerte: CFG.seuilAlerte, alerte, region, lune: lun, departements: deps, post, lienArticle: CFG.lienArticle, source: 'Open-Meteo' };
+  const out = { genere: new Date().toISOString(), date, notifie: false, fenetre: `${CFG.fenetre.debut} h – ${hh(CFG.fenetre.fin)}`, seuilAlerte: CFG.seuilAlerte, alerte, region, lune: lun, departements: deps, post, lienArticle: CFG.lienArticle, source: 'Open-Meteo' };
   writeFileSync(join(DIR, 'conditions.json'), JSON.stringify(out, null, 1) + '\n');
   console.log(`Bretagne ${score}/100 (${region.etat.mot}) · ${deps.map(d => `${d.nom} ${d.score}`).join(' · ')} · alerte : ${alerte}${erreurs ? ` · ${erreurs} ville(s) en erreur` : ''}`);
 
@@ -248,5 +255,8 @@ async function main() {
       : `ℹ️ Ciel ce soir : pas de post conseillé (meilleur département : ${deps[0].nom}, ${deps[0].score}/100, seuil ${CFG.seuilAlerte}).`;
     await telegram(`${entete}\n\n— Texte du post (à copier) —\n\n${post}\n\nAtelier : ${CFG.atelierUrl}`);
   }
+  // marqué « traité » seulement si tout s'est bien passé (sinon le déclenchement suivant réessaie)
+  out.notifie = true;
+  writeFileSync(join(DIR, 'conditions.json'), JSON.stringify(out, null, 1) + '\n');
 }
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) main().catch(e => { console.error(e); process.exit(1); });
