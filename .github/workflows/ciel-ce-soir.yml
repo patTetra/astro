@@ -1,10 +1,10 @@
 name: Ciel ce soir
 
-# 9 h à Paris = 8 h UTC l'hiver, 7 h UTC l'été : deux déclencheurs, le script ne garde que celui de 9 h.
+# 9 h à Paris = 8 h UTC l'hiver, 7 h UTC l'été. Quatre déclencheurs (7 h à 10 h UTC) : GitHub peut les retarder
+# ou en sauter un ; le script ne travaille qu'entre 9 h et 12 h (Paris), une seule fois par jour.
 on:
   schedule:
-    - cron: '7 7 * * *'
-    - cron: '7 8 * * *'
+    - cron: '7 7,8,9,10 * * *'
   workflow_dispatch:      # lancement manuel : envoie toujours le message Telegram (pour tester)
 
 permissions:
@@ -28,9 +28,9 @@ jobs:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
       - name: Enregistrer conditions.json
+        if: always()
         run: |
           git config user.name "ciel-ce-soir"
           git config user.email "actions@users.noreply.github.com"
           git add ciel/conditions.json
           git diff --cached --quiet || (git commit -m "Ciel ce soir $(date -u +%F)" && git push)
-
