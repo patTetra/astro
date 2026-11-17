@@ -385,6 +385,7 @@ details.sync summary{font-size:13px;color:var(--mut);cursor:pointer;margin-botto
 <div class="card" data-pg="edit" id="cielCard">
   <h2>Ciel ce soir (Bretagne)</h2>
   <p class="hint" id="cielStatus" style="text-align:left;margin-top:0">Chargement…</p>
+  <a id="cielGh" class="btn" href="https://github.com/PatTetra/astro/actions/workflows/ciel-ce-soir.yml" target="_blank" rel="noopener" style="display:none;margin-bottom:10px">Ouvrir GitHub pour lancer la mise à jour</a>
   <div id="cielList"></div>
   <div class="row" style="margin-top:10px">
     <button id="cielSlide" class="pri" disabled>Créer la diapo</button>
@@ -1842,10 +1843,12 @@ async function loadCiel(){
   }catch(e){
     cielData=null;list.innerHTML='';$('cielSlide').disabled=true;$('cielText').disabled=true;
     st.textContent='Pas encore de prévision disponible (le calcul tourne chaque jour à 9 h ; lance-le une première fois depuis GitHub, onglet Actions).';
+    $('cielGh').style.display='block';
     return;
   }
   const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Paris'}).format(new Date());
-  st.textContent=`${cielData.region.etat.p} ${cielData.region.titre} · ${cielData.region.score}/100`+(cielData.date!==today?` · ⚠ prévision du ${cielData.date}, pas celle d’aujourd’hui`:'');
+  st.textContent=`${cielData.region.etat.p} ${cielData.region.titre} · ${cielData.region.score}/100`+(cielData.date!==today?` · ⚠ prévision du ${cielData.date}, pas celle d’aujourd’hui. « Actualiser » recharge le fichier publié ; si le calcul de 9 h n’a pas tourné, lance-le depuis GitHub (Actions, Run workflow) puis attends une minute.`:'');
+  $('cielGh').style.display=cielData.date!==today?'block':'none';
   list.innerHTML=cielData.departements.map(d=>`<div class="cl"><b>${d.etat.p} ${escH(d.nom)}</b><span>${d.villes.map(v=>escH(v.nom)+' '+v.etat.p).join(' · ')}</span></div>`).join('');
   $('cielSlide').disabled=false;$('cielText').disabled=false;
 }
