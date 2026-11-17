@@ -1,31 +1,32 @@
 {
- "genere": "2026-11-15T12:45:02.969Z",
- "date": "2026-11-15",
+ "genere": "2026-11-17T00:03:46.663Z",
+ "date": "2026-11-17",
+ "notifie": true,
  "fenetre": "21 h – 3 h",
  "seuilAlerte": 75,
  "alerte": false,
  "region": {
-  "score": 17,
+  "score": 26,
   "etat": {
    "mot": "Couvert",
    "p": "🔴"
   },
   "titre": "Observer les étoiles ce soir : ciel couvert en Bretagne",
   "sousTitre": "",
-  "meilleureFenetre": "21 h–0 h"
+  "meilleureFenetre": "22 h–1 h"
  },
  "lune": {
-  "pct": 37,
-  "nom": "premier croissant",
+  "pct": 58,
+  "nom": "premier quartier",
   "gene": "présente, les objets faibles seront moins contrastés"
  },
  "departements": [
   {
    "nom": "Ille-et-Vilaine",
-   "score": 31,
+   "score": 42,
    "etat": {
-    "mot": "Couvert",
-    "p": "🔴"
+    "mot": "Mitigé",
+    "p": "🟠"
    },
    "villes": [
     {
@@ -33,35 +34,35 @@
      "lat": 48.649,
      "lon": -2.026,
      "label": "t",
-     "score": 16,
+     "score": 25,
      "etat": {
       "mot": "Couvert",
       "p": "🔴"
      },
      "meilleureFenetre": "21 h–0 h",
-     "nuages": 88,
-     "rafales": 53,
-     "temperature": 12,
+     "nuages": 84,
+     "rafales": 55,
+     "temperature": 13,
      "heures": [
       {
        "h": 21,
-       "score": 69
+       "score": 52
       },
       {
        "h": 22,
-       "score": 0
+       "score": 19
       },
       {
        "h": 23,
-       "score": 0
+       "score": 48
       },
       {
        "h": 24,
-       "score": 0
+       "score": 5
       },
       {
        "h": 25,
-       "score": 17
+       "score": 0
       },
       {
        "h": 26,
@@ -74,35 +75,35 @@
      "lat": 48.117,
      "lon": -1.678,
      "label": "r",
-     "score": 48,
+     "score": 49,
      "etat": {
       "mot": "Mitigé",
       "p": "🟠"
      },
-     "meilleureFenetre": "21 h–0 h",
-     "nuages": 66,
-     "rafales": 36,
-     "temperature": 10,
+     "meilleureFenetre": "22 h–1 h",
+     "nuages": 55,
+     "rafales": 49,
+     "temperature": 13,
      "heures": [
       {
        "h": 21,
-       "score": 90
+       "score": 36
       },
       {
        "h": 22,
-       "score": 91
+       "score": 55
       },
       {
        "h": 23,
-       "score": 21
+       "score": 90
       },
       {
        "h": 24,
-       "score": 17
+       "score": 83
       },
       {
        "h": 25,
-       "score": 30
+       "score": 6
       },
       {
        "h": 26,
@@ -115,19 +116,70 @@
      "lat": 47.652,
      "lon": -2.084,
      "label": "r",
-     "score": 28,
+     "score": 51,
+     "etat": {
+      "mot": "Mitigé",
+      "p": "🟠"
+     },
+     "meilleureFenetre": "21 h–0 h",
+     "nuages": 47,
+     "rafales": 57,
+     "temperature": 14,
+     "heures": [
+      {
+       "h": 21,
+       "score": 65
+      },
+      {
+       "h": 22,
+       "score": 80
+      },
+      {
+       "h": 23,
+       "score": 80
+      },
+      {
+       "h": 24,
+       "score": 30
+      },
+      {
+       "h": 25,
+       "score": 0
+      },
+      {
+       "h": 26,
+       "score": 0
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "nom": "Morbihan",
+   "score": 28,
+   "etat": {
+    "mot": "Couvert",
+    "p": "🔴"
+   },
+   "villes": [
+    {
+     "nom": "Lorient",
+     "lat": 47.748,
+     "lon": -3.366,
+     "label": "l",
+     "score": 0,
      "etat": {
       "mot": "Couvert",
       "p": "🔴"
      },
      "meilleureFenetre": "21 h–0 h",
-     "nuages": 84,
-     "rafales": 42,
-     "temperature": 12,
+     "nuages": 74,
+     "rafales": 71,
+     "temperature": 14,
      "heures": [
       {
        "h": 21,
-       "score": 90
+       "score": 0
       },
       {
        "h": 22,
@@ -139,22 +191,104 @@
       },
       {
        "h": 24,
-       "score": 30
+       "score": 0
       },
       {
        "h": 25,
-       "score": 27
+       "score": 0
       },
       {
        "h": 26,
-       "score": 15
+       "score": 0
+      }
+     ]
+    },
+    {
+     "nom": "Vannes",
+     "lat": 47.658,
+     "lon": -2.76,
+     "label": "b",
+     "score": 42,
+     "etat": {
+      "mot": "Mitigé",
+      "p": "🟠"
+     },
+     "meilleureFenetre": "21 h–0 h",
+     "nuages": 40,
+     "rafales": 64,
+     "temperature": 14,
+     "heures": [
+      {
+       "h": 21,
+       "score": 42
+      },
+      {
+       "h": 22,
+       "score": 79
+      },
+      {
+       "h": 23,
+       "score": 79
+      },
+      {
+       "h": 24,
+       "score": 0
+      },
+      {
+       "h": 25,
+       "score": 0
+      },
+      {
+       "h": 26,
+       "score": 0
+      }
+     ]
+    },
+    {
+     "nom": "Pontivy",
+     "lat": 48.066,
+     "lon": -2.963,
+     "label": "l",
+     "score": 41,
+     "etat": {
+      "mot": "Mitigé",
+      "p": "🟠"
+     },
+     "meilleureFenetre": "22 h–1 h",
+     "nuages": 40,
+     "rafales": 60,
+     "temperature": 13,
+     "heures": [
+      {
+       "h": 21,
+       "score": 0
+      },
+      {
+       "h": 22,
+       "score": 75
+      },
+      {
+       "h": 23,
+       "score": 78
+      },
+      {
+       "h": 24,
+       "score": 74
+      },
+      {
+       "h": 25,
+       "score": 0
+      },
+      {
+       "h": 26,
+       "score": 0
       }
      ]
     }
    ]
   },
   {
-   "nom": "Morbihan",
+   "nom": "Côtes-d'Armor",
    "score": 17,
    "etat": {
     "mot": "Couvert",
@@ -162,18 +296,18 @@
    },
    "villes": [
     {
-     "nom": "Lorient",
-     "lat": 47.748,
-     "lon": -3.366,
-     "label": "l",
-     "score": 5,
+     "nom": "Lannion",
+     "lat": 48.732,
+     "lon": -3.459,
+     "label": "t",
+     "score": 12,
      "etat": {
       "mot": "Couvert",
       "p": "🔴"
      },
-     "meilleureFenetre": "0 h–3 h",
-     "nuages": 100,
-     "rafales": 50,
+     "meilleureFenetre": "22 h–1 h",
+     "nuages": 80,
+     "rafales": 66,
      "temperature": 13,
      "heures": [
       {
@@ -186,144 +320,11 @@
       },
       {
        "h": 23,
-       "score": 0
+       "score": 30
       },
       {
        "h": 24,
-       "score": 20
-      },
-      {
-       "h": 25,
-       "score": 5
-      },
-      {
-       "h": 26,
-       "score": 14
-      }
-     ]
-    },
-    {
-     "nom": "Vannes",
-     "lat": 47.658,
-     "lon": -2.76,
-     "label": "b",
-     "score": 29,
-     "etat": {
-      "mot": "Couvert",
-      "p": "🔴"
-     },
-     "meilleureFenetre": "21 h–0 h",
-     "nuages": 79,
-     "rafales": 45,
-     "temperature": 12,
-     "heures": [
-      {
-       "h": 21,
-       "score": 90
-      },
-      {
-       "h": 22,
-       "score": 31
-      },
-      {
-       "h": 23,
-       "score": 0
-      },
-      {
-       "h": 24,
-       "score": 6
-      },
-      {
-       "h": 25,
-       "score": 13
-      },
-      {
-       "h": 26,
-       "score": 13
-      }
-     ]
-    },
-    {
-     "nom": "Pontivy",
-     "lat": 48.066,
-     "lon": -2.963,
-     "label": "l",
-     "score": 18,
-     "etat": {
-      "mot": "Couvert",
-      "p": "🔴"
-     },
-     "meilleureFenetre": "21 h–0 h",
-     "nuages": 85,
-     "rafales": 36,
-     "temperature": 11,
-     "heures": [
-      {
-       "h": 21,
-       "score": 74
-      },
-      {
-       "h": 22,
-       "score": 0
-      },
-      {
-       "h": 23,
-       "score": 0
-      },
-      {
-       "h": 24,
-       "score": 0
-      },
-      {
-       "h": 25,
-       "score": 2
-      },
-      {
-       "h": 26,
-       "score": 15
-      }
-     ]
-    }
-   ]
-  },
-  {
-   "nom": "Côtes-d'Armor",
-   "score": 11,
-   "etat": {
-    "mot": "Couvert",
-    "p": "🔴"
-   },
-   "villes": [
-    {
-     "nom": "Lannion",
-     "lat": 48.732,
-     "lon": -3.459,
-     "label": "t",
-     "score": 0,
-     "etat": {
-      "mot": "Couvert",
-      "p": "🔴"
-     },
-     "meilleureFenetre": "0 h–3 h",
-     "nuages": 100,
-     "rafales": 62,
-     "temperature": 12,
-     "heures": [
-      {
-       "h": 21,
-       "score": 0
-      },
-      {
-       "h": 22,
-       "score": 0
-      },
-      {
-       "h": 23,
-       "score": 0
-      },
-      {
-       "h": 24,
-       "score": 0
+       "score": 48
       },
       {
        "h": 25,
@@ -331,7 +332,7 @@
       },
       {
        "h": 26,
-       "score": 2
+       "score": 0
       }
      ]
     },
@@ -340,23 +341,23 @@
      "lat": 48.514,
      "lon": -2.76,
      "label": "t",
-     "score": 4,
+     "score": 22,
      "etat": {
       "mot": "Couvert",
       "p": "🔴"
      },
      "meilleureFenetre": "21 h–0 h",
-     "nuages": 96,
-     "rafales": 47,
-     "temperature": 11,
+     "nuages": 50,
+     "rafales": 61,
+     "temperature": 13,
      "heures": [
       {
        "h": 21,
-       "score": 21
+       "score": 48
       },
       {
        "h": 22,
-       "score": 0
+       "score": 55
       },
       {
        "h": 23,
@@ -386,34 +387,34 @@
       "mot": "Couvert",
       "p": "🔴"
      },
-     "meilleureFenetre": "21 h–0 h",
-     "nuages": 82,
-     "rafales": 45,
-     "temperature": 10,
+     "meilleureFenetre": "0 h–3 h",
+     "nuages": 71,
+     "rafales": 49,
+     "temperature": 12,
      "heures": [
       {
        "h": 21,
-       "score": 89
+       "score": 19
       },
       {
        "h": 22,
-       "score": 0
+       "score": 28
       },
       {
        "h": 23,
-       "score": 8
+       "score": 0
       },
       {
        "h": 24,
-       "score": 0
+       "score": 10
       },
       {
        "h": 25,
-       "score": 0
+       "score": 27
       },
       {
        "h": 26,
-       "score": 0
+       "score": 41
       }
      ]
     },
@@ -422,23 +423,23 @@
      "lat": 48.178,
      "lon": -2.755,
      "label": "r",
-     "score": 18,
+     "score": 15,
      "etat": {
       "mot": "Couvert",
       "p": "🔴"
      },
      "meilleureFenetre": "21 h–0 h",
-     "nuages": 88,
-     "rafales": 44,
-     "temperature": 10,
+     "nuages": 75,
+     "rafales": 54,
+     "temperature": 12,
      "heures": [
       {
        "h": 21,
-       "score": 15
+       "score": 0
       },
       {
        "h": 22,
-       "score": 63
+       "score": 70
       },
       {
        "h": 23,
@@ -446,7 +447,7 @@
       },
       {
        "h": 24,
-       "score": 11
+       "score": 0
       },
       {
        "h": 25,
@@ -454,7 +455,7 @@
       },
       {
        "h": 26,
-       "score": 2
+       "score": 0
       }
      ]
     }
@@ -462,7 +463,7 @@
   },
   {
    "nom": "Finistère",
-   "score": 7,
+   "score": 15,
    "etat": {
     "mot": "Couvert",
     "p": "🔴"
@@ -473,19 +474,19 @@
      "lat": 48.39,
      "lon": -4.486,
      "label": "l",
-     "score": 3,
+     "score": 0,
      "etat": {
       "mot": "Couvert",
       "p": "🔴"
      },
      "meilleureFenetre": "21 h–0 h",
-     "nuages": 100,
-     "rafales": 50,
-     "temperature": 12,
+     "nuages": 66,
+     "rafales": 71,
+     "temperature": 14,
      "heures": [
       {
        "h": 21,
-       "score": 14
+       "score": 0
       },
       {
        "h": 22,
@@ -514,15 +515,15 @@
      "lat": 47.996,
      "lon": -4.102,
      "label": "l",
-     "score": 10,
+     "score": 27,
      "etat": {
       "mot": "Couvert",
       "p": "🔴"
      },
-     "meilleureFenetre": "0 h–3 h",
-     "nuages": 87,
-     "rafales": 57,
-     "temperature": 12,
+     "meilleureFenetre": "22 h–1 h",
+     "nuages": 31,
+     "rafales": 70,
+     "temperature": 14,
      "heures": [
       {
        "h": 21,
@@ -530,23 +531,23 @@
       },
       {
        "h": 22,
-       "score": 15
+       "score": 62
       },
       {
        "h": 23,
-       "score": 0
+       "score": 13
       },
       {
        "h": 24,
-       "score": 23
+       "score": 33
       },
       {
        "h": 25,
-       "score": 15
+       "score": 55
       },
       {
        "h": 26,
-       "score": 15
+       "score": 0
       }
      ]
     },
@@ -555,19 +556,19 @@
      "lat": 48.578,
      "lon": -3.828,
      "label": "l",
-     "score": 7,
+     "score": 17,
      "etat": {
       "mot": "Couvert",
       "p": "🔴"
      },
-     "meilleureFenetre": "22 h–1 h",
-     "nuages": 100,
-     "rafales": 42,
-     "temperature": 11,
+     "meilleureFenetre": "0 h–3 h",
+     "nuages": 44,
+     "rafales": 63,
+     "temperature": 13,
      "heures": [
       {
        "h": 21,
-       "score": 0
+       "score": 5
       },
       {
        "h": 22,
@@ -575,26 +576,26 @@
       },
       {
        "h": 23,
-       "score": 27
-      },
-      {
-       "h": 24,
-       "score": 2
-      },
-      {
-       "h": 25,
        "score": 0
       },
       {
+       "h": 24,
+       "score": 0
+      },
+      {
+       "h": 25,
+       "score": 58
+      },
+      {
        "h": 26,
-       "score": 6
+       "score": 69
       }
      ]
     }
    ]
   }
  ],
- "post": "🔭 Observer les étoiles ce soir : ciel couvert en Bretagne\n\nEn Ille-et-Vilaine, le ciel reste couvert dans l’ensemble : partagé à Rennes, couvert à Saint-Malo et Redon.\n\nLe ciel restera couvert dans le Morbihan, dans les Côtes-d'Armor et dans le Finistère.\n\nLe meilleur moment pour observer : entre 21 h et minuit.\nLa Lune sera à 37 % (premier croissant) : présente, les objets faibles seront moins contrastés.\n\nLe ciel s’annonce capricieux : guettez les éclaircies. Pour savoir quoi regarder, rendez-vous dans notre article quotidien : https://www.letelegramme.fr/culture-loisirs/nature/que-voir-dans-le-ciel-ce-soir-7150803.php\n\n#astronomie #Bretagne #ciel #LeTélégramme",
+ "post": "🔭 Observer les étoiles ce soir : ciel couvert en Bretagne\n\nEn Ille-et-Vilaine, le ciel est contrasté ce soir : partagé à Rennes et Redon, couvert à Saint-Malo.\n\nDans le Morbihan, le ciel reste couvert dans l’ensemble : partagé à Vannes et Pontivy, couvert à Lorient.\n\nLe ciel restera couvert dans les Côtes-d'Armor et dans le Finistère.\n\nLe meilleur moment pour observer : entre 22 h et 1 h.\nLa Lune sera à 58 % (premier quartier) : présente, les objets faibles seront moins contrastés.\n\nLe ciel s’annonce capricieux : guettez les éclaircies. Pour savoir quoi regarder, rendez-vous dans notre article quotidien : https://www.letelegramme.fr/culture-loisirs/nature/que-voir-dans-le-ciel-ce-soir-7150803.php\n\n#astronomie #Bretagne #ciel #LeTélégramme",
  "lienArticle": "https://www.letelegramme.fr/culture-loisirs/nature/que-voir-dans-le-ciel-ce-soir-7150803.php",
  "source": "Open-Meteo"
 }
